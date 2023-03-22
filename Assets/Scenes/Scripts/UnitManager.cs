@@ -4,17 +4,19 @@ using TMPro;
 using System;
 using System.Linq;
 
-public class UnitTypesManager : MonoBehaviour {
-    public static UnitTypesManager Instance {
+public class UnitManager : MonoBehaviour {
+    public static UnitManager Instance {
         get { return _instance; }
     }
-    private static UnitTypesManager _instance;
+    private static UnitManager _instance;
 
     public Dictionary<UnitType, Texture2D> unitTextures = new Dictionary<UnitType, Texture2D>();
-    public GameObject ui;
+    public GameObject spawningUI;
+	public GameObject editorUI;
+	public List<Unit> units = new List<Unit>();
 
     // Use this for initialization
-    void Start() => _instance = GetComponent<UnitTypesManager>();
+    void Start() => _instance = GetComponent<UnitManager>();
 
     // Update is called once per frame
     void Update() {
@@ -23,22 +25,22 @@ public class UnitTypesManager : MonoBehaviour {
 
 
 	internal void PopulateUI() {
-        TMP_Dropdown currentSpawningBottom = ui.transform.Find("SpawningMenu/UnitType").GetComponent<TMP_Dropdown>();
+        TMP_Dropdown currentSpawningBottom = spawningUI.transform.Find("SpawningMenu/UnitType").GetComponent<TMP_Dropdown>();
 		string[] enumNames = Enum.GetNames(typeof(UnitType));
 		currentSpawningBottom.AddOptions(enumNames.ToList());
 
 		//UnitAffiliation set by spawning base affiliation
 		//Equipment is set by sheet per unit setup
-		currentSpawningBottom = ui.transform.Find("SpawningMenu/UnitMobility").GetComponent<TMP_Dropdown>();
+		currentSpawningBottom = spawningUI.transform.Find("SpawningMenu/UnitMobility").GetComponent<TMP_Dropdown>();
 		enumNames = Enum.GetNames(typeof(UnitMobility));
 		currentSpawningBottom.AddOptions(enumNames.ToList());
-		currentSpawningBottom = ui.transform.Find("SpawningMenu/UnitMobilityModifier").GetComponent<TMP_Dropdown>();
+		currentSpawningBottom = spawningUI.transform.Find("SpawningMenu/UnitMobilityModifier").GetComponent<TMP_Dropdown>();
 		enumNames = Enum.GetNames(typeof(UnitMobilityModifier));
 		currentSpawningBottom.AddOptions(enumNames.ToList());
-		currentSpawningBottom = ui.transform.Find("SpawningMenu/UnitTopModifier").GetComponent<TMP_Dropdown>();
+		currentSpawningBottom = spawningUI.transform.Find("SpawningMenu/UnitTopModifier").GetComponent<TMP_Dropdown>();
 		enumNames = Enum.GetNames(typeof(UnitTopModifier));
 		currentSpawningBottom.AddOptions(enumNames.ToList());
-		currentSpawningBottom = ui.transform.Find("SpawningMenu/UnitTier").GetComponent<TMP_Dropdown>();
+		currentSpawningBottom = spawningUI.transform.Find("SpawningMenu/UnitTier").GetComponent<TMP_Dropdown>();
 		enumNames = Enum.GetNames(typeof(UnitTier));
 		currentSpawningBottom.AddOptions(enumNames.ToList());
 		
@@ -50,5 +52,13 @@ public class UnitTypesManager : MonoBehaviour {
 		unitTextures.TryGetValue(type, out output);
 		return output;
     }
+
+	public void ShowMissileRanges(bool show) {
+		foreach (Unit unit in units) {
+			if (unit.unitType == UnitType.SAM) {
+				unit.weaponRange.SetActive(show);
+			}
+		}
+	}
 }
 

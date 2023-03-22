@@ -13,12 +13,13 @@ public class Unit : MonoBehaviour {
 	private string unitName = "";
 	private List<string> unitEquipment = new List<string>();
 	private Texture2D unitIcon;
-	private GameObject range;
-	private GameObject sightRange;
+	public GameObject range { get; internal set; }
+	public GameObject sightRange { get; internal set; }
+	public GameObject weaponRange { get; internal set; }
 
 	// Use this for initialization
 	void Start() {
-		unitIcon = UnitTypesManager.Instance.GetUnitTexture(unitType);
+		unitIcon = UnitManager.Instance.GetUnitTexture(unitType);
 		range = transform.Find("Range").gameObject;
 		sightRange = transform.Find("Sight").gameObject;
 	}
@@ -51,7 +52,7 @@ public class Unit : MonoBehaviour {
 
 	internal void ChangeType(UnitType newType, UnitMobility newMobility, UnitMobilityModifier newBottomModifier, UnitTopModifier newTopModifier) {
 		unitType = newType;
-		UnitTypesManager.Instance.GetUnitTexture(newType);
+		UnitManager.Instance.GetUnitTexture(newType);
 	}
 }
 

@@ -19,21 +19,16 @@ public class ApplicationController : MonoBehaviour {
 	#endregion
 
 	#region Unit management
-	public UnitTypesManager unitManager;
-	private Unit[] units;
+	public UnitManager unitManager;
 	#endregion
 
 	private void Awake() {
 		LoadSettings();
-		units = unitManager.GetComponentsInChildren<Unit>();
-
 	}
 	private void Start() {
 		server.LoadSheet();
 		unitManager.PopulateUI();
 	}
-
-	
 
 	public void Login() {
 		InputP = PasswordManager.HashPassword(InputP);
@@ -77,15 +72,9 @@ public class ApplicationController : MonoBehaviour {
 		if (PlayerPrefs.HasKey("KeepLogin") && PlayerPrefs.GetInt("KeepLogin") == 1) {
 			Input  = PlayerPrefs.GetString("username");
 			InputP = PlayerPrefs.GetString("password");
-
-			string hiddenText = "";
-			for (int i = 0; i < InputP.Length; i++) {
-				hiddenText += '*';
-			}
 			
-
 			login.transform.Find("Username/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = Input;
-			login.transform.Find("Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = hiddenText;
+			login.transform.Find("Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
 			login.transform.Find("Sticky").GetComponent<Toggle>().isOn = true;
 		}
 	}
@@ -99,14 +88,7 @@ public class ApplicationController : MonoBehaviour {
 		mainCamera.speed = newSpeed;
 		PlayerPrefs.SetFloat("CameraSpeed", newSpeed);
 		PlayerPrefs.Save();
-	}
-
-	public void ShowMissileRanges() {
-		foreach (Unit unit in units) {
-			if (unit.unitType == UnitType.SAM) {
-				//unit.switchRange();
-			}
-		}
+		cameraSpeedSliderText.GetComponent<TextFloatAppender>().UpdateText(newSpeed);
 	}
 
 	public void ExitApplication() {
