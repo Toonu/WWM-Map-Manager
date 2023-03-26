@@ -1,8 +1,8 @@
 ﻿using System;
 using TMPro;
 using UnityEngine;
-
-public class Unit : MonoBehaviour {
+namespace Assets.Scripts {
+	public class Unit : MonoBehaviour {
 	public int id;
 	public UnitTier UnitTier { get; private set; }
 
@@ -81,3 +81,4 @@ public class Unit : MonoBehaviour {
 	}
 }
 
+}

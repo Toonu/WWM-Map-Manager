@@ -1,7 +1,11 @@
+using Assets.Scripts;
 using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+
+namespace Assets.Scripts {
+	
 
 public class ApplicationController : MonoBehaviour {
 	#region Settings
@@ -108,4 +112,5 @@ public class ApplicationController : MonoBehaviour {
 		Application.Quit();
 		//EditorApplication.ExitPlaymode();
 	}
+}
 }
