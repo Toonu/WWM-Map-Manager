@@ -27,10 +27,10 @@ public class ApplicationController : MonoBehaviour {
 		}
 		if (PlayerPrefs.HasKey("KeepLogin") && PlayerPrefs.GetInt("KeepLogin") == 1) {
 			username = PlayerPrefs.GetString("username");
-			password = PlayerPrefs.GetString("password");
 
 			login.transform.Find("Username/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = username;
 			login.transform.Find("Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
+			password = PlayerPrefs.GetString("password");
 			login.transform.Find("Sticky").GetComponent<Toggle>().isOn = true;
 		}
 	}
@@ -74,11 +74,15 @@ public class ApplicationController : MonoBehaviour {
 		}
 	}
 
+
+	public void SetPassword(string password) {
+		this.password = PasswordManager.HashPassword(password);
+	}
+
 	/// <summary>
 	/// Logs in the user based on input fields in the settings.
 	/// </summary>
 	public void Login() {
-		password = PasswordManager.HashPassword(password);
 		if (username == "A" && password == server.passwordA) {
 			loggedIn = true;
 			sideEnemy = false;
