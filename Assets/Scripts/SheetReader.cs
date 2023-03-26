@@ -2,6 +2,7 @@
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -27,14 +28,19 @@ public class SheetReader : MonoBehaviour {
 	}
 
 	public IList<IList<object>> GetSheetRange(string sheetNameAndRange) {
-		SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, sheetNameAndRange);
+		try {
+			SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, sheetNameAndRange);
 
-		ValueRange response = request.Execute();
-		IList<IList<object>> values = response.Values;
-		if (values != null && values.Count > 0) {
-			return values;
-		} else {
-			Debug.Log("No data found.");
+			ValueRange response = request.Execute();
+			IList<IList<object>> values = response.Values;
+			if (values != null && values.Count > 0) {
+				return values;
+			} else {
+				Debug.Log("No data found.");
+				return null;
+			}
+		} catch (Exception e) {
+			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
 			return null;
 		}
 	}
@@ -51,13 +57,17 @@ public class SheetReader : MonoBehaviour {
 	}
 
 	public void Initiate() {
-		string path = Application.dataPath + "/sheetData.json";
-		string jsonString = File.ReadAllText(path);
-		SheetData data = JsonUtility.FromJson<SheetData>(jsonString);
+		try {
+			string path = Application.dataPath + "/sheetData.json";
+			string jsonString = File.ReadAllText(path);
+			SheetData data = JsonUtility.FromJson<SheetData>(jsonString);
 
-		serviceAccountID = data.client_email;
-		spreadsheetId = data.spreadsheet_id;
-		private_key = data.private_key;
+			serviceAccountID = data.client_email;
+			spreadsheetId = data.spreadsheet_id;
+			private_key = data.private_key;
+		} catch (Exception e) {
+			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
+		}
 	}
 }
 

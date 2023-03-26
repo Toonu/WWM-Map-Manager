@@ -1,8 +1,12 @@
 using System.Collections;
 using UnityEngine;
+using TMPro;
 
 public class Popup : MonoBehaviour {
-	public void PopUp(float duration = 1.75f) {
+	public TextMeshProUGUI UI;
+
+	public void PopUp(string title = "Saved!", float duration = 1.75f) {
+		UI.text = title;
 		gameObject.SetActive(true);
 		StartCoroutine(Begone(duration));
 	}

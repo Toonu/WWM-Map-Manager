@@ -8,7 +8,7 @@ public class ApplicationController : MonoBehaviour {
 	public Slider cameraSpeedSlider;
 	public TextMeshProUGUI cameraSpeedSliderText;
 	public CameraController mainCamera;
-	public static TextMeshProUGUI generalPopup;
+	public Popup generalPopup;
 	public GameObject login;
 	public SheetSync server;
 	public string username { private get; set; }
@@ -103,10 +103,10 @@ public class ApplicationController : MonoBehaviour {
 		}
 		//Do when user logs in
 		if (loggedIn) {
-			transform.Find("UI/LoginPopup").gameObject.GetComponent<Popup>().PopUp();
+			generalPopup.PopUp("Logged In!");
 			UnitManager.Instance.SwitchSide(sideEnemy);
 		} else {
-			transform.Find("UI/ErrorPopup").gameObject.GetComponent<Popup>().PopUp();
+			generalPopup.PopUp("Error!");
 		}
 	}
 

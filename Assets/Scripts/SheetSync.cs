@@ -1,10 +1,12 @@
+using Google.Apis.Sheets.v4.Data;
+using Google.Apis.Sheets.v4;
 using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class SheetSync : MonoBehaviour {
-	public TextMeshProUGUI savedPopup;
+	public Popup generalPopup;
 	private IList<IList<object>> sheetData = new List<IList<object>>();
 	private SheetReader ss;
 	private int unitWidth;
@@ -22,9 +24,10 @@ public class SheetSync : MonoBehaviour {
 	public void SaveSheet() {
 		if (unitWidth != 0) {
 			Debug.Log($"SheetLength:{unitWidth}");
+			generalPopup.PopUp("Saved!");
 			SaveSheet(bottomRight: GetLocation(unitWidth));
 		} else {
-			savedPopup.text = "No data to save";
+			generalPopup.PopUp("No Data to Save!", 2.2f);
 		}
 	}
 
@@ -36,14 +39,20 @@ public class SheetSync : MonoBehaviour {
 		IList<IList<object>> data = ss.GetSheetRange("Data!A1:K");
 		IList<IList<object>> sheetConfiguration = ss.GetSheetRange("Configuration!C1:C");
 
-		unitWidth = Convert.ToInt16(sheetConfiguration[1][0]);
-		baseWidth = Convert.ToInt16(sheetConfiguration[2][0]);
+		try {
+			unitWidth = Convert.ToInt16(sheetConfiguration[1][0]);
+			baseWidth = Convert.ToInt16(sheetConfiguration[2][0]);
 
-		passwordA = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
-		passwordB = PasswordManager.HashPassword(sheetConfiguration[4][0].ToString());
-		passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[5][0].ToString());
-		pointsA = Convert.ToInt16(sheetConfiguration[6][0].ToString());
-		pointsB = Convert.ToInt16(sheetConfiguration[7][0].ToString());
+			passwordA = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
+			passwordB = PasswordManager.HashPassword(sheetConfiguration[4][0].ToString());
+			passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[5][0].ToString());
+			pointsA = Convert.ToInt16(sheetConfiguration[6][0].ToString());
+			pointsB = Convert.ToInt16(sheetConfiguration[7][0].ToString());
+		} catch (Exception e) {
+			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
+		}
+		
+		
 
 		for (int i = 0; i < data.Count; i++) {
 			sheetData.Add(new List<object>());
