@@ -5,16 +5,16 @@ using UnityEngine;
 
 namespace Assets.Scripts {
 	public class SheetSync : MonoBehaviour {
-		public TextMeshProUGUI savedPopup;
-		private IList<IList<object>> sheetData = new List<IList<object>>();
-		private SheetReader ss;
-		private int unitWidth;
 		private int baseWidth;
 		internal string passwordA;
-		internal string passwordB;
 		internal string passwordAdmin;
-		internal int pointsA = 0;
-		internal int pointsB = 0;
+		internal string passwordB;
+		internal int pointsA;
+		internal int pointsB;
+		public TextMeshProUGUI savedPopup;
+		private readonly IList<IList<object>> sheetData = new List<IList<object>>();
+		private SheetReader ss;
+		private int unitWidth;
 
 		private void Awake() {
 			ss = GetComponent<SheetReader>();
@@ -35,8 +35,8 @@ namespace Assets.Scripts {
 		}
 
 		public void LoadSheet() {
-			IList<IList<object>> data = ss.GetSheetRange("Data!A1:K");
-			IList<IList<object>> sheetConfiguration = ss.GetSheetRange("Configuration!C1:C");
+			var data = ss.GetSheetRange("Data!A1:K");
+			var sheetConfiguration = ss.GetSheetRange("Configuration!C1:C");
 
 			unitWidth = Convert.ToInt16(sheetConfiguration[1][0]);
 			baseWidth = Convert.ToInt16(sheetConfiguration[2][0]);
@@ -47,19 +47,15 @@ namespace Assets.Scripts {
 			pointsA = Convert.ToInt16(sheetConfiguration[6][0].ToString());
 			pointsB = Convert.ToInt16(sheetConfiguration[7][0].ToString());
 
-			for (int i = 0; i < data.Count; i++) {
+			for (var i = 0; i < data.Count; i++) {
 				sheetData.Add(new List<object>());
-				for (int j = 0; j < unitWidth; j++) {
-					sheetData[i].Add("");
-				}
+				for (var j = 0; j < unitWidth; j++) sheetData[i].Add("");
 			}
 
-			for (int i = 0; i < data.Count; i++) {
-				IList<object> row = data[i];
+			for (var i = 0; i < data.Count; i++) {
+				var row = data[i];
 
-				for (int j = 0; j < row.Count; j++) {
-					sheetData[i][j] = row[j];
-				}
+				for (var j = 0; j < row.Count; j++) sheetData[i][j] = row[j];
 			}
 
 			SetData(5, 5, "Test");
@@ -76,24 +72,20 @@ namespace Assets.Scripts {
 		}
 
 		private void PrintData(bool showEmpty = false) {
-			for (int i = 0; i < sheetData.Count; i++) {
-				IList<object> row = sheetData[i];
-				for (int j = 0; j < row.Count; j++) {
-					if (showEmpty) {
-						Debug.Log(i + ":" + j + " " + row[j].ToString());
-					}
-					else if (row[j].ToString() != "") {
-						Debug.Log(i + ":" + j + " " + row[j].ToString());
-					}
-				}
+			for (var i = 0; i < sheetData.Count; i++) {
+				var row = sheetData[i];
+				for (var j = 0; j < row.Count; j++)
+					if (showEmpty)
+						Debug.Log(i + ":" + j + " " + row[j]);
+					else if (row[j].ToString() != "") Debug.Log(i + ":" + j + " " + row[j]);
 			}
 		}
 
 		private string GetLocation(int x) {
 			x++;
-			string column = "";
+			var column = "";
 			while (x > 0) {
-				int modulo = (x - 1) % 26;
+				var modulo = (x - 1) % 26;
 				column = (char)(65 + modulo) + column;
 				x = (x - modulo) / 26; // calculate the new x value
 			}
@@ -102,8 +94,8 @@ namespace Assets.Scripts {
 		}
 
 		private int GetLocation(string location) {
-			int result = 0;
-			foreach (char c in location) {
+			var result = 0;
+			foreach (var c in location) {
 				result *= 26;
 				result += c - 64;
 			}
