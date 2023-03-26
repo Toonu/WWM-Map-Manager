@@ -62,10 +62,10 @@ public class ApplicationController : MonoBehaviour {
 	private void Update() {
 		if (deletingMenus && Input.GetKeyUp(KeyCode.Mouse0)) {
 			Transform ui = transform.GetChild(0);
-			
+
 			for (int i = 0; i < ui.childCount; i++) {
 				Transform child = ui.GetChild(i);
-				
+
 				if (child.name == "ContextMenu(Clone)") {
 					Destroy(child.gameObject);
 				}

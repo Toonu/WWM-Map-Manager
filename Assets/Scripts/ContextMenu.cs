@@ -37,7 +37,7 @@ public class ContextMenu : MonoBehaviour {
 
 	public void CreateContextMenu(List<ContextMenuItem> items, Vector3 position) {
 		// here we are creating and displaying Context Menu
-		position -= new Vector3(0.15f*position.x, 0.15f*position.y,0);
+		position -= new Vector3(0.15f * position.x, 0.15f * position.y, 0);
 		position = new Vector3(Mathf.Clamp(position.x, 75, Screen.width - 560), Mathf.Clamp(position.y, 50, Screen.height - 320));
 		Image panel = Instantiate(contentPanel, position, Quaternion.identity);
 		panel.transform.SetParent(canvas.transform);

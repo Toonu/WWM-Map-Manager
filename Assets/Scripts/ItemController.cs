@@ -19,8 +19,8 @@ public class ItemController : MonoBehaviour {
 		Action<Image> reset = new Action<Image>(ResetAction);
 		Action<Image> softReset = new Action<Image>(SoftResetAction);
 
-		
-		
+
+
 		contextMenuItems.Add(new ContextMenuItem("Reset", sampleButton, reset));
 		contextMenuItems.Add(new ContextMenuItem("Spawn", sampleButton, spawn));
 		contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
@@ -54,6 +54,7 @@ public class ItemController : MonoBehaviour {
 	void DeleteAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		if (GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin) {
+			UnitManager.Instance.Despawn(gameObject);
 			Destroy(gameObject);
 		}
 	}

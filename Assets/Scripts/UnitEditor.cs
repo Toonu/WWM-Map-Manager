@@ -21,12 +21,12 @@ public class UnitEditor : MonoBehaviour {
 			groundUnit.ChangeSpecialization((GroundSpecialization)i);
 			break;
 		}
-		
+
 	}
 	public void UpdateMovementModifier(int i) {
 		GroundMovementType movementModifier = (GroundMovementType)i;
 		groundUnit.ChangeSpecialization(movementModifier);
-		
+
 	}
 	public void UpdateTransportModifier(int i) {
 		GroundTransportType transportModifier = (GroundTransportType)i;

@@ -43,7 +43,7 @@ public class SheetSync : MonoBehaviour {
 		passwordB = PasswordManager.HashPassword(sheetConfiguration[4][0].ToString());
 		passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[5][0].ToString());
 		pointsA = Convert.ToInt16(sheetConfiguration[6][0].ToString());
-		pointsB	= Convert.ToInt16(sheetConfiguration[7][0].ToString());
+		pointsB = Convert.ToInt16(sheetConfiguration[7][0].ToString());
 
 		for (int i = 0; i < data.Count; i++) {
 			sheetData.Add(new List<object>());

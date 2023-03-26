@@ -11,7 +11,7 @@ public class Unit : MonoBehaviour {
 	public GameObject range;
 	public GameObject sightRange;
 	public GameObject weaponRange;
-	
+
 	internal TextMeshProUGUI unitName;
 	internal TextMeshProUGUI tier;
 	protected bool enemy;
@@ -33,7 +33,7 @@ public class Unit : MonoBehaviour {
 		turnStartPosition = position;
 
 		ChangeTier(Convert.ToInt16(unitTier));
-		ChangeName(unitTier >= UnitTier.Corps ? UnitManager.Instance.getCorps(unitName) : unitName);
+		ChangeName(unitTier >= UnitTier.Corps ? UnitManager.Instance.GetCorps(unitName) : unitName);
 
 	}
 

@@ -1,6 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -31,7 +29,7 @@ public class GroundUnit : Unit {
 		ChangeSpecialization(specialization);
 		ChangeSpecialization(movementModifier);
 		ChangeSpecialization(transportModifier);
-		
+
 
 		if (higherUnit != null) {
 			parentUnit = higherUnit;
@@ -41,7 +39,7 @@ public class GroundUnit : Unit {
 		if (unitEquipment != null) {
 			this.unitEquipment = unitEquipment;
 		}
-		
+
 	}
 
 	private void OnMouseOver() {

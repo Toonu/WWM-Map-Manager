@@ -1,6 +1,4 @@
-﻿
-using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class UnitConstructor : MonoBehaviour {
 
@@ -37,6 +35,6 @@ public class UnitConstructor : MonoBehaviour {
 
 
 	public void Spawn() {
-		UnitManager.Instance.SpawnUnit(new Vector3(basePosition.x , basePosition.y, basePosition.z), domain, specialization, movementModifier, transportModifier, tier, identification);
+		UnitManager.Instance.SpawnUnit(new Vector3(basePosition.x, basePosition.y, basePosition.z), domain, specialization, movementModifier, transportModifier, tier, identification);
 	}
 }

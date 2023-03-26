@@ -14,12 +14,12 @@ public enum GroundSpecialization {
 	None = 0, HQ = 1, Infantry = 2, Armoured = 3, Reconnaissance = 4, AT = 5, ATM = 6, AA = 7, SAM = 8, SPG = 9, MLRS = 10
 }
 
-public enum GroundMovementType { 
+public enum GroundMovementType {
 	None = 0, Motorized = 1, Mechanized = 2, Wheeled = 3
 }
 
 public enum GroundTransportType {
-	None = 0, Airborne = 1,	AirAssault = 2, Amphibious = 3, Marine = 4
+	None = 0, Airborne = 1, AirAssault = 2, Amphibious = 3, Marine = 4
 }
 
 public enum BaseType {
@@ -34,7 +34,7 @@ public enum UnitTier {
 	Company = 4,
 	Battalion = 5,
 	Regiment = 6,
-	Brigade	= 7,
+	Brigade = 7,
 	Division = 8,
 	Corps = 9,
 	Army = 10,
