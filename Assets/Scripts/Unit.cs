@@ -74,10 +74,11 @@ namespace Assets.Scripts {
 
 	internal void ChangeName(string identification) {
 		unitName.text = identification;
+		name = identification;
 	}
 
-	internal void ChangeTier(int i) {
-		tier.text = UnitManager.Instance.GetUnitTier(i);
+	internal void ChangeTier(int echelon) {
+		tier.text = UnitManager.Instance.GetUnitTier(echelon);
 	}
 }
 

@@ -19,7 +19,7 @@ public class ApplicationController : MonoBehaviour {
 	public string password { private get; set; }
 	internal bool loggedIn = false;
 	internal bool admin = false;
-	private bool side = false;
+	private bool sideEnemy = false;
 	internal bool deletingMenus = false;
 
 	public void LoadSettings() {
@@ -85,13 +85,15 @@ public class ApplicationController : MonoBehaviour {
 		password = PasswordManager.HashPassword(password);
 		if (username == "A" && password == server.passwordA) {
 			loggedIn = true;
+			sideEnemy = false;
 			admin = false;
 		} else if (username == "B" && password == server.passwordB) {
 			loggedIn = true;
-			side = true;
+			sideEnemy = true;
 			admin = false;
 		} else if (username == "Admin" && password == server.passwordAdmin) {
 			loggedIn = true;
+			sideEnemy = false;
 			admin = true;
 		}
 		//Saving credentials to registry
@@ -102,7 +104,7 @@ public class ApplicationController : MonoBehaviour {
 		//Do when user logs in
 		if (loggedIn) {
 			transform.Find("UI/LoginPopup").gameObject.GetComponent<Popup>().PopUp();
-			UnitManager.Instance.SwitchSide(side);
+			UnitManager.Instance.SwitchSide(sideEnemy);
 		} else {
 			transform.Find("UI/ErrorPopup").gameObject.GetComponent<Popup>().PopUp();
 		}
