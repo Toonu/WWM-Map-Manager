@@ -19,7 +19,6 @@ public class CameraController : MonoBehaviour {
 		map.GetComponent<Renderer>().material.mainTexture = loadedMap;
 		mapMin = map.GetComponent<Renderer>().bounds.min;
 		mapMax = map.GetComponent<Renderer>().bounds.max;
-		//Debug.Log(mapMin + " " + mapMax);
 	}
 
 	void LateUpdate() {
