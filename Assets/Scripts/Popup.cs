@@ -1,16 +1,18 @@
 using System.Collections;
 using UnityEngine;
+using TMPro;
 
-namespace Assets.Scripts {
-	public class Popup : MonoBehaviour {
-		public void PopUp(float duration = 1.75f) {
-			gameObject.SetActive(true);
-			StartCoroutine(Begone(duration));
-		}
+public class Popup : MonoBehaviour {
+	public TextMeshProUGUI UI;
 
-		private IEnumerator Begone(float duration) {
-			yield return new WaitForSeconds(duration);
-			gameObject.SetActive(false);
-		}
+	public void PopUp(string title = "Saved!", float duration = 1.75f) {
+		UI.text = title;
+		gameObject.SetActive(true);
+		StartCoroutine(Begone(duration));
+	}
+
+	private IEnumerator Begone(float duration) {
+		yield return new WaitForSeconds(duration);
+		gameObject.SetActive(false);
 	}
 }

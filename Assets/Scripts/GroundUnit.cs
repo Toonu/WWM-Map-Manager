@@ -42,12 +42,12 @@ public class GroundUnit : Unit {
 
 	}
 
-	private void OnMouseOver() {
+	private new void OnMouseOver() {
 		equipment.gameObject.SetActive(true);
 		base.OnMouseOver();
 	}
 
-	private void OnMouseExit() {
+	private new void OnMouseExit() {
 		equipment.gameObject.SetActive(false);
 		base.OnMouseExit();
 	}

@@ -12,7 +12,7 @@ public class ApplicationController : MonoBehaviour {
 	public Slider cameraSpeedSlider;
 	public TextMeshProUGUI cameraSpeedSliderText;
 	public CameraController mainCamera;
-	public static TextMeshProUGUI generalPopup;
+	public Popup generalPopup;
 	public GameObject login;
 	public SheetSync server;
 	public string username { private get; set; }
@@ -31,10 +31,10 @@ public class ApplicationController : MonoBehaviour {
 		}
 		if (PlayerPrefs.HasKey("KeepLogin") && PlayerPrefs.GetInt("KeepLogin") == 1) {
 			username = PlayerPrefs.GetString("username");
-			password = PlayerPrefs.GetString("password");
 
 			login.transform.Find("Username/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = username;
 			login.transform.Find("Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
+			password = PlayerPrefs.GetString("password");
 			login.transform.Find("Sticky").GetComponent<Toggle>().isOn = true;
 		}
 	}
@@ -78,11 +78,15 @@ public class ApplicationController : MonoBehaviour {
 		}
 	}
 
+
+	public void SetPassword(string password) {
+		this.password = PasswordManager.HashPassword(password);
+	}
+
 	/// <summary>
 	/// Logs in the user based on input fields in the settings.
 	/// </summary>
 	public void Login() {
-		password = PasswordManager.HashPassword(password);
 		if (username == "A" && password == server.passwordA) {
 			loggedIn = true;
 			sideEnemy = false;
@@ -103,10 +107,10 @@ public class ApplicationController : MonoBehaviour {
 		}
 		//Do when user logs in
 		if (loggedIn) {
-			transform.Find("UI/LoginPopup").gameObject.GetComponent<Popup>().PopUp();
+			generalPopup.PopUp("Logged In!");
 			UnitManager.Instance.SwitchSide(sideEnemy);
 		} else {
-			transform.Find("UI/ErrorPopup").gameObject.GetComponent<Popup>().PopUp();
+			generalPopup.PopUp("Error!");
 		}
 	}
 
