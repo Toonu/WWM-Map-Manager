@@ -14,7 +14,7 @@ public class Unit : MonoBehaviour {
 
 	internal TextMeshProUGUI unitName;
 	internal TextMeshProUGUI tier;
-	protected bool enemy;
+	internal bool enemySide;
 	#endregion
 
 	public void Initiate(object ID, Vector3 position, UnitTier unitTier, string unitName) {

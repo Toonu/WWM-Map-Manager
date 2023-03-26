@@ -22,7 +22,7 @@ public class GroundUnit : Unit {
 		movementTexture = main.transform.parent.GetChild(0).GetComponent<MeshRenderer>();
 		transportTexture = main.transform.parent.GetChild(1).GetComponent<MeshRenderer>();
 
-		SwapAffiliation(enemy);
+		ChangeAffiliation(enemy);
 
 		Initiate(ID, position, unitTier, unitName);
 
@@ -54,21 +54,21 @@ public class GroundUnit : Unit {
 
 	internal void ChangeSpecialization(GroundSpecialization specialization) {
 		this.specialization = specialization;
-		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, enemy);
+		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, enemySide);
 	}
 	internal void ChangeSpecialization(GroundMovementType movementModifier) {
 		this.movementModifier = movementModifier;
-		movementTexture.material.mainTexture = UnitManager.Instance.GetMovementTexture(this, enemy);
+		movementTexture.material.mainTexture = UnitManager.Instance.GetMovementTexture(this, enemySide);
 	}
 	internal void ChangeSpecialization(GroundTransportType transportModifier) {
 		this.transportModifier = transportModifier;
-		transportTexture.material.mainTexture = UnitManager.Instance.GetTransportTexture(this, enemy);
+		transportTexture.material.mainTexture = UnitManager.Instance.GetTransportTexture(this, enemySide);
 	}
 
-	internal void SwapAffiliation(bool newEnemy) {
-		enemy = newEnemy;
-		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, enemy);
-		movementTexture.material.mainTexture = UnitManager.Instance.GetMovementTexture(this, enemy);
-		transportTexture.material.mainTexture = UnitManager.Instance.GetTransportTexture(this, enemy);
+	internal void ChangeAffiliation(bool newEnemy) {
+		enemySide = newEnemy;
+		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, enemySide);
+		movementTexture.material.mainTexture = UnitManager.Instance.GetMovementTexture(this, enemySide);
+		transportTexture.material.mainTexture = UnitManager.Instance.GetTransportTexture(this, enemySide);
 	}
 }

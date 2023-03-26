@@ -14,6 +14,6 @@ public class NavalUnit : Unit {
 
 	internal void ChangeSpecialization(NavalSpecialization specialization) {
 		this.specialization = specialization;
-		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, enemy);
+		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, enemySide);
 	}
 }

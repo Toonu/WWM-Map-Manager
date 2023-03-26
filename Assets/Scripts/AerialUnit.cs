@@ -23,7 +23,7 @@ public class AerialUnit : Unit {
 
 	internal void ChangeSpecialization(AerialSpecialization specialization) {
 		this.specialization = specialization;
-		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, enemy);
+		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, enemySide);
 	}
 }
 

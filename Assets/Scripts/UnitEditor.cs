@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 
 public class UnitEditor : MonoBehaviour {
-
-	public int domain;
+    public int domain;
 	private Unit unit;
 	private GroundUnit groundUnit;
 	private AerialUnit aerialUnit;

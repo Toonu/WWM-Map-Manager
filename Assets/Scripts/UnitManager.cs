@@ -36,10 +36,11 @@ public class UnitManager : MonoBehaviour {
 	#endregion
 
 	#region Units
-	internal List<GroundUnit> groundUnits = new List<GroundUnit>();
-	internal List<AerialUnit> aerialUnits = new List<AerialUnit>();
-	internal List<NavalUnit> navalUnits = new List<NavalUnit>();
-	internal List<Base> bases = new List<Base>();
+	//TODO Change back to internal accessors after finding out if the ID assignation works correctly.
+	public List<GroundUnit> groundUnits = new List<GroundUnit>();
+	public List<AerialUnit> aerialUnits = new List<AerialUnit>();
+	public List<NavalUnit> navalUnits = new List<NavalUnit>();
+	public List<Base> bases = new List<Base>();
 	#endregion
 
 
@@ -69,22 +70,23 @@ public class UnitManager : MonoBehaviour {
 		bases.Add(b);
 	}
 
-	internal void SpawnUnit(Vector3 position, int domain, int specialization, GroundMovementType movementModifier, GroundTransportType transportModifier, UnitTier tier, string identification) {
-
+	internal void SpawnUnit(Vector3 position, int domain, int specialization,
+		string identification, UnitTier tier, bool isEnemy, GroundMovementType movementModifier,
+		GroundTransportType transportModifier)
+	{
 		GameObject newUnit = Instantiate(groundTemplate, transform);
 		int i = GetLast();
 		if (domain == 0) {
 			GroundUnit unit = newUnit.AddComponent<GroundUnit>();
-			unit.Initiate(i, position, tier, identification, false, (GroundSpecialization)specialization, movementModifier, transportModifier, null, null);
+			unit.Initiate(i, position, tier, identification, isEnemy, (GroundSpecialization)specialization, movementModifier, transportModifier, null, null);
 			groundUnits.Insert(i, unit);
 		} else if (domain == 1) {
 			AerialUnit unit = newUnit.AddComponent<AerialUnit>();
-			unit.Initiate(i, position, tier, identification, false, (AerialSpecialization)specialization, null);
+			unit.Initiate(i, position, tier, identification, isEnemy, (AerialSpecialization)specialization, null);
 			aerialUnits.Insert(i, unit);
 		} else {
 			NavalUnit unit = newUnit.AddComponent<NavalUnit>();
-
-			unit.Initiate(i, position, tier, identification, false, (NavalSpecialization)specialization);
+			unit.Initiate(i, position, tier, identification, isEnemy, (NavalSpecialization)specialization);
 			navalUnits.Insert(i, unit);
 		}
 	}
@@ -194,7 +196,7 @@ public class UnitManager : MonoBehaviour {
 
 	public void SwitchSide(bool side) {
 		foreach (GroundUnit unit in groundUnits) {
-			unit.SwapAffiliation(side);
+			unit.ChangeAffiliation(side);
 		}
 		foreach (AerialUnit unit in aerialUnits) {
 			unit.SwapAffiliation(side);
