@@ -25,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1427280917736740345}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0.0000032031598}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4164613941035934959}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!33 &1396200089219303581
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -325,7 +325,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4164613941035934959}
   - component: {fileID: 4164613941035934946}
-  - component: {fileID: 7561492476007235559}
   - component: {fileID: 5249245601663835710}
   m_Layer: 0
   m_Name: TemplateBase
@@ -363,19 +362,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sampleButton: {fileID: 8758460577351867728, guid: a2a0cef81e8e0974e8be0c9808a02961, type: 3}
---- !u!114 &7561492476007235559
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4164613941035934952}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0816451f7c52fc34aa54ea7ec404c1af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseType: 0
 --- !u!65 &5249245601663835710
 BoxCollider:
   m_ObjectHideFlags: 0

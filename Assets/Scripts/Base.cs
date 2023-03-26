@@ -13,7 +13,8 @@ public class Base : MonoBehaviour {
 
 		main = transform.Find("Main").GetComponent<MeshRenderer>();
 		main.material.mainTexture = UnitManager.Instance.GetBaseTexture(baseType);
-
+		if (baseType == BaseType.Airfield)	main.transform.localScale = new Vector3(1.5f, 1, 1);
+		
 		this.identification = transform.Find("Canvas/Name").GetComponent<TextMeshProUGUI>();
 		this.identification.text = identification;
 	}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -79,35 +80,66 @@ public class UnitManager : MonoBehaviour {
 		if (domain == 0) {
 			GroundUnit unit = newUnit.AddComponent<GroundUnit>();
 			unit.Initiate(i, position, tier, identification, isEnemy, (GroundSpecialization)specialization, movementModifier, transportModifier, null, null);
-			groundUnits.Insert(i, unit);
+			AppendList(unit, i, groundUnits, aerialUnits, navalUnits);
 		} else if (domain == 1) {
 			AerialUnit unit = newUnit.AddComponent<AerialUnit>();
 			unit.Initiate(i, position, tier, identification, isEnemy, (AerialSpecialization)specialization, null);
-			aerialUnits.Insert(i, unit);
+			AppendList(unit, i, aerialUnits, groundUnits, navalUnits);
 		} else {
 			NavalUnit unit = newUnit.AddComponent<NavalUnit>();
 			unit.Initiate(i, position, tier, identification, isEnemy, (NavalSpecialization)specialization);
-			navalUnits.Insert(i, unit);
+			AppendList(unit, i, navalUnits, groundUnits, aerialUnits);
 		}
 	}
 
 	internal void Despawn(GameObject gameObject) {
+		int index = gameObject.GetComponent<Unit>().id;
+		groundUnits.RemoveAt(index);
 		if (gameObject.GetComponent<GroundUnit>() != null) {
-			groundUnits.RemoveAt(gameObject.GetComponent<Unit>().id);
+			groundUnits.Insert(index, null);
 		} else if (gameObject.GetComponent<AerialUnit>() != null) {
-			aerialUnits.RemoveAt(gameObject.GetComponent<Unit>().id);
+			aerialUnits.Insert(index, null);
 		} else {
-			navalUnits.RemoveAt(gameObject.GetComponent<Unit>().id);
+			navalUnits.Insert(index, null);
 		}
+		Destroy(gameObject);
 	}
 
 	public int GetLast() {
-		for (int i = 0; i <= groundUnits.Count || i <= aerialUnits.Count || i <= navalUnits.Count; i++) {
-			if (groundUnits[i] == null || aerialUnits[i] == null || navalUnits[i] == null) {
+		int maxLength = Math.Max(groundUnits.Count, Math.Max(aerialUnits.Count, navalUnits.Count));
+		for (int i = 0; i < maxLength; i++) {
+			if (groundUnits[i] == null && aerialUnits[i] == null && navalUnits[i] == null) {
 				return i;
 			}
 		}
-		return 0;
+		return maxLength;
+	}
+
+	private void AppendList<J, K, L>(J obj, int index, List<J> list, List<K> otherList, List<L> theOtherList) {
+		int count = list.Count;
+		
+		// If the index is greater than the current count, add null elements until the index is reached
+		while (index > count) {
+			list.Add(default(J));
+			count++;
+		}
+		count = otherList.Count;
+		while (index >= count) {
+			otherList.Add(default(K));
+			count++;
+		}
+		count = theOtherList.Count;
+		while (index >= count) {
+			theOtherList.Add(default(L));
+			count++;
+		}
+
+		if (list.Count > index) {
+			list.Insert(index, obj);
+			list.RemoveAt(index + 1);
+		} else {
+			list.Add(obj);
+		}
 	}
 
 	#endregion
@@ -122,15 +154,15 @@ public class UnitManager : MonoBehaviour {
 	}
 	internal Texture2D GetSpecialisationTexture(AerialUnit unit, bool enemy) {
 		if (enemy) {
-			return navalSpecializationEnemy[Convert.ToInt16(unit.specialization)];
-		}
-		return navalSpecialization[Convert.ToInt16(unit.specialization)];
-	}
-	internal Texture2D GetSpecialisationTexture(NavalUnit unit, bool enemy) {
-		if (enemy) {
 			return aerialSpecializationEnemy[Convert.ToInt16(unit.specialization)];
 		}
 		return aerialSpecialization[Convert.ToInt16(unit.specialization)];
+	}
+	internal Texture2D GetSpecialisationTexture(NavalUnit unit, bool enemy) {
+		if (enemy) {
+			return navalSpecializationEnemy[Convert.ToInt16(unit.specialization)];
+		}
+		return navalSpecialization[Convert.ToInt16(unit.specialization)];
 	}
 	internal Texture2D GetMovementTexture(GroundUnit unit, bool enemy) {
 		if (enemy) {
@@ -160,7 +192,7 @@ public class UnitManager : MonoBehaviour {
 			return new string('●', i);
 			case int i when i >= 4 && i <= 6:
 			return new string('I', i - 3);
-			case int i when i >= 7 && i <= 11:
+			case int i when i >= 7:
 			return new string('X', i - 6);
 			default:
 			return "";
@@ -188,7 +220,7 @@ public class UnitManager : MonoBehaviour {
 
 	public void ShowMissileRanges(bool show) {
 		foreach (GroundUnit unit in groundUnits) {
-			if (unit.specialization == GroundSpecialization.SAM) {
+			if (unit != null && unit.specialization == GroundSpecialization.SAM) {
 				unit.weaponRange.SetActive(show);
 			}
 		}
@@ -196,13 +228,19 @@ public class UnitManager : MonoBehaviour {
 
 	public void SwitchSide(bool side) {
 		foreach (GroundUnit unit in groundUnits) {
-			unit.ChangeAffiliation(side);
+			if (unit != null) {
+				unit.ChangeAffiliation(side);
+			}
 		}
 		foreach (AerialUnit unit in aerialUnits) {
-			unit.SwapAffiliation(side);
+			if (unit != null) {
+				unit.ChangeAffiliation(side);
+			}
 		}
 		foreach (NavalUnit unit in navalUnits) {
-			unit.SwapAffiliation(side);
+			if (unit != null) {
+				unit.ChangeAffiliation(side);
+			}
 		}
 	}
 

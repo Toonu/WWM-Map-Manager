@@ -18,18 +18,18 @@ public class GroundUnit : Unit {
 		equipment = transform.Find("Canvas/Eq").gameObject.GetComponent<TextMeshProUGUI>();
 		equipment.text = "";
 		higherEchelon = transform.Find("Canvas/HigherEchelon").gameObject.GetComponent<TextMeshProUGUI>();
-		main = transform.GetChild(0).GetChild(2).GetComponent<MeshRenderer>();
-		movementTexture = main.transform.parent.GetChild(0).GetComponent<MeshRenderer>();
-		transportTexture = main.transform.parent.GetChild(1).GetComponent<MeshRenderer>();
+		
 
-		ChangeAffiliation(enemy);
+		
 
 		Initiate(ID, position, unitTier, unitName);
+		movementTexture = main.transform.parent.GetChild(0).GetComponent<MeshRenderer>();
+		transportTexture = main.transform.parent.GetChild(1).GetComponent<MeshRenderer>();
 
 		ChangeSpecialization(specialization);
 		ChangeSpecialization(movementModifier);
 		ChangeSpecialization(transportModifier);
-
+		ChangeAffiliation(enemy);
 
 		if (higherUnit != null) {
 			parentUnit = higherUnit;
@@ -67,6 +67,11 @@ public class GroundUnit : Unit {
 
 	internal void ChangeAffiliation(bool newEnemy) {
 		enemySide = newEnemy;
+		if (enemySide) {
+			main.transform.localScale = new Vector3(0.6f, 1, 1);
+		} else {
+			main.transform.localScale = new Vector3(1.5f, 1, 1);
+		}
 		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, enemySide);
 		movementTexture.material.mainTexture = UnitManager.Instance.GetMovementTexture(this, enemySide);
 		transportTexture.material.mainTexture = UnitManager.Instance.GetTransportTexture(this, enemySide);

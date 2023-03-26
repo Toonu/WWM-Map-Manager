@@ -52,7 +52,6 @@ public class ItemController : MonoBehaviour {
 		Destroy(contextPanel.gameObject);
 		if (GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin) {
 			UnitManager.Instance.Despawn(gameObject);
-			Destroy(gameObject);
 		}
 	}
 
