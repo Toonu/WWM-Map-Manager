@@ -8440,7 +8440,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4fb8b1191b1ca44f933fb3cf2c4cb57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  domain: 0
 --- !u!114 &892750807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16572,7 +16571,7 @@ GameObject:
   - component: {fileID: 1690456708}
   - component: {fileID: 1690456707}
   m_Layer: 5
-  m_Name: Infoline
+  m_Name: VersionLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16617,9 +16616,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'World War Mode Manager v0.0.4
+  m_text: 'World War Mode Manager v0.0.5
 
-    by Toonu'
+    by Toonu '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

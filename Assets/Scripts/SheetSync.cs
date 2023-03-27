@@ -38,7 +38,8 @@ public class SheetSync : MonoBehaviour {
 	public void LoadSheet() {
 		IList<IList<object>> data = ss.GetSheetRange("Data!A1:K");
 		IList<IList<object>> sheetConfiguration = ss.GetSheetRange("Configuration!C1:C");
-
+		IList<IList<object>> equipmentData = ss.GetSheetRange("Configuration!E1:H");
+			
 		try {
 			unitWidth = Convert.ToInt16(sheetConfiguration[1][0]);
 			baseWidth = Convert.ToInt16(sheetConfiguration[2][0]);
@@ -46,11 +47,18 @@ public class SheetSync : MonoBehaviour {
 			passwordA = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
 			passwordB = PasswordManager.HashPassword(sheetConfiguration[4][0].ToString());
 			passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[5][0].ToString());
+			Debug.Log(passwordAdmin);
 			pointsA = Convert.ToInt16(sheetConfiguration[6][0].ToString());
 			pointsB = Convert.ToInt16(sheetConfiguration[7][0].ToString());
 		} catch (Exception e) {
 			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
 		}
+		/*
+		foreach (IList<object> col in equipmentData) {
+			Equipment.equipmentNames.Add(col[0].ToString(), new Equipment(col[0].ToString(), 1, Convert.ToSingle(col[1]), Convert.ToSingle(col[2]), Convert.ToSingle(col[3]), Convert.ToInt16(col[4])));
+		}
+		*/
+		//Create equipment templates and populate the UI with them
 		
 		
 
