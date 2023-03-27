@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class UnitConstructor : MonoBehaviour {
 	private bool enemySide = false;
@@ -9,7 +10,7 @@ public class UnitConstructor : MonoBehaviour {
 	private GroundTransportType transportModifier = GroundTransportType.None;
 	private UnitTier tier = UnitTier.Team;
 	private string identification = "";
-
+	public List<Equipment> unitEquipment;
 
 	public void UpdatePosition(Vector3 position) {
 		basePosition = position;
@@ -36,6 +37,6 @@ public class UnitConstructor : MonoBehaviour {
 		enemySide = enemy;
 	}
 	public void Spawn() {
-		UnitManager.Instance.SpawnUnit(new Vector3(basePosition.x, basePosition.y, basePosition.z), domain, specialization, identification, tier, enemySide, movementModifier, transportModifier);
+		UnitManager.Instance.SpawnUnit(new Vector3(basePosition.x, basePosition.y, basePosition.z), domain, specialization, identification, tier, enemySide, movementModifier, transportModifier, unitEquipment);
 	}
 }

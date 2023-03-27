@@ -55,16 +55,13 @@ public class ApplicationController : MonoBehaviour {
 		LoadSettings();
 	}
 	private void Start() {
-		server.LoadSheet();
 		transform.Find("UI/Points").GetComponent<TextMeshProUGUI>().text = $"A:{server.pointsA}pts B:{server.pointsB}pts";
+		server.LoadSheet();
 	}
 
 	private void Update() {
 		if (deletingMenus && Input.GetKeyUp(KeyCode.Mouse0)) {
-			Transform ui = transform.GetChild(0);
-
-			for (int i = 0; i < ui.childCount; i++) {
-				Transform child = ui.GetChild(i);
+			foreach (GameObject child in GameObject.FindGameObjectsWithTag("ContextMenus")) {
 				if (child.name == "ContextMenu(Clone)") {
 					Destroy(child.gameObject);
 				}
@@ -82,9 +79,6 @@ public class ApplicationController : MonoBehaviour {
 	/// Logs in the user based on input fields in the settings.
 	/// </summary>
 	public void Login() {
-		Debug.Log("u"+Username);
-		Debug.Log("p"+Password);
-		Debug.Log("s"+server.passwordAdmin);
 		if (Username == "A" && Password == server.passwordA) {
 			loggedIn = true;
 			sideEnemy = false;

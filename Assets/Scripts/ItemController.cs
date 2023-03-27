@@ -31,10 +31,14 @@ public class ItemController : MonoBehaviour {
 	}
 
 	void EditAction(Image contextPanel) {
+		bool admin = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin;
 		Destroy(contextPanel.gameObject);
-		if (GetComponent<Base>() == null && GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin) {
+		if (GetComponent<Base>() == null && admin) {
 			UnitManager.Instance.unitEditMenu.SetActive(true);
 			UnitManager.Instance.unitEditMenu.GetComponent<UnitEditor>().UpdateUnit(GetComponent<Unit>());
+		} else if (admin) {
+			UnitManager.Instance.baseEditMenu.SetActive(true);
+			UnitManager.Instance.baseEditMenu.GetComponent<BaseEditor>().UpdateBase(GetComponent<Base>());
 		}
 	}
 

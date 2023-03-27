@@ -1,1 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny" width="138" height="73" viewBox="31 56 138 73"><path d="M 35,125 165,60 m -135,40 140,0" stroke-width="4" stroke="black" fill="none" ></path></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.2"
+   width="138"
+   height="73"
+   viewBox="31 56 138 73"
+   id="svg4"
+   sodipodi:docname="bAirport.svg"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     showgrid="false"
+     inkscape:zoom="8.7753623"
+     inkscape:cx="68.943022"
+     inkscape:cy="36.465731"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4" />
+  <path
+     d="M 35,125 165,60 m -135,40 140,0"
+     stroke-width="4"
+     stroke="black"
+     fill="none"
+     id="path2"
+     style="stroke:#ffffff" />
+</svg>

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -17,13 +19,15 @@ public class Unit : MonoBehaviour {
 	internal bool enemySide;
 	#endregion
 
-	public void Initiate(object ID, Vector3 position, UnitTier unitTier, string unitName) {
+	public void Initiate(object ID, Vector3 position, UnitTier unitTier, string unitName, List<Equipment> unitEquipment) {
 		main = transform.GetChild(0).GetChild(2).GetComponent<MeshRenderer>();
 		range = transform.Find("Range").gameObject;
 		sightRange = transform.Find("SightRange").gameObject;
 		weaponRange = transform.Find("WeaponRange").gameObject;
 		this.unitName = transform.Find("Canvas/unitName").gameObject.GetComponent<TextMeshProUGUI>();
 		tier = transform.Find("Canvas/Tier").gameObject.GetComponent<TextMeshProUGUI>();
+		equipment = transform.Find("Canvas/Eq").gameObject.GetComponent<TextMeshProUGUI>();
+		equipment.text = "";
 		id = Convert.ToInt16(ID);
 
 		//distance = 0f;
@@ -31,6 +35,10 @@ public class Unit : MonoBehaviour {
 		distanceRange = 0.5f;
 		transform.position = position;
 		turnStartPosition = position;
+
+		if (unitEquipment != null) {
+			AddEquipment(unitEquipment);
+		}
 
 		ChangeTier(Convert.ToInt16(unitTier));
 		ChangeName(unitTier >= UnitTier.Corps ? EnumUtil.GetCorps(unitName) : unitName);
@@ -40,17 +48,20 @@ public class Unit : MonoBehaviour {
 	internal void OnMouseOver() {
 		sightRange.SetActive(true);
 		range.SetActive(true);
+		equipment.gameObject.SetActive(true);
 	}
 
 	internal void OnMouseExit() {
 		sightRange.SetActive(false);
 		range.SetActive(false);
+		equipment.gameObject.SetActive(false);
 	}
-
 
 	private Vector3 offset;
 	internal Vector3 turnStartPosition;
 	public float distanceRange;
+	private List<Equipment> unitEquipment = new List<Equipment>();
+	private TextMeshProUGUI equipment;
 
 	private void OnMouseDown() {
 		// Calculate the offset between the object's position and the mouse position
@@ -72,13 +83,25 @@ public class Unit : MonoBehaviour {
 		range.transform.localScale = new Vector3(212 * maxRange, 212 * maxRange, 0);
 	}
 
+	internal void AddEquipment(List<Equipment> equipmentList) {
+		unitEquipment = equipmentList;
+		equipment.text = "";
+		string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
+	}
+
 	internal void ChangeName(string identification) {
-		unitName.text = EnumUtil.NumberWithSuffix(Convert.ToInt16(identification));
+		
+		if (UnitTier > UnitTier.Division) {
+			unitName.text = EnumUtil.GetCorps(identification);
+		} else {
+			unitName.text = EnumUtil.NumberWithSuffix(Convert.ToInt16(identification));
+		}
 		name = identification;
 	}
 
 	internal void ChangeTier(int echelon) {
 		tier.text = EnumUtil.GetUnitTier(echelon);
+		UnitTier = (UnitTier)echelon;
 	}
 
 	internal static int GetSpecialization(GroundUnit unit) {

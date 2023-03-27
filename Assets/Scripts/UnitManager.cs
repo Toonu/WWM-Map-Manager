@@ -15,12 +15,13 @@ public class UnitManager : MonoBehaviour {
 		_instance = GetComponent<UnitManager>();
 
 		//SpawnUnit(Vector3.zero, 0, Convert.ToInt16(GroundSpecialization.SPG), GroundMovementType.Wheeled, GroundTransportType.None, UnitTier.Battalion, "5");
-		SpawnBase("Lund", new Vector3(0.55f, -0.74f, -1), BaseType.Airfield);
-
+		SpawnBase("Lund", new Vector3(0.55f, -0.74f, -1), BaseType.Airfield, false);
+		SpawnBase("Dnul", new Vector3(-0.74f, -0.55f, -1), BaseType.Airfield, true);
 
 		unitSpawnMenu = unitUIMenus.transform.Find("UnitSpawningMenu").gameObject;
 		unitEditMenu = unitUIMenus.transform.Find("UnitEditMenu").gameObject;
 		equipmentMenu = unitUIMenus.transform.Find("EquipmentMenu").gameObject;
+		baseEditMenu = unitUIMenus.transform.Find("BaseEditMenu").gameObject;
 
 		PopulateUI(unitSpawnMenu);
 	}
@@ -62,13 +63,13 @@ public class UnitManager : MonoBehaviour {
 	}
 	internal Texture2D GetMovementTexture(GroundUnit unit, bool enemy) {
 		if (enemy) {
-			return movementType[Convert.ToInt16(unit.movementModifier)];
+			return movementTypeEnemy[Convert.ToInt16(unit.movementModifier)];
 		}
 		return movementType[Convert.ToInt16(unit.movementModifier)];
 	}
 	internal Texture2D GetTransportTexture(GroundUnit unit, bool enemy) {
 		if (enemy) {
-			return transportType[Convert.ToInt16(unit.transportModifier)];
+			return transportTypeEnemy[Convert.ToInt16(unit.transportModifier)];
 		}
 		return transportType[Convert.ToInt16(unit.transportModifier)];
 	}
@@ -81,10 +82,12 @@ public class UnitManager : MonoBehaviour {
 	#region UI
 	public GameObject groundTemplate;
 	public GameObject baseTemplate;
+	public GameObject equipmentTemplate;
 	public GameObject unitUIMenus;
 	internal GameObject unitSpawnMenu;
 	internal GameObject unitEditMenu;
 	internal GameObject equipmentMenu;
+	internal GameObject baseEditMenu;
 	#endregion
 	#region UI Methods
 	public void PopulateUI(int domain) {
@@ -184,30 +187,30 @@ public class UnitManager : MonoBehaviour {
 
 	#region Spawning
 
-	internal void SpawnBase(string identification, Vector3 position, BaseType baseType) {
+	internal void SpawnBase(string identification, Vector3 position, BaseType baseType, bool enemySide) {
 		GameObject newBase = Instantiate(baseTemplate, transform);
 		Base b = newBase.AddComponent<Base>();
-		b.Initiate(identification, position, baseType);
+		b.Initiate(identification, position, baseType, enemySide);
 		bases.Add(b);
 	}
 
 	internal void SpawnUnit(Vector3 position, int domain, int specialization,
 		string identification, UnitTier tier, bool isEnemy, GroundMovementType movementModifier,
-		GroundTransportType transportModifier)
+		GroundTransportType transportModifier, List<Equipment> unitEquipment)
 	{
 		GameObject newUnit = Instantiate(groundTemplate, transform);
 		int i = GetLast();
 		if (domain == 0) {
 			GroundUnit unit = newUnit.AddComponent<GroundUnit>();
-			unit.Initiate(i, position, tier, identification, isEnemy, (GroundSpecialization)specialization, movementModifier, transportModifier, null, null);
+			unit.Initiate(i, position, tier, identification, isEnemy, (GroundSpecialization)specialization, movementModifier, transportModifier, unitEquipment, null);
 			AppendList(unit, i, groundUnits, aerialUnits, navalUnits);
 		} else if (domain == 1) {
 			AerialUnit unit = newUnit.AddComponent<AerialUnit>();
-			unit.Initiate(i, position, tier, identification, isEnemy, (AerialSpecialization)specialization, null);
+			unit.Initiate(i, position, tier, identification, isEnemy, (AerialSpecialization)specialization, unitEquipment);
 			AppendList(unit, i, aerialUnits, groundUnits, navalUnits);
 		} else {
 			NavalUnit unit = newUnit.AddComponent<NavalUnit>();
-			unit.Initiate(i, position, tier, identification, isEnemy, (NavalSpecialization)specialization);
+			unit.Initiate(i, position, tier, identification, isEnemy, (NavalSpecialization)specialization, unitEquipment);
 			AppendList(unit, i, navalUnits, groundUnits, aerialUnits);
 		}
 	}

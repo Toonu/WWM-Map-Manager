@@ -46,6 +46,8 @@ public class UnitEditor : MonoBehaviour {
 	}
 	public void UpdateTier(int i) {
 		unit.ChangeTier(i);
+		UpdateName(unit.name);
+		unitName.text = unit.name;
 	}
 	public void UpdateName(string identification) {
 		unit.ChangeName(identification);
