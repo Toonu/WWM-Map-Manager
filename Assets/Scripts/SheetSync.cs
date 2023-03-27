@@ -78,7 +78,7 @@ public class SheetSync : MonoBehaviour {
 		}
 		SetData(5, 5, "Test");
 
-		//PrintData();
+		PrintData();
 	}
 
 	public string GetData(int x, int y) {
