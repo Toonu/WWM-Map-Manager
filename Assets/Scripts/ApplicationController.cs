@@ -82,6 +82,9 @@ public class ApplicationController : MonoBehaviour {
 	/// Logs in the user based on input fields in the settings.
 	/// </summary>
 	public void Login() {
+		Debug.Log("u"+Username);
+		Debug.Log("p"+Password);
+		Debug.Log("s"+server.passwordAdmin);
 		if (Username == "A" && Password == server.passwordA) {
 			loggedIn = true;
 			sideEnemy = false;
