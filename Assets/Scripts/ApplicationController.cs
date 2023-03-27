@@ -1,11 +1,7 @@
-using Assets.Scripts;
 using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
-namespace Assets.Scripts {
-	
 
 public class ApplicationController : MonoBehaviour {
 	#region Settings
@@ -15,8 +11,8 @@ public class ApplicationController : MonoBehaviour {
 	public Popup generalPopup;
 	public GameObject login;
 	public SheetSync server;
-	public string username { private get; set; }
-	public string password { private get; set; }
+	public string Username { private get; set; }
+	public string Password { private get; set; }
 	internal bool loggedIn = false;
 	internal bool admin = false;
 	private bool sideEnemy = false;
@@ -30,11 +26,11 @@ public class ApplicationController : MonoBehaviour {
 			mainCamera.speed = newSpeed;
 		}
 		if (PlayerPrefs.HasKey("KeepLogin") && PlayerPrefs.GetInt("KeepLogin") == 1) {
-			username = PlayerPrefs.GetString("username");
+			Username = PlayerPrefs.GetString("username");
 
-			login.transform.Find("Username/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = username;
+			login.transform.Find("Username/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = Username;
 			login.transform.Find("Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
-			password = PlayerPrefs.GetString("password");
+			Password = PlayerPrefs.GetString("password");
 			login.transform.Find("Sticky").GetComponent<Toggle>().isOn = true;
 		}
 	}
@@ -60,7 +56,6 @@ public class ApplicationController : MonoBehaviour {
 	private void Start() {
 		server.LoadSheet();
 		transform.Find("UI/Points").GetComponent<TextMeshProUGUI>().text = $"A:{server.pointsA}pts B:{server.pointsB}pts";
-		//UnitManager.Instance.PopulateUI();
 	}
 
 	private void Update() {
@@ -69,7 +64,6 @@ public class ApplicationController : MonoBehaviour {
 
 			for (int i = 0; i < ui.childCount; i++) {
 				Transform child = ui.GetChild(i);
-
 				if (child.name == "ContextMenu(Clone)") {
 					Destroy(child.gameObject);
 				}
@@ -80,30 +74,30 @@ public class ApplicationController : MonoBehaviour {
 
 
 	public void SetPassword(string password) {
-		this.password = PasswordManager.HashPassword(password);
+		Password = PasswordManager.HashPassword(password);
 	}
 
 	/// <summary>
 	/// Logs in the user based on input fields in the settings.
 	/// </summary>
 	public void Login() {
-		if (username == "A" && password == server.passwordA) {
+		if (Username == "A" && Password == server.passwordA) {
 			loggedIn = true;
 			sideEnemy = false;
 			admin = false;
-		} else if (username == "B" && password == server.passwordB) {
+		} else if (Username == "B" && Password == server.passwordB) {
 			loggedIn = true;
 			sideEnemy = true;
 			admin = false;
-		} else if (username == "Admin" && password == server.passwordAdmin) {
+		} else if (Username == "Admin" && Password == server.passwordAdmin) {
 			loggedIn = true;
 			sideEnemy = false;
 			admin = true;
 		}
 		//Saving credentials to registry
 		if (loggedIn && PlayerPrefs.GetInt("KeepLogin") == 1) {
-			PlayerPrefs.SetString("username", username);
-			PlayerPrefs.SetString("password", password);
+			PlayerPrefs.SetString("username", Username);
+			PlayerPrefs.SetString("password", Password);
 		}
 		//Do when user logs in
 		if (loggedIn) {
@@ -118,5 +112,4 @@ public class ApplicationController : MonoBehaviour {
 		Application.Quit();
 		//EditorApplication.ExitPlaymode();
 	}
-}
 }

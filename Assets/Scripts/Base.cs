@@ -8,7 +8,7 @@ public class Base : MonoBehaviour {
 	private TextMeshProUGUI identification;
 
 	public void Initiate(string identification, Vector3 position, BaseType baseType) {
-		transform.position = new Vector3(position.x, position.y, position.z);
+		transform.position = position;
 		this.baseType = baseType;
 
 		main = transform.Find("Main").GetComponent<MeshRenderer>();
@@ -17,9 +17,11 @@ public class Base : MonoBehaviour {
 		
 		this.identification = transform.Find("Canvas/Name").GetComponent<TextMeshProUGUI>();
 		this.identification.text = identification;
+		turnStartPosition = transform.position;
 	}
 
 	private Vector3 offset;
+	internal Vector3 turnStartPosition;
 	private void OnMouseDown() {
 		Vector3 mousePosition = Input.mousePosition;
 		mousePosition.z = Camera.main.nearClipPlane;
@@ -35,8 +37,8 @@ public class Base : MonoBehaviour {
 		}
 	}
 
-	internal void ChangeAffiliation(bool enemy) {
-		this.enemySide = enemy;
+	internal void ChangeAffiliation(bool enemySide) {
+		this.enemySide = enemySide;
 	}
 
 	internal void ChangeType(BaseType type) {

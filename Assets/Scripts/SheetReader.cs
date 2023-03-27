@@ -15,6 +15,30 @@ public class SheetReader : MonoBehaviour {
 
 	void Awake() {
 		Initiate();
+		ServiceAccountCredential.Initializer initializer = new ServiceAccountCredential.Initializer(serviceAccountID);
+		ServiceAccountCredential credential = new ServiceAccountCredential(
+			initializer.FromPrivateKey(private_key)
+		);
+
+		service = new SheetsService(
+			new BaseClientService.Initializer() {
+				HttpClientInitializer = credential,
+			}
+		);
+	}
+
+	public void Initiate() {
+		try {
+			string path = Application.dataPath + "/sheetData.json";
+			string jsonString = File.ReadAllText(path);
+			SheetData data = JsonUtility.FromJson<SheetData>(jsonString);
+
+			spreadsheetId = data.spreadsheet_id;
+			serviceAccountID = PasswordManager.Decrypt(data.client_email, "eafduhgrfsa86gr4g87aer4");
+			private_key = PasswordManager.Decrypt(data.private_key, "874rg9a8rg4r4hgae4aeht8");
+		} catch (Exception e) {
+			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
+		}
 	}
 
 	public IList<IList<object>> GetSheetRange(string sheetNameAndRange) {
@@ -44,31 +68,6 @@ public class SheetReader : MonoBehaviour {
 
 		request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
 		UpdateValuesResponse response = request.Execute();
-	}
-
-	public void Initiate() {
-		try {
-			string path = Application.dataPath + "/sheetData.json";
-			string jsonString = File.ReadAllText(path);
-			SheetData data = JsonUtility.FromJson<SheetData>(jsonString);
-
-			spreadsheetId = data.spreadsheet_id;
-			serviceAccountID = PasswordManager.Decrypt(data.client_email, "eafduhgrfsa86gr4g87aer4");
-			private_key = PasswordManager.Decrypt(data.private_key, "874rg9a8rg4r4hgae4aeht8");
-		} catch (Exception e) {
-			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
-		}
-
-		ServiceAccountCredential.Initializer initializer = new ServiceAccountCredential.Initializer(serviceAccountID);
-		ServiceAccountCredential credential = new ServiceAccountCredential(
-			initializer.FromPrivateKey(private_key)
-		);
-
-		service = new SheetsService(
-			new BaseClientService.Initializer() {
-				HttpClientInitializer = credential,
-			}
-		);
 	}
 }
 

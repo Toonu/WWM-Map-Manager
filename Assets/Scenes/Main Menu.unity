@@ -16617,7 +16617,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'World War Mode Manager v0.0.3
+  m_text: 'World War Mode Manager v0.0.4
 
     by Toonu'
   m_isRightToLeft: 0

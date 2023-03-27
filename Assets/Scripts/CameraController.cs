@@ -14,7 +14,7 @@ public class CameraController : MonoBehaviour {
 
 	private void Start() {
 		Texture2D loadedMap = new Texture2D(2, 2);
-		byte[] bytes = System.IO.File.ReadAllBytes("./Map.png");
+		byte[] bytes = System.IO.File.ReadAllBytes(Application.dataPath + "/Map.png");
 		loadedMap.LoadImage(bytes);
 		map.GetComponent<Renderer>().material.mainTexture = loadedMap;
 		mapMin = map.GetComponent<Renderer>().bounds.min;

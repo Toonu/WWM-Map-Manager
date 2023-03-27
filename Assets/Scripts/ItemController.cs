@@ -41,6 +41,7 @@ public class ItemController : MonoBehaviour {
 	void SpawnAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		if (GetComponent<Base>() != null || GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin) {
+			UnitManager.Instance.PopulateUI(0);
 			UnitManager.Instance.unitSpawnMenu.SetActive(true);
 			UnitConstructor constructor = UnitManager.Instance.unitSpawnMenu.GetComponent<UnitConstructor>();
 			constructor.UpdatePosition(transform.position);
@@ -59,6 +60,8 @@ public class ItemController : MonoBehaviour {
 		Destroy(contextPanel.gameObject);
 		if (GetComponent<Base>() == null) {
 			transform.position = GetComponent<Unit>().turnStartPosition;
+		} else {
+			transform.position = GetComponent<Base>().turnStartPosition;
 		}
 	}
 

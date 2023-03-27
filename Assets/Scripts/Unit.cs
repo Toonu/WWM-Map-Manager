@@ -1,8 +1,8 @@
 ﻿using System;
 using TMPro;
 using UnityEngine;
-namespace Assets.Scripts {
-	public class Unit : MonoBehaviour {
+
+public class Unit : MonoBehaviour {
 	public int id;
 	public UnitTier UnitTier { get; private set; }
 
@@ -33,7 +33,7 @@ namespace Assets.Scripts {
 		turnStartPosition = position;
 
 		ChangeTier(Convert.ToInt16(unitTier));
-		ChangeName(unitTier >= UnitTier.Corps ? UnitManager.Instance.GetCorps(unitName) : unitName);
+		ChangeName(unitTier >= UnitTier.Corps ? EnumUtil.GetCorps(unitName) : unitName);
 
 	}
 
@@ -73,13 +73,31 @@ namespace Assets.Scripts {
 	}
 
 	internal void ChangeName(string identification) {
-		unitName.text = identification;
+		unitName.text = EnumUtil.NumberWithSuffix(Convert.ToInt16(identification));
 		name = identification;
 	}
 
 	internal void ChangeTier(int echelon) {
-		tier.text = UnitManager.Instance.GetUnitTier(echelon);
+		tier.text = EnumUtil.GetUnitTier(echelon);
+	}
+
+	internal static int GetSpecialization(GroundUnit unit) {
+		return (int)unit.specialization;
+	}
+	internal static int GetSpecialization(AerialUnit unit) {
+		return (int)unit.specialization;
+	}
+	internal static int GetSpecialization(NavalUnit unit) {
+		return (int)unit.specialization;
+	}
+	internal static int GetSpecialization(int domain, Unit unit) {
+		if (domain == 0) {
+			return GetSpecialization((GroundUnit)unit);
+		} else if (domain == 1) {
+			return GetSpecialization((AerialUnit)unit);
+		} else {
+			return GetSpecialization((NavalUnit)unit);
+		}
 	}
 }
 
-}

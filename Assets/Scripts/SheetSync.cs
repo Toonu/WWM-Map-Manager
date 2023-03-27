@@ -94,20 +94,30 @@ public class SheetSync : MonoBehaviour {
 		}
 	}
 
-	private string GetLocation(int x) {
-		x++;
+	/// <summary>
+	/// Returns letter position of a number
+	/// </summary>
+	/// <param name="col">Column to find</param>
+	/// <returns>string</returns>
+	private string GetLocation(int col) {
+		col++;
 		string column = "";
-		while (x > 0) {
-			int modulo = (x - 1) % 26;
+		while (col > 0) {
+			int modulo = (col - 1) % 26;
 			column = (char)(65 + modulo) + column;
-			x = (x - modulo) / 26; // calculate the new x value
+			col = (col - modulo) / 26;
 		}
 		return column;
 	}
 
-	private int GetLocation(string location) {
+	/// <summary>
+	/// Returns column number of a letter
+	/// </summary>
+	/// <param name="col">Column to find</param>
+	/// <returns>int</returns>
+	private int GetLocation(string col) {
 		int result = 0;
-		foreach (char c in location) {
+		foreach (char c in col) {
 			result *= 26;
 			result += c - 64;
 		}
