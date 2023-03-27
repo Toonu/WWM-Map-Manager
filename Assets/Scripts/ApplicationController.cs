@@ -51,6 +51,7 @@ public class ApplicationController : MonoBehaviour {
 
 	private void Awake() {
 		admin = false;
+		Debug.unityLogger.filterLogType = LogType.Error;
 		LoadSettings();
 	}
 	private void Start() {
