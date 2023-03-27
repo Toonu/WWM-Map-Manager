@@ -15,16 +15,6 @@ public class SheetReader : MonoBehaviour {
 
 	void Awake() {
 		Initiate();
-		ServiceAccountCredential.Initializer initializer = new ServiceAccountCredential.Initializer(serviceAccountID);
-		ServiceAccountCredential credential = new ServiceAccountCredential(
-			initializer.FromPrivateKey(private_key)
-		);
-
-		service = new SheetsService(
-			new BaseClientService.Initializer() {
-				HttpClientInitializer = credential,
-			}
-		);
 	}
 
 	public IList<IList<object>> GetSheetRange(string sheetNameAndRange) {
@@ -62,12 +52,23 @@ public class SheetReader : MonoBehaviour {
 			string jsonString = File.ReadAllText(path);
 			SheetData data = JsonUtility.FromJson<SheetData>(jsonString);
 
-			serviceAccountID = data.client_email;
 			spreadsheetId = data.spreadsheet_id;
-			private_key = data.private_key;
+			serviceAccountID = PasswordManager.Decrypt(data.client_email, "eafduhgrfsa86gr4g87aer4");
+			private_key = PasswordManager.Decrypt(data.private_key, "874rg9a8rg4r4hgae4aeht8");
 		} catch (Exception e) {
 			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
 		}
+
+		ServiceAccountCredential.Initializer initializer = new ServiceAccountCredential.Initializer(serviceAccountID);
+		ServiceAccountCredential credential = new ServiceAccountCredential(
+			initializer.FromPrivateKey(private_key)
+		);
+
+		service = new SheetsService(
+			new BaseClientService.Initializer() {
+				HttpClientInitializer = credential,
+			}
+		);
 	}
 }
 
