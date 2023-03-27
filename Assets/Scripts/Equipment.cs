@@ -1,5 +1,7 @@
-﻿public class Equipment {
-	public string name = "";
-	public float range = 0f;
-	public float viewRange = 0f;
+﻿namespace Assets.Scripts {
+	public class Equipment {
+		public string name = "";
+		public float range = 0f;
+		public float viewRange = 0f;
+	}
 }
