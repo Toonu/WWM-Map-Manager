@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class ItemController : MonoBehaviour {
 	public Button sampleButton;
 	private List<ContextMenuItem> contextMenuItems;
+	ApplicationController applicationController;
 
 	void Awake() {
 		contextMenuItems = new List<ContextMenuItem>();
@@ -21,22 +22,23 @@ public class ItemController : MonoBehaviour {
 		contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
 		contextMenuItems.Add(new ContextMenuItem("Despawn", sampleButton, delete));
 		contextMenuItems.Add(new ContextMenuItem("Soft Reset", sampleButton, softReset));
+
+		applicationController = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 	}
 
 	void OnMouseOver() {
 		if (Input.GetMouseButtonDown(1) || Input.mouseScrollDelta.y != 0) {
 			ContextMenu.Instance.CreateContextMenu(contextMenuItems, Camera.main.WorldToScreenPoint(transform.position));
-			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().deletingMenus = true;
+			applicationController.deletingMenus = true;
 		}
 	}
 
 	void EditAction(Image contextPanel) {
-		bool admin = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin;
 		Destroy(contextPanel.gameObject);
-		if (GetComponent<Base>() == null && admin) {
+		if (GetComponent<Base>() == null && applicationController.admin) {
 			UnitManager.Instance.unitEditMenu.SetActive(true);
 			UnitManager.Instance.unitEditMenu.GetComponent<UnitEditor>().UpdateUnit(GetComponent<Unit>());
-		} else if (admin) {
+		} else if (applicationController.admin) {
 			UnitManager.Instance.baseEditMenu.SetActive(true);
 			UnitManager.Instance.baseEditMenu.GetComponent<BaseEditor>().UpdateBase(GetComponent<Base>());
 		}
@@ -44,7 +46,7 @@ public class ItemController : MonoBehaviour {
 
 	void SpawnAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
-		if (GetComponent<Base>() != null || GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin) {
+		if (GetComponent<Base>() != null || applicationController.admin) {
 			UnitManager.Instance.PopulateUI(0);
 			UnitManager.Instance.unitSpawnMenu.SetActive(true);
 			UnitConstructor constructor = UnitManager.Instance.unitSpawnMenu.GetComponent<UnitConstructor>();
@@ -55,7 +57,7 @@ public class ItemController : MonoBehaviour {
 
 	void DeleteAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
-		if (GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin) {
+		if (applicationController.admin) {
 			UnitManager.Instance.Despawn(gameObject);
 		}
 	}
@@ -71,7 +73,7 @@ public class ItemController : MonoBehaviour {
 
 	void SoftResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
-		if (GetComponent<Base>() == null && GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin) {
+		if (GetComponent<Base>() == null && applicationController.admin) {
 			GetComponent<Unit>().turnStartPosition = transform.position;
 		}
 	}
