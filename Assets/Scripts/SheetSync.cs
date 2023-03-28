@@ -36,8 +36,8 @@ public class SheetSync : MonoBehaviour {
 	public void LoadSheet() {
 		IList<IList<object>> data = ss.GetSheetRange("Data!A2:K");
 		IList<IList<object>> sheetConfiguration = ss.GetSheetRange("Configuration!C2:C");
-		IList<IList<object>> equipmentData = ss.GetSheetRange("Configuration!E2:I");
-			
+		IList<IList<object>> equipmentData = ss.GetSheetRange("Configuration!E2:K");
+
 		try {
 			unitWidth = Convert.ToInt16(sheetConfiguration[0][0]);
 			baseWidth = Convert.ToInt16(sheetConfiguration[1][0]);
@@ -57,15 +57,15 @@ public class SheetSync : MonoBehaviour {
 		EquipmentManager eqM = GameObject.FindWithTag("Equipment").GetComponent<EquipmentManager>();
 		CultureInfo enGbCulture = new CultureInfo("en-GB");
 
+		eqM.equipmentNames.Clear();
+
 		foreach (IList<object> col in equipmentData) {
 			GameObject temp = Instantiate(UnitManager.Instance.equipmentTemplate, transform);
 			Equipment eq = temp.AddComponent<Equipment>();
-			eq.Initiate(col[0].ToString(), 1, Convert.ToSingle(col[1], enGbCulture), Convert.ToSingle(col[2], enGbCulture), Convert.ToSingle(col[3], enGbCulture), Convert.ToInt16(col[4]));
+			eq.Initiate(col[0].ToString(), 1, Convert.ToSingle(col[1], enGbCulture), Convert.ToSingle(col[2], enGbCulture), Convert.ToSingle(col[3], enGbCulture), Convert.ToInt16(col[4]), Convert.ToInt16(col[5]), Convert.ToInt16(col[6]));
 			eqM.equipmentNames.Add(eq);
 		}
-		
-		eqM.PopulateUI();
-		
+
 		//Data
 
 		for (int i = 0; i < data.Count; i++) {

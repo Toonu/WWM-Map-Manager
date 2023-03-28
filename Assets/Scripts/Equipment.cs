@@ -8,14 +8,18 @@ public class Equipment : MonoBehaviour {
 	internal float weaponRange;
 	internal int amount;
 	internal int cost;
+	internal int side;
+	internal int domain;
 
-	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, int cost) {
+	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, int cost, int side, int domain) {
 		this.equipmentName = equipmentName;
 		this.amount = amount;
 		this.movementRange = movementRange;
 		this.weaponRange = weaponRange;
 		this.sightRange = sightRange;
 		this.cost = cost;
+		this.side = side;
+		this.domain = domain;
 	}
 
 	public override string ToString() {

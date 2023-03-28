@@ -146,5 +146,12 @@ public static class EnumUtil {
 			return $"{number}th";
 		}
 	}
+
+	public static bool ConvertIntToBool(int value) {
+		if (value == 0) {
+			return false;
+		}
+		return true;
+	}
 }
 

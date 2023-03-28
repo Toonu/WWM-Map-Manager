@@ -2,9 +2,9 @@
 using UnityEngine;
 
 public class UnitConstructor : MonoBehaviour {
-	private bool sideB;
+	internal bool sideB;
 	private Vector3 basePosition;
-	private int domain = 0;
+	internal int domain = 0;
 	private int specialization = 0;
 	private GroundMovementType movementModifier = GroundMovementType.None;
 	private GroundTransportType transportModifier = GroundTransportType.None;

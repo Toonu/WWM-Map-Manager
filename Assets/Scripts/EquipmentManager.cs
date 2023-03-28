@@ -17,6 +17,7 @@ public class EquipmentManager : MonoBehaviour {
 	public Popup generalPopup;
 	public GameObject finish;
 	public GameObject finishEdit;
+	private GameObject menu;
 
 	private int amount;
 	Equipment eq;
@@ -30,14 +31,39 @@ public class EquipmentManager : MonoBehaviour {
 		finishEdit = transform.Find("Menu/FinishEdit").gameObject;
 	}
 
-	public void PopulateUI() {
-		List<string> eqNames = new List<string>();
-		foreach (Equipment equipment in equipmentNames) {
-			eqNames.Add(equipment.equipmentName);
-		}
+	public void PopulateUI(List<string> eqNames) {
 		types.ClearOptions();
 		types.AddOptions(eqNames);
 		SetType(0);
+	}
+
+	public void PopulateUI(UnitConstructor menu) {
+		List<string> eqNames = new List<string>();
+		foreach (Equipment equipment in equipmentNames) {
+			if (menu.domain == equipment.domain) {
+				if (EnumUtil.ConvertIntToBool(equipment.side) == menu.sideB) {
+					eqNames.Add(equipment.equipmentName);
+				}
+			}
+		}
+		PopulateUI(eqNames);
+	}
+
+	public void PopulateUI(UnitEditor menu) {
+		List<string> eqNames = new List<string>();
+		foreach (Equipment equipment in equipmentNames) {
+			if (menu.GetComponent<UnitEditor>().unit.sideB == EnumUtil.ConvertIntToBool(equipment.side)) {
+				Unit tempUnit = menu.GetComponent<UnitEditor>().unit;
+				if (tempUnit.GetType() == typeof(GroundUnit) && equipment.domain == 0) {
+					eqNames.Add(equipment.equipmentName);
+				} else if (tempUnit.GetType() == typeof(AerialUnit) && equipment.domain == 1) {
+					eqNames.Add(equipment.equipmentName);
+				} else if (tempUnit.GetType() == typeof(NavalUnit) && equipment.domain == 2) {
+					eqNames.Add(equipment.equipmentName);
+				}
+			}
+		}
+		PopulateUI(eqNames);
 	}
 
 	public void SetAmount(int amount) {
@@ -75,6 +101,7 @@ public class EquipmentManager : MonoBehaviour {
 		equipmentList.Clear();
 		finish.SetActive(false);
 		finishEdit.SetActive(false);
+		menu = null;
 	}
 
 	public void RemoveEquipment(Equipment equipment) {
@@ -87,7 +114,7 @@ public class EquipmentManager : MonoBehaviour {
 	public void UpdateEquipmentList() {
 		GameObject newEquipmentObject = Instantiate(equipmentTemplate, GameObject.FindWithTag("ServerSync").transform);
 		Equipment newEquipment = newEquipmentObject.AddComponent<Equipment>();
-		newEquipment.Initiate(eq.equipmentName, amount, eq.movementRange, eq.sightRange, eq.weaponRange, eq.cost);
+		newEquipment.Initiate(eq.equipmentName, amount, eq.movementRange, eq.sightRange, eq.weaponRange, eq.cost, eq.side, eq.domain);
 
 		UpdateEquipmentList(newEquipment);
 	}
@@ -129,6 +156,7 @@ public class EquipmentManager : MonoBehaviour {
 			UpdateEquipmentList(item);
 		}
 		finish.SetActive(true);
+		this.menu = menu.gameObject;
 	}
 
 	public void UpdateEquipmentList(UnitEditor menu) {
@@ -137,5 +165,6 @@ public class EquipmentManager : MonoBehaviour {
 			UpdateEquipmentList(item);
 		}
 		finishEdit.SetActive(true);
+		this.menu = menu.gameObject;
 	}
 }
