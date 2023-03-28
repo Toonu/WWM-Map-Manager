@@ -70,6 +70,8 @@ public class Unit : MonoBehaviour {
 		}
 	}
 
+	//TODO Team points, Fog of War, Turns, Drawing things, Zooming out merging of units, artillery and dice rolls
+
 	internal float sightRangeValue = 4f;
 	internal float weaponRangeValue = 2f;
 

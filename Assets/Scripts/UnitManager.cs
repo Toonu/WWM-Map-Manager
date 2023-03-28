@@ -216,17 +216,21 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	internal void Despawn(GameObject gameObject) {
-		int index = gameObject.GetComponent<Unit>().id;
-		groundUnits.RemoveAt(index);
-		if (gameObject.GetComponent<GroundUnit>() != null) {
-			gameObject.GetComponent<GroundUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
-			groundUnits.Insert(index, null);
-		} else if (gameObject.GetComponent<AerialUnit>() != null) {
-			gameObject.GetComponent<AerialUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
-			aerialUnits.Insert(index, null);
+		if (gameObject.GetComponent<Base>() == null) {
+			int index = gameObject.GetComponent<Unit>().id;
+			groundUnits.RemoveAt(index);
+			if (gameObject.GetComponent<GroundUnit>() != null) {
+				gameObject.GetComponent<GroundUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
+				groundUnits.Insert(index, null);
+			} else if (gameObject.GetComponent<AerialUnit>() != null) {
+				gameObject.GetComponent<AerialUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
+				aerialUnits.Insert(index, null);
+			} else {
+				gameObject.GetComponent<NavalUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
+				navalUnits.Insert(index, null);
+			}
 		} else {
-			gameObject.GetComponent<NavalUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
-			navalUnits.Insert(index, null);
+			bases.Remove(gameObject.GetComponent<Base>());
 		}
 		Destroy(gameObject);
 	}

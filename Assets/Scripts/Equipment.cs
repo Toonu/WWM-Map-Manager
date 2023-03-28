@@ -1,4 +1,4 @@
-﻿using Google.Apis.Sheets.v4.Data;
+﻿using Newtonsoft.Json;
 using UnityEngine;
 
 public class Equipment : MonoBehaviour {
@@ -10,6 +10,9 @@ public class Equipment : MonoBehaviour {
 	internal int cost;
 	internal int side;
 	internal int domain;
+
+	[JsonIgnore]
+	public GameObject gameObject;
 
 	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, int cost, int side, int domain) {
 		this.equipmentName = equipmentName;

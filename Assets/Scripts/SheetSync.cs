@@ -2,62 +2,61 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
+using Newtonsoft.Json;
+using UnityEditor;
 
 public class SheetSync : MonoBehaviour {
 	public Popup generalPopup;
 	private IList<IList<object>> sheetData = new List<IList<object>>();
+	private IList<IList<object>> sheetDataBases = new List<IList<object>>();
 	private SheetReader ss;
-	private int unitWidth;
-	private int baseWidth;
 	internal string passwordA;
 	internal string passwordB;
 	internal string passwordAdmin;
 	internal int pointsA = 0;
 	internal int pointsB = 0;
+	private UnitManager manager;
+	private EquipmentManager eqManager;
 
 	private void Awake() {
 		ss = GetComponent<SheetReader>();
+		manager = GameObject.FindWithTag("Units").GetComponent<UnitManager>();
+		eqManager = GameObject.FindWithTag("Equipment").GetComponent<EquipmentManager>();
 	}
+
 
 	public void SaveSheet() {
-		if (unitWidth != 0) {
-			Debug.Log($"SheetLength:{unitWidth}");
-			generalPopup.PopUp("Saved!");
-			SaveSheet(bottomRight: GetLocation(unitWidth));
-		} else {
-			generalPopup.PopUp("No Data to Save!", 2.2f);
+		foreach (Base b in manager.bases) {
+			sheetDataBases.Add(new List<object> {b.identification.text.ToString(), b.transform.position.x, b.transform.position.y, b.baseType.ToString(), EnumUtil.ConvertBoolToInt(b.sideB)});
 		}
-	}
 
-	public void SaveSheet(string topLeft = "A1", string bottomRight = "Q") {
-		ss.SetSheetRange(sheetData, $"Data!{topLeft}:{bottomRight}");
+		ss.SetSheetRange(sheetDataBases, $"Bases!A2:E{sheetDataBases.Count+1}");
+		generalPopup.PopUp("Saved!");
 	}
 
 	public void LoadSheet() {
 		IList<IList<object>> data = ss.GetSheetRange("Data!A2:K");
+		IList<IList<object>> bases = ss.GetSheetRange("Bases!A2:E");
 		IList<IList<object>> sheetConfiguration = ss.GetSheetRange("Configuration!C2:C");
 		IList<IList<object>> equipmentData = ss.GetSheetRange("Configuration!E2:K");
 
 		try {
-			unitWidth = Convert.ToInt16(sheetConfiguration[0][0]);
-			baseWidth = Convert.ToInt16(sheetConfiguration[1][0]);
-
-			passwordA = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
-			passwordB = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
-			passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[4][0].ToString());
-			pointsA = Convert.ToInt16(sheetConfiguration[5][0].ToString());
-			pointsB = Convert.ToInt16(sheetConfiguration[6][0].ToString());
+			passwordA = PasswordManager.HashPassword(sheetConfiguration[0][0].ToString());
+			passwordB = PasswordManager.HashPassword(sheetConfiguration[1][0].ToString());
+			passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
+			pointsA = Convert.ToInt16(sheetConfiguration[3][0].ToString());
+			pointsB = Convert.ToInt16(sheetConfiguration[4][0].ToString());
 		} catch (Exception e) {
 			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
 		}
 
 
 		//Equipment
+
 		
-		EquipmentManager eqM = GameObject.FindWithTag("Equipment").GetComponent<EquipmentManager>();
 		CultureInfo enGbCulture = new CultureInfo("en-GB");
 
-		eqM.equipmentNames.Clear();
+		eqManager.equipmentNames.Clear();
 
 		GameObject templates = Instantiate(new GameObject("Templates"), transform);
 
@@ -72,14 +71,14 @@ public class SheetSync : MonoBehaviour {
 			if (eq.side == 0) {
 				switch (eq.domain) {
 					case 0:
-						EquipmentManager.eqGround.Add(eq);
-						break;
+					EquipmentManager.eqGround.Add(eq);
+					break;
 					case 1:
-						EquipmentManager.eqAerial.Add(eq);
-						break;
+					EquipmentManager.eqAerial.Add(eq);
+					break;
 					case 2:
-						EquipmentManager.eqNaval.Add(eq);
-						break;
+					EquipmentManager.eqNaval.Add(eq);
+					break;
 				}
 			} else {
 				switch (eq.domain) {
@@ -96,24 +95,19 @@ public class SheetSync : MonoBehaviour {
 			}
 		}
 
-		//Data
+		//Bases
 
-		for (int i = 0; i < data.Count; i++) {
-			sheetData.Add(new List<object>());
-			for (int j = 0; j < unitWidth; j++) {
-				sheetData[i].Add("");
-			}
-		}
-
-		for (int i = 0; i < data.Count; i++) {
-			IList<object> row = data[i];
-
-			for (int j = 0; j < row.Count; j++) {
-				sheetData[i][j] = row[j];
+		if (bases != null) {
+			for (int i = 0; i < bases.Count; i++) {
+				if (bases[i].Count == 5) {
+					manager.SpawnBase(bases[i][0].ToString(), new Vector3(Convert.ToSingle(bases[i][1], enGbCulture), Convert.ToSingle(bases[i][2], enGbCulture), -1), (BaseType)Enum.Parse(typeof(BaseType), bases[i][3].ToString()), EnumUtil.ConvertIntToBool(Convert.ToInt16(bases[i][4])));
+				}
 			}
 		}
 		
-		//SetData(5, 5, "Test");
+
+		//Data
+
 		//PrintData();
 	}
 
@@ -125,13 +119,11 @@ public class SheetSync : MonoBehaviour {
 		sheetData[x][y] = data;
 	}
 
-	private void PrintData(bool showEmpty = false) {
-		for (int i = 0; i < sheetData.Count; i++) {
+	private void PrintData(List<List<object>> list) {
+		for (int i = 0; i < list.Count; i++) {
 			IList<object> row = sheetData[i];
 			for (int j = 0; j < row.Count; j++) {
-				if (showEmpty) {
-					Debug.Log(i + ":" + j + " " + row[j].ToString());
-				} else if (row[j].ToString() != "") {
+				if (row[j].ToString() != "") {
 					Debug.Log(i + ":" + j + " " + row[j].ToString());
 				}
 			}

@@ -1,11 +1,16 @@
 ﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.Requests;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using UnityEngine;
+using static Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource;
 
 public class SheetReader : MonoBehaviour {
 	static private string spreadsheetId;
@@ -60,15 +65,44 @@ public class SheetReader : MonoBehaviour {
 	}
 
 	public void SetSheetRange(IList<IList<object>> dataArray, string range) {
-		ValueRange convertedData = new ValueRange();
-		convertedData.Values = dataArray;
-		convertedData.Range = range;
+		service.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range.Substring(0, range.Length - 1)).ExecuteAsync().ContinueWith(task => {
+			// Build the update request with the new data
+			ValueRange convertedData = new ValueRange {
+				Values = dataArray,
+				Range = range
+			};
 
-		SpreadsheetsResource.ValuesResource.UpdateRequest request = service.Spreadsheets.Values.Update(convertedData, spreadsheetId, range);
+			UpdateRequest request = service.Spreadsheets.Values.Update(convertedData, spreadsheetId, range);
 
-		request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-		UpdateValuesResponse response = request.Execute();
+			request.ValueInputOption = UpdateRequest.ValueInputOptionEnum.USERENTERED;
+			request.Execute();
+			Debug.Log("Saved");
+		});
 	}
+	/*
+	public IEnumerator<YieldInstruction> ClearAndSetValues(string spreadsheetId, string range, IList<IList<object>> values) {
+		
+		// Build the update request with the new data
+		ValueRange convertedData = new ValueRange {
+			Values = values,
+			Range = range
+		};
+
+		ClearRequest clear = service.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range.Substring(0, range.Length - 1));
+		UpdateRequest update = service.Spreadsheets.Values.Update(convertedData, spreadsheetId, range);
+		update.ValueInputOption = UpdateRequest.ValueInputOptionEnum.USERENTERED;
+
+		List<Request> requests = new List<Request>() { clear, update };
+
+		// Add the requests to a BatchUpdateValuesRequest object.
+		BatchRequest batchRequest = new BatchRequest(service);
+
+
+		// To execute asynchronously in an async method, replace `request.Execute()` as shown:
+		Data.BatchUpdateSpreadsheetResponse response = request.Execute();
+
+		batchRequest.ExecuteAsync();
+	}*/
 }
 
 [System.Serializable]

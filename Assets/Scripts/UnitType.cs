@@ -153,5 +153,12 @@ public static class EnumUtil {
 		}
 		return true;
 	}
+
+	public static int ConvertBoolToInt(bool value) {
+		if (value) {
+			return 1;
+		}
+		return 0;
+	}
 }
 
