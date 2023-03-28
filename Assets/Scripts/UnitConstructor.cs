@@ -10,7 +10,7 @@ public class UnitConstructor : MonoBehaviour {
 	private GroundTransportType transportModifier = GroundTransportType.None;
 	private UnitTier tier = UnitTier.Team;
 	private string identification = "";
-	public List<Equipment> unitEquipment;
+	public List<Equipment> unitEquipment = new List<Equipment>();
 
 	public void UpdatePosition(Vector3 position) {
 		basePosition = position;

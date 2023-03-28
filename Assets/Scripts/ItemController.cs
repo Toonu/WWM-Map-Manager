@@ -37,7 +37,7 @@ public class ItemController : MonoBehaviour {
 	}
 
 	void OnMouseOver() {
-		if ((Input.GetMouseButtonDown(1) || Input.mouseScrollDelta.y != 0) && (aC.admin || aC.sideB == sideB)) {
+		if (Input.GetMouseButtonDown(1) && (aC.admin || aC.sideB == sideB)) {
 			ContextMenu.Instance.CreateContextMenu(contextMenuItems, Camera.main.WorldToScreenPoint(transform.position));
 			aC.deletingMenus = true;
 		}

@@ -59,11 +59,41 @@ public class SheetSync : MonoBehaviour {
 
 		eqM.equipmentNames.Clear();
 
+		GameObject templates = Instantiate(new GameObject("Templates"), transform);
+
 		foreach (IList<object> col in equipmentData) {
-			GameObject temp = Instantiate(UnitManager.Instance.equipmentTemplate, transform);
+			if (Convert.ToInt16(col[6]) == 3) {
+				continue;
+			}
+			GameObject temp = Instantiate(UnitManager.Instance.equipmentTemplate, templates.transform);
 			Equipment eq = temp.AddComponent<Equipment>();
 			eq.Initiate(col[0].ToString(), 1, Convert.ToSingle(col[1], enGbCulture), Convert.ToSingle(col[2], enGbCulture), Convert.ToSingle(col[3], enGbCulture), Convert.ToInt16(col[4]), Convert.ToInt16(col[5]), Convert.ToInt16(col[6]));
-			eqM.equipmentNames.Add(eq);
+			temp.name = $"Template: {eq.equipmentName}";
+			if (eq.side == 0) {
+				switch (eq.domain) {
+					case 0:
+						EquipmentManager.eqGround.Add(eq);
+						break;
+					case 1:
+						EquipmentManager.eqAerial.Add(eq);
+						break;
+					case 2:
+						EquipmentManager.eqNaval.Add(eq);
+						break;
+				}
+			} else {
+				switch (eq.domain) {
+					case 0:
+					EquipmentManager.eqGroundB.Add(eq);
+					break;
+					case 1:
+					EquipmentManager.eqAerialB.Add(eq);
+					break;
+					case 2:
+					EquipmentManager.eqNavalB.Add(eq);
+					break;
+				}
+			}
 		}
 
 		//Data

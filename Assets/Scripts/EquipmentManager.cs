@@ -11,6 +11,8 @@ public class EquipmentManager : MonoBehaviour {
 	private TMP_InputField amountInput;
 	private TMP_Dropdown types;
 	private TextFloatAppender costLabel;
+	private TextFloatAppender sightLabel;
+	private TextFloatAppender rangeLabel;
 	public GameObject buttons;
 	public GameObject button;
 	public GameObject equipmentTemplate;
@@ -29,6 +31,43 @@ public class EquipmentManager : MonoBehaviour {
 		costLabel = transform.Find("Menu/EqCost").GetComponent<TextFloatAppender>();
 		finish = transform.Find("Menu/Finish").gameObject;
 		finishEdit = transform.Find("Menu/FinishEdit").gameObject;
+		sightLabel = transform.Find("Menu/EqSight").GetComponent<TextFloatAppender>();
+		rangeLabel = transform.Find("Menu/EqRange").GetComponent<TextFloatAppender>();
+	}
+
+	internal static List<Equipment> eqNaval = new List<Equipment>();
+	internal static List<Equipment> eqAerial = new List<Equipment>();
+	internal static List<Equipment> eqGround = new List<Equipment>();
+	internal static List<Equipment> eqNavalB = new List<Equipment>();
+	internal static List<Equipment> eqAerialB = new List<Equipment>();
+	internal static List<Equipment> eqGroundB = new List<Equipment>();
+
+	public void PopulateUI(UnitEditor menu) {
+		List<string> eqNames = new List<string>();
+		if (menu.GetComponent<UnitEditor>().unit.sideB) {
+			if (menu.GetComponent<UnitEditor>().unit.GetType() == typeof(GroundUnit)) {
+				eqNames = eqGroundB.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqGroundB;
+			} else if (menu.GetComponent<UnitEditor>().unit.GetType() == typeof(AerialUnit)) {
+				eqNames = eqAerialB.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqAerialB;
+			} else if (menu.GetComponent<UnitEditor>().unit.GetType() == typeof(NavalUnit)) {
+				eqNames = eqNavalB.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqNavalB;
+			}
+		} else {
+			if (menu.GetComponent<UnitEditor>().unit.GetType() == typeof(GroundUnit)) {
+				eqNames = eqGround.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqGround;
+			} else if (menu.GetComponent<UnitEditor>().unit.GetType() == typeof(AerialUnit)) {
+				eqNames = eqAerial.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqAerial;
+			} else if (menu.GetComponent<UnitEditor>().unit.GetType() == typeof(NavalUnit)) {
+				eqNames = eqNaval.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqNaval;
+			}
+		}
+		PopulateUI(eqNames);
 	}
 
 	public void PopulateUI(List<string> eqNames) {
@@ -39,28 +78,27 @@ public class EquipmentManager : MonoBehaviour {
 
 	public void PopulateUI(UnitConstructor menu) {
 		List<string> eqNames = new List<string>();
-		foreach (Equipment equipment in equipmentNames) {
-			if (menu.domain == equipment.domain) {
-				if (EnumUtil.ConvertIntToBool(equipment.side) == menu.sideB) {
-					eqNames.Add(equipment.equipmentName);
-				}
+		if (menu.GetComponent<UnitConstructor>().sideB) {
+			if (menu.GetComponent<UnitConstructor>().domain == 0) {
+				eqNames = eqGroundB.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqGroundB;
+			} else if (menu.GetComponent<UnitConstructor>().domain == 1) {
+				eqNames = eqAerialB.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqAerialB;
+			} else if (menu.GetComponent<UnitConstructor>().domain == 2) {
+				eqNames = eqNavalB.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqNavalB;
 			}
-		}
-		PopulateUI(eqNames);
-	}
-
-	public void PopulateUI(UnitEditor menu) {
-		List<string> eqNames = new List<string>();
-		foreach (Equipment equipment in equipmentNames) {
-			if (menu.GetComponent<UnitEditor>().unit.sideB == EnumUtil.ConvertIntToBool(equipment.side)) {
-				Unit tempUnit = menu.GetComponent<UnitEditor>().unit;
-				if (tempUnit.GetType() == typeof(GroundUnit) && equipment.domain == 0) {
-					eqNames.Add(equipment.equipmentName);
-				} else if (tempUnit.GetType() == typeof(AerialUnit) && equipment.domain == 1) {
-					eqNames.Add(equipment.equipmentName);
-				} else if (tempUnit.GetType() == typeof(NavalUnit) && equipment.domain == 2) {
-					eqNames.Add(equipment.equipmentName);
-				}
+		} else {
+			if (menu.GetComponent<UnitConstructor>().domain == 0) {
+				eqNames = eqGround.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqGround;
+			} else if (menu.GetComponent<UnitConstructor>().domain == 1) {
+				eqNames = eqAerial.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqAerial;
+			} else if (menu.GetComponent<UnitConstructor>().domain == 2) {
+				eqNames = eqNaval.Select(e => e.equipmentName).ToList();
+				equipmentNames = eqNaval;
 			}
 		}
 		PopulateUI(eqNames);
@@ -78,6 +116,8 @@ public class EquipmentManager : MonoBehaviour {
 	public void SetType(int type) {
 		eq = equipmentNames[type];
 		SetAmount(1);
+		sightLabel.UpdateText(eq.sightRange);
+		rangeLabel.UpdateText(eq.movementRange);
 	}
 
 	public void AddEquipment(UnitConstructor menu) {
@@ -102,6 +142,13 @@ public class EquipmentManager : MonoBehaviour {
 		finish.SetActive(false);
 		finishEdit.SetActive(false);
 		menu = null;
+	}
+
+	public void CancelMenu() {
+		foreach (Equipment equipment in equipmentList) {
+			Destroy(equipment.gameObject);
+		}
+		CloseMenu();
 	}
 
 	public void RemoveEquipment(Equipment equipment) {

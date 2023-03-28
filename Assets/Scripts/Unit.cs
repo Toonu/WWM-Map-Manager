@@ -41,6 +41,8 @@ public class Unit : MonoBehaviour {
 
 		if (unitEquipment.Count > 0) {
 			AddEquipment(unitEquipment);
+		} else {
+			this.unitEquipment = new List<Equipment>();
 		}
 
 		ChangeTier(Convert.ToInt16(unitTier));
@@ -51,18 +53,21 @@ public class Unit : MonoBehaviour {
 	private TextMeshProUGUI equipment;
 
 	internal void AddEquipment(List<Equipment> equipmentList) {
-		unitEquipment = equipmentList.ToList();
-		equipment.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
+		if (equipmentList.Count > 0) {
+			unitEquipment = equipmentList.ToList();
+			equipment.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
 
-		//TODO - Add equipment to unit stats of range, weaponRange, sightRange based on the highest equipment in equipmentList
+			movementRangeValue = equipmentList.Max(e => e.movementRange);
+			sightRangeValue = equipmentList.Max(e => e.sightRange);
+			weaponRangeValue = equipmentList.Max(e => e.weaponRange);
 
-		movementRangeValue = equipmentList.Max(e => e.movementRange);
-		sightRangeValue = equipmentList.Max(e => e.sightRange);
-		weaponRangeValue = equipmentList.Max(e => e.weaponRange);
-
-		sightRange.transform.localScale = new Vector3(212 * sightRangeValue, 212 * sightRangeValue, 0);
-		weaponRange.transform.localScale = new Vector3(212 * weaponRangeValue, 212 * weaponRangeValue, 0);
-		ResizeMovementCircle();
+			sightRange.transform.localScale = new Vector3(212 * sightRangeValue, 212 * sightRangeValue, 0);
+			weaponRange.transform.localScale = new Vector3(212 * weaponRangeValue, 212 * weaponRangeValue, 0);
+			ResizeMovementCircle();
+		} else {
+			unitEquipment = new List<Equipment>();
+			equipment.text = "";
+		}
 	}
 
 	internal float sightRangeValue = 4f;

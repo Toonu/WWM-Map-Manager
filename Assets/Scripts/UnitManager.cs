@@ -219,10 +219,13 @@ public class UnitManager : MonoBehaviour {
 		int index = gameObject.GetComponent<Unit>().id;
 		groundUnits.RemoveAt(index);
 		if (gameObject.GetComponent<GroundUnit>() != null) {
+			gameObject.GetComponent<GroundUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
 			groundUnits.Insert(index, null);
 		} else if (gameObject.GetComponent<AerialUnit>() != null) {
+			gameObject.GetComponent<AerialUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
 			aerialUnits.Insert(index, null);
 		} else {
+			gameObject.GetComponent<NavalUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
 			navalUnits.Insert(index, null);
 		}
 		Destroy(gameObject);

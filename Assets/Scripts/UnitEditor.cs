@@ -74,6 +74,7 @@ public class UnitEditor : MonoBehaviour {
 		if (domain == 0) {
 			UpdateGroundItems((GroundUnit)unit);
 		}
+
 		eq.text = string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
 	}
 

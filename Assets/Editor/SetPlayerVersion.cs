@@ -3,12 +3,13 @@ using UnityEditor;
 using TMPro;
 
 public class SetPlayerVersion : EditorWindow {
-	private string newVersion = "0.0.0";
+	private static string newVersion = "0.0.0";
 	private TMP_Text versionLabel;
 
 	[MenuItem("Version/Set Version")]
 	public static void ShowWindow() {
 		GetWindow<SetPlayerVersion>("Set Version");
+		newVersion = EditorPrefs.GetString("ProgramVersion");
 	}
 
 	private void OnGUI() {
@@ -24,9 +25,18 @@ public class SetPlayerVersion : EditorWindow {
 			if (labelObject != null) {
 				versionLabel = labelObject.GetComponent<TMP_Text>();
 				if (versionLabel != null) {
-					versionLabel.text = $"World War Mode Manager v{newVersion}\nby Toonu ";
+					versionLabel.text = $"World War Mode Manager v{newVersion}\nby Toonu";
 				}
 			}
+			labelObject = GameObject.Find("World War Map Manager");
+			if (labelObject != null) {
+				versionLabel = labelObject.GetComponent<TMP_Text>();
+				if (versionLabel != null) {
+					versionLabel.text = $"World War Mode\r\nMap Manager\r\nv{newVersion}";
+				}
+			}
+
+			EditorPrefs.SetString("ProgramVersion", newVersion);
 		}
 	}
 }

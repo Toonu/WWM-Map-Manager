@@ -1,22 +1,19 @@
-﻿using TMPro;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
 
 public class TextFloatAppender : MonoBehaviour {
 	private TextMeshProUGUI text;
 	// Use this for initialization
-	void Start() {
+	void Awake() {
 		text = GetComponent<TextMeshProUGUI>();
 	}
 
-	public void UpdateText(float newText) {
+	public void UpdateText(float replacementNumber) {
 		try {
-			if (text.text.Split(':')[1].Trim().Length > 1) {
-				text.text = text.text.Substring(0, text.text.Length - 2) + newText;
-			} else {
-				text.text = text.text.Substring(0, text.text.Length - 1) + newText;
-			}
+			text.text = string.Join(" ", text.text.Split(' ').Take(text.text.Split(' ').Length - 1).ToArray()) + " " +replacementNumber;
 		} catch (System.NullReferenceException) { }
-
 	}
 }
 
