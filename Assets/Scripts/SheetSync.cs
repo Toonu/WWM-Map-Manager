@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public class SheetSync : MonoBehaviour {
@@ -54,11 +55,12 @@ public class SheetSync : MonoBehaviour {
 		//Equipment
 		
 		EquipmentManager eqM = GameObject.FindWithTag("Equipment").GetComponent<EquipmentManager>();
+		CultureInfo enGbCulture = new CultureInfo("en-GB");
 
 		foreach (IList<object> col in equipmentData) {
 			GameObject temp = Instantiate(UnitManager.Instance.equipmentTemplate, transform);
 			Equipment eq = temp.AddComponent<Equipment>();
-			eq.Initiate(col[0].ToString(), 1, Convert.ToSingle(col[1]), Convert.ToSingle(col[2]), Convert.ToSingle(col[3]), Convert.ToInt16(col[4]));
+			eq.Initiate(col[0].ToString(), 1, Convert.ToSingle(col[1], enGbCulture), Convert.ToSingle(col[2], enGbCulture), Convert.ToSingle(col[3], enGbCulture), Convert.ToInt16(col[4]));
 			eqM.equipmentNames.Add(eq);
 		}
 		

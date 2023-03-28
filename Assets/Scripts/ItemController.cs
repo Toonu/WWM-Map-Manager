@@ -90,6 +90,7 @@ public class ItemController : MonoBehaviour {
 		Destroy(contextPanel.gameObject);
 		if (GetComponent<Base>() == null && aC.admin) {
 			GetComponent<Unit>().turnStartPosition = transform.position;
+			GetComponent<Unit>().ResizeMovementCircle();
 		}
 	}
 }

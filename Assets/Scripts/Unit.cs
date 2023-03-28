@@ -61,8 +61,9 @@ public class Unit : MonoBehaviour {
 		sightRangeValue = equipmentList.Max(e => e.sightRange);
 		weaponRangeValue = equipmentList.Max(e => e.weaponRange);
 
-		sightRange.transform.localScale = new Vector3(sightRangeValue, sightRangeValue, 0);
-		weaponRange.transform.localScale = new Vector3(weaponRangeValue, weaponRangeValue, 0);
+		sightRange.transform.localScale = new Vector3(212 * sightRangeValue, 212 * sightRangeValue, 0);
+		weaponRange.transform.localScale = new Vector3(212 * weaponRangeValue, 212 * weaponRangeValue, 0);
+		ResizeMovementCircle();
 	}
 
 	internal float sightRangeValue = 4f;
@@ -109,9 +110,12 @@ public class Unit : MonoBehaviour {
 		Vector3 newPosition = Camera.main.ScreenToWorldPoint(mousePosition) + offset;
 		newPosition = Vector3.ClampMagnitude(newPosition - turnStartPosition, GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin ? 9999999f : movementRangeValue) + turnStartPosition;
 		transform.position = newPosition;
-		float distance = Vector3.Distance(turnStartPosition, transform.position);
+		ResizeMovementCircle();
+	}
+
+	internal void ResizeMovementCircle() {
 		// Resize the range circle based on the distance between the starting position and the new position of the draggable object
-		float maxRange = movementRangeValue - distance;
+		float maxRange = movementRangeValue - Vector3.Distance(turnStartPosition, transform.position);
 		movementRange.transform.localScale = new Vector3(212 * maxRange, 212 * maxRange, 0);
 	}
 
