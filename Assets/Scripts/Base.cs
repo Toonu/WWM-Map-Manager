@@ -3,20 +3,22 @@ using UnityEngine;
 
 public class Base : MonoBehaviour {
 	internal BaseType baseType;
-	internal bool enemySide = false;
+	public bool sideB;
 	private MeshRenderer main;
 	internal TextMeshProUGUI identification;
+	protected ApplicationController aC;
 
-	public void Initiate(string identification, Vector3 position, BaseType baseType, bool enemySide) {
+	public void Initiate(string identification, Vector3 position, BaseType baseType, bool sideB) {
 		transform.position = position;
 		this.baseType = baseType;
-		this.enemySide = enemySide;
+		this.sideB = sideB;
 
 		main = transform.Find("Main").GetComponent<MeshRenderer>();
 		main.material.mainTexture = UnitManager.Instance.GetBaseTexture(baseType);
-		main.material.color = enemySide ? Color.red : Color.black;
+		main.material.color = sideB ? Color.red : Color.black;
 		if (baseType == BaseType.Airfield)	main.transform.localScale = new Vector3(1.5f, 1, 1);
-		
+
+		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 		this.identification = transform.Find("Canvas/Name").GetComponent<TextMeshProUGUI>();
 		this.identification.text = identification;
 		turnStartPosition = transform.position;
@@ -39,8 +41,9 @@ public class Base : MonoBehaviour {
 		}
 	}
 
-	internal void ChangeAffiliation(bool enemySide) {
-		this.enemySide = enemySide;
+	internal void ChangeAffiliation() {
+		bool sideB = aC.sideB == this.sideB;
+		main.material.color = sideB ? Color.black : Color.red;
 	}
 
 	internal void ChangeType(BaseType type) {

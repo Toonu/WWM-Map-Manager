@@ -33,19 +33,19 @@ public class SheetSync : MonoBehaviour {
 	}
 
 	public void LoadSheet() {
-		IList<IList<object>> data = ss.GetSheetRange("Data!A1:K");
-		IList<IList<object>> sheetConfiguration = ss.GetSheetRange("Configuration!C1:C");
+		IList<IList<object>> data = ss.GetSheetRange("Data!A2:K");
+		IList<IList<object>> sheetConfiguration = ss.GetSheetRange("Configuration!C2:C");
 		IList<IList<object>> equipmentData = ss.GetSheetRange("Configuration!E2:I");
 			
 		try {
-			unitWidth = Convert.ToInt16(sheetConfiguration[1][0]);
-			baseWidth = Convert.ToInt16(sheetConfiguration[2][0]);
+			unitWidth = Convert.ToInt16(sheetConfiguration[0][0]);
+			baseWidth = Convert.ToInt16(sheetConfiguration[1][0]);
 
-			passwordA = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
-			passwordB = PasswordManager.HashPassword(sheetConfiguration[4][0].ToString());
-			passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[5][0].ToString());
-			pointsA = Convert.ToInt16(sheetConfiguration[6][0].ToString());
-			pointsB = Convert.ToInt16(sheetConfiguration[7][0].ToString());
+			passwordA = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
+			passwordB = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
+			passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[4][0].ToString());
+			pointsA = Convert.ToInt16(sheetConfiguration[5][0].ToString());
+			pointsB = Convert.ToInt16(sheetConfiguration[6][0].ToString());
 		} catch (Exception e) {
 			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
 		}

@@ -10,33 +10,36 @@ public class Unit : MonoBehaviour {
 
 	#region UnitVisuals
 	protected MeshRenderer main;
-	public GameObject range;
+	public GameObject movementRange;
 	public GameObject sightRange;
 	public GameObject weaponRange;
 
 	internal TextMeshProUGUI unitName;
 	internal TextMeshProUGUI tier;
-	internal bool enemySide;
+	public bool sideB;
+
+	protected ApplicationController aC;
 	#endregion
 
 	public void Initiate(object ID, Vector3 position, UnitTier unitTier, string unitName, List<Equipment> unitEquipment) {
 		main = transform.GetChild(0).GetChild(2).GetComponent<MeshRenderer>();
-		range = transform.Find("Range").gameObject;
+		movementRange = transform.Find("Range").gameObject;
 		sightRange = transform.Find("SightRange").gameObject;
 		weaponRange = transform.Find("WeaponRange").gameObject;
 		this.unitName = transform.Find("Canvas/unitName").gameObject.GetComponent<TextMeshProUGUI>();
 		tier = transform.Find("Canvas/Tier").gameObject.GetComponent<TextMeshProUGUI>();
 		equipment = transform.Find("Canvas/Eq").gameObject.GetComponent<TextMeshProUGUI>();
-		equipment.text = "";
+		
 		id = Convert.ToInt16(ID);
+		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 
 		//distance = 0f;
 		offset = new Vector3(0, 0, 0);
-		distanceRange = 0.5f;
+		movementRangeValue = 0.5f;
 		transform.position = position;
 		turnStartPosition = position;
 
-		if (unitEquipment != null) {
+		if (unitEquipment.Count > 0) {
 			AddEquipment(unitEquipment);
 		}
 
@@ -45,25 +48,51 @@ public class Unit : MonoBehaviour {
 
 	}
 
+	internal List<Equipment> unitEquipment;
+	private TextMeshProUGUI equipment;
+
+	internal void AddEquipment(List<Equipment> equipmentList) {
+		unitEquipment = equipmentList.ToList();
+		equipment.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
+
+		//TODO - Add equipment to unit stats of range, weaponRange, sightRange based on the highest equipment in equipmentList
+
+		movementRangeValue = equipmentList.Max(e => e.movementRange);
+		sightRangeValue = equipmentList.Max(e => e.sightRange);
+		weaponRangeValue = equipmentList.Max(e => e.weaponRange);
+
+		sightRange.transform.localScale = new Vector3(sightRangeValue, sightRangeValue, 0);
+		weaponRange.transform.localScale = new Vector3(weaponRangeValue, weaponRangeValue, 0);
+	}
+
+	internal float sightRangeValue = 4f;
+	internal float weaponRangeValue = 2f;
+
+	#region Movement
+
+	private Vector3 offset;
+	internal Vector3 turnStartPosition;
+	public float movementRangeValue;
+
 	internal void OnMouseOver() {
+		if (!aC.admin && aC.sideB != sideB) {
+			return;
+		}
 		sightRange.SetActive(true);
-		range.SetActive(true);
+		movementRange.SetActive(true);
 		equipment.gameObject.SetActive(true);
 	}
 
 	internal void OnMouseExit() {
 		sightRange.SetActive(false);
-		range.SetActive(false);
+		movementRange.SetActive(false);
 		equipment.gameObject.SetActive(false);
 	}
 
-	private Vector3 offset;
-	internal Vector3 turnStartPosition;
-	public float distanceRange;
-	private List<Equipment> unitEquipment = new List<Equipment>();
-	private TextMeshProUGUI equipment;
-
 	private void OnMouseDown() {
+		if (!aC.admin && aC.sideB != sideB) {
+			return;
+		}
 		// Calculate the offset between the object's position and the mouse position
 		Vector3 mousePosition = Input.mousePosition;
 		mousePosition.z = Camera.main.nearClipPlane;
@@ -71,23 +100,22 @@ public class Unit : MonoBehaviour {
 	}
 
 	private void OnMouseDrag() {
+		if (!aC.admin && aC.sideB != sideB) {
+			return;
+		}
 		// Calculate the new position of the object based on the mouse position and the range
 		Vector3 mousePosition = Input.mousePosition;
 		mousePosition.z = Camera.main.nearClipPlane;
 		Vector3 newPosition = Camera.main.ScreenToWorldPoint(mousePosition) + offset;
-		newPosition = Vector3.ClampMagnitude(newPosition - turnStartPosition, GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin ? 9999999f : distanceRange) + turnStartPosition;
+		newPosition = Vector3.ClampMagnitude(newPosition - turnStartPosition, GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin ? 9999999f : movementRangeValue) + turnStartPosition;
 		transform.position = newPosition;
 		float distance = Vector3.Distance(turnStartPosition, transform.position);
 		// Resize the range circle based on the distance between the starting position and the new position of the draggable object
-		float maxRange = distanceRange - distance;
-		range.transform.localScale = new Vector3(212 * maxRange, 212 * maxRange, 0);
+		float maxRange = movementRangeValue - distance;
+		movementRange.transform.localScale = new Vector3(212 * maxRange, 212 * maxRange, 0);
 	}
 
-	internal void AddEquipment(List<Equipment> equipmentList) {
-		unitEquipment = equipmentList;
-		equipment.text = "";
-		string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
-	}
+	#endregion
 
 	internal void ChangeName(string identification) {
 		

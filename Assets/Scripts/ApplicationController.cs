@@ -10,12 +10,13 @@ public class ApplicationController : MonoBehaviour {
 	public CameraController mainCamera;
 	public Popup generalPopup;
 	public GameObject login;
+	public GameObject password;
 	public SheetSync server;
 	public string Username { private get; set; }
 	public string Password { private get; set; }
 	internal bool loggedIn = false;
 	internal bool admin = false;
-	private bool sideEnemy = false;
+	internal bool sideB = false;
 	internal bool deletingMenus = false;
 
 	public void LoadSettings() {
@@ -32,6 +33,10 @@ public class ApplicationController : MonoBehaviour {
 			login.transform.Find("Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
 			Password = PlayerPrefs.GetString("password");
 			login.transform.Find("Sticky").GetComponent<Toggle>().isOn = true;
+
+			password.transform.Find("Username/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = Username;
+			password.transform.Find("Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
+			password.transform.Find("Sticky").GetComponent<Toggle>().isOn = true;
 		}
 	}
 
@@ -79,28 +84,42 @@ public class ApplicationController : MonoBehaviour {
 	/// Logs in the user based on input fields in the settings.
 	/// </summary>
 	public void Login() {
+		bool sideChange = false;
 		if (Username == "A" && Password == server.passwordA) {
+			if (sideB) {
+				sideChange = true;
+			}
 			loggedIn = true;
-			sideEnemy = false;
+			sideB = false;
 			admin = false;
 		} else if (Username == "B" && Password == server.passwordB) {
+			if (!sideB) {
+				sideChange = true;
+			}
 			loggedIn = true;
-			sideEnemy = true;
+			sideB = true;
 			admin = false;
 		} else if (Username == "Admin" && Password == server.passwordAdmin) {
+			if (sideB) {
+				sideChange = true;
+			}
 			loggedIn = true;
-			sideEnemy = false;
+			sideB = false;
 			admin = true;
 		}
 		//Saving credentials to registry
 		if (loggedIn && PlayerPrefs.GetInt("KeepLogin") == 1) {
 			PlayerPrefs.SetString("username", Username);
 			PlayerPrefs.SetString("password", Password);
+			LoadSettings();
 		}
 		//Do when user logs in
 		if (loggedIn) {
 			generalPopup.PopUp("Logged In!");
-			UnitManager.Instance.SwitchSide(sideEnemy);
+			login.SetActive(false);
+			if (sideChange) {
+				UnitManager.Instance.SwitchSide(sideB);
+			}
 		} else {
 			generalPopup.PopUp("Error!");
 		}

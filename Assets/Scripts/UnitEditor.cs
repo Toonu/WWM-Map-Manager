@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
 public class UnitEditor : MonoBehaviour {
     private int domain;
-	private Unit unit;
+	internal Unit unit;
 	private GroundUnit groundUnit;
 	private AerialUnit aerialUnit;
 	private NavalUnit navalUnit;
@@ -12,6 +13,7 @@ public class UnitEditor : MonoBehaviour {
 	private TMP_Dropdown specialization;
 	private TMP_Dropdown movement;
 	private TMP_Dropdown transport;
+	private TextMeshProUGUI eq;
 	private TMP_InputField unitName;
 
 	public void Awake() { 
@@ -20,6 +22,7 @@ public class UnitEditor : MonoBehaviour {
 		movement = transform.Find("GroundMovementType").GetComponent<TMP_Dropdown>();
 		transport = transform.Find("GroundTransportType").GetComponent<TMP_Dropdown>();
 		unitName = transform.Find("UnitName").GetComponent<TMP_InputField>();
+		eq = transform.Find("Eq").GetComponent<TextMeshProUGUI>();
 	}
 
 	public void UpdateSpecialization(int i) {
@@ -71,6 +74,7 @@ public class UnitEditor : MonoBehaviour {
 		if (domain == 0) {
 			UpdateGroundItems((GroundUnit)unit);
 		}
+		eq.text = string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
 	}
 
 	private void UpdateGroundItems(GroundUnit unit) {
