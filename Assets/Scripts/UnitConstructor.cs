@@ -38,5 +38,6 @@ public class UnitConstructor : MonoBehaviour {
 	}
 	public void Spawn() {
 		UnitManager.Instance.SpawnUnit(new Vector3(basePosition.x, basePosition.y, basePosition.z), domain, specialization, identification, tier, sideB, movementModifier, transportModifier, unitEquipment);
+		unitEquipment.Clear();
 	}
 }

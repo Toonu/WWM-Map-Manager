@@ -44,8 +44,7 @@ public class Unit : MonoBehaviour {
 		}
 
 		ChangeTier(Convert.ToInt16(unitTier));
-		ChangeName(unitTier >= UnitTier.Corps ? EnumUtil.GetCorps(unitName) : unitName);
-
+		ChangeName(unitName);
 	}
 
 	internal List<Equipment> unitEquipment;
