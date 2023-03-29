@@ -194,7 +194,7 @@ public class UnitManager : MonoBehaviour {
 		bases.Add(b);
 	}
 
-	internal void SpawnUnit(Vector3 position, int domain, int specialization,
+	internal Unit SpawnUnit(Vector3 position, int domain, int specialization,
 		string identification, UnitTier tier, bool sideB, GroundMovementType movementModifier,
 		GroundTransportType transportModifier, List<Equipment> unitEquipment)
 	{
@@ -204,14 +204,17 @@ public class UnitManager : MonoBehaviour {
 			GroundUnit unit = newUnit.AddComponent<GroundUnit>();
 			unit.Initiate(i, position, tier, identification, sideB, (GroundSpecialization)specialization, movementModifier, transportModifier, unitEquipment, null);
 			AppendList(unit, i, groundUnits, aerialUnits, navalUnits);
+			return unit;
 		} else if (domain == 1) {
 			AerialUnit unit = newUnit.AddComponent<AerialUnit>();
 			unit.Initiate(i, position, tier, identification, sideB, (AerialSpecialization)specialization, unitEquipment);
 			AppendList(unit, i, aerialUnits, groundUnits, navalUnits);
+			return unit;
 		} else {
 			NavalUnit unit = newUnit.AddComponent<NavalUnit>();
 			unit.Initiate(i, position, tier, identification, sideB, (NavalSpecialization)specialization, unitEquipment);
 			AppendList(unit, i, navalUnits, groundUnits, aerialUnits);
+			return unit;
 		}
 	}
 

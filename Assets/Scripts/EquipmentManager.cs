@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class EquipmentManager : MonoBehaviour {
 	public List<Equipment> equipmentNames = new List<Equipment>();
-	private List<Equipment> equipmentList = new List<Equipment>();
+	internal List<Equipment> equipmentList = new List<Equipment>();
 	private TMP_InputField amountInput;
 	private TMP_Dropdown types;
 	private TextFloatAppender costLabel;

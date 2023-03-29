@@ -35,7 +35,7 @@ public class Unit : MonoBehaviour {
 
 		//distance = 0f;
 		offset = new Vector3(0, 0, 0);
-		movementRangeValue = 0.5f;
+		movementRangeValue = 0.3f;
 		transform.position = position;
 		turnStartPosition = position;
 
@@ -72,8 +72,8 @@ public class Unit : MonoBehaviour {
 
 	//TODO Team points, Fog of War, Turns, Drawing things, Zooming out merging of units, artillery and dice rolls
 
-	internal float sightRangeValue = 4f;
-	internal float weaponRangeValue = 2f;
+	internal float sightRangeValue = 0.25f;
+	internal float weaponRangeValue = 0.2f;
 
 	#region Movement
 
@@ -128,7 +128,6 @@ public class Unit : MonoBehaviour {
 	#endregion
 
 	internal void ChangeName(string identification) {
-		
 		if (UnitTier > UnitTier.Division) {
 			unitName.text = EnumUtil.GetCorps(identification);
 		} else {

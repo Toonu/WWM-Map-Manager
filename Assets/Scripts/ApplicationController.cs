@@ -62,6 +62,7 @@ public class ApplicationController : MonoBehaviour {
 	private void Start() {
 		transform.Find("UI/Points").GetComponent<TextMeshProUGUI>().text = $"A:{server.pointsA}pts B:{server.pointsB}pts";
 		server.LoadSheet();
+		transform.Find("UI/Loading").gameObject.SetActive(false);
 	}
 
 	private void Update() {
