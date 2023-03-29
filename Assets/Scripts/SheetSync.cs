@@ -17,6 +17,7 @@ public class SheetSync : MonoBehaviour {
 	internal int pointsB = 0;
 	private UnitManager manager;
 	private EquipmentManager eqManager;
+	private int basesLength = 0;
 
 	private void Awake() {
 		ss = GetComponent<SheetReader>();
@@ -26,11 +27,14 @@ public class SheetSync : MonoBehaviour {
 
 
 	public void SaveSheet() {
+		if (manager.bases.Count > basesLength) {
+			basesLength = manager.bases.Count;
+		}
 		foreach (Base b in manager.bases) {
 			sheetDataBases.Add(new List<object> {b.identification.text.ToString(), b.transform.position.x, b.transform.position.y, b.baseType.ToString(), EnumUtil.ConvertBoolToInt(b.sideB)});
 		}
 
-		ss.SetSheetRange(sheetDataBases, $"Bases!A2:E{sheetDataBases.Count+1}");
+		ss.SetSheetRange(sheetDataBases, $"Bases!A2:E{basesLength+1}");
 		generalPopup.PopUp("Saved!");
 	}
 
@@ -39,6 +43,8 @@ public class SheetSync : MonoBehaviour {
 		IList<IList<object>> bases = ss.GetSheetRange("Bases!A2:E");
 		IList<IList<object>> sheetConfiguration = ss.GetSheetRange("Configuration!C2:C");
 		IList<IList<object>> equipmentData = ss.GetSheetRange("Configuration!E2:K");
+
+		//TODO when loading sheet while already loaded, delete units and other bases etc
 
 		try {
 			passwordA = PasswordManager.HashPassword(sheetConfiguration[0][0].ToString());
@@ -101,6 +107,7 @@ public class SheetSync : MonoBehaviour {
 			for (int i = 0; i < bases.Count; i++) {
 				if (bases[i].Count == 5) {
 					manager.SpawnBase(bases[i][0].ToString(), new Vector3(Convert.ToSingle(bases[i][1], enGbCulture), Convert.ToSingle(bases[i][2], enGbCulture), -1), (BaseType)Enum.Parse(typeof(BaseType), bases[i][3].ToString()), EnumUtil.ConvertIntToBool(Convert.ToInt16(bases[i][4])));
+					basesLength++;
 				}
 			}
 		}

@@ -16,8 +16,8 @@ public class UnitManager : MonoBehaviour {
 		_instance = GetComponent<UnitManager>();
 
 		//SpawnUnit(Vector3.zero, 0, Convert.ToInt16(GroundSpecialization.SPG), GroundMovementType.Wheeled, GroundTransportType.None, UnitTier.Battalion, "5");
-		SpawnBase("Lund", new Vector3(0.55f, -0.74f, -1), BaseType.Airfield, false);
-		SpawnBase("Dnul", new Vector3(-0.74f, -0.55f, -1), BaseType.Airfield, true);
+		//SpawnBase("Lund", new Vector3(0.55f, -0.74f, -1), BaseType.Airfield, false);
+		//SpawnBase("Dnul", new Vector3(-0.74f, -0.55f, -1), BaseType.Airfield, true);
 
 		unitSpawnMenu = unitUIMenus.transform.Find("UnitSpawningMenu").gameObject;
 		unitEditMenu = unitUIMenus.transform.Find("UnitEditMenu").gameObject;

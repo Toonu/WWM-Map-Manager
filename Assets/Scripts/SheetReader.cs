@@ -48,7 +48,7 @@ public class SheetReader : MonoBehaviour {
 
 	public IList<IList<object>> GetSheetRange(string sheetNameAndRange) {
 		try {
-			SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, sheetNameAndRange);
+			GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, sheetNameAndRange);
 
 			ValueRange response = request.Execute();
 			IList<IList<object>> values = response.Values;
@@ -65,7 +65,7 @@ public class SheetReader : MonoBehaviour {
 	}
 
 	public void SetSheetRange(IList<IList<object>> dataArray, string range) {
-		service.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range.Substring(0, range.Length - 1)).ExecuteAsync().ContinueWith(task => {
+		service.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range).ExecuteAsync().ContinueWith(task => {
 			// Build the update request with the new data
 			ValueRange convertedData = new ValueRange {
 				Values = dataArray,
