@@ -88,7 +88,21 @@ public class SheetSync : MonoBehaviour {
 		IList<IList<object>> sheetConfiguration = await ss.GetSheetRangeAsync("Configuration!C2:C");
 		IList<IList<object>> equipmentData = await ss.GetSheetRangeAsync("Configuration!E2:K");
 
-		//TODO when loading sheet while already loaded, delete units and other bases etc
+		foreach (Unit item in manager.groundUnits) {
+			manager.Despawn(item.gameObject);
+		}
+		foreach (Unit item in manager.aerialUnits) {
+			manager.Despawn(item.gameObject);
+		}
+		foreach (Unit item in manager.navalUnits) {
+			manager.Despawn(item.gameObject);
+		}
+		foreach (Base b in manager.bases) {
+			manager.Despawn(b.gameObject);
+		}
+
+
+		//TODO when loading sheet while already loaded, delete units and other bases etc, spawning units icons based on the equipment of such units
 
 		try {
 			passwordA = PasswordManager.HashPassword(sheetConfiguration[0][0].ToString());
