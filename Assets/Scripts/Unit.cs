@@ -57,7 +57,7 @@ public class Unit : MonoBehaviour {
 			unitEquipment = equipmentList.ToList();
 			equipment.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
 
-			movementRangeValue = equipmentList.Max(e => e.movementRange);
+			movementRangeValue = equipmentList.Min(e => e.movementRange);
 			sightRangeValue = equipmentList.Max(e => e.sightRange);
 			weaponRangeValue = equipmentList.Max(e => e.weaponRange);
 
@@ -70,7 +70,7 @@ public class Unit : MonoBehaviour {
 		}
 	}
 
-	//TODO Team points, Fog of War, Turns, Drawing things, Zooming out merging of units, artillery and dice rolls
+	//TODO Team points, Fog of War, Turns, Drawing things, Zooming out merging of units, artillery and dice rolls, Deciding unit icon based on equipment
 
 	internal float sightRangeValue = 0.25f;
 	internal float weaponRangeValue = 0.2f;
