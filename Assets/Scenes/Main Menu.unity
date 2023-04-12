@@ -623,7 +623,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Saved!
+  m_text: Saved
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -650,7 +650,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 80
+  m_fontSize: 40
   m_fontSizeBase: 80
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -6121,9 +6121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 20
-  cam: {fileID: 519420031}
   map: {fileID: 623899538}
-  settings: {fileID: 1075529765}
   maxZoom: 4
   minZoom: 0.5
   sensitivity: 0.5
@@ -6150,7 +6148,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: -1000
   far clip plane: 1000
   field of view: 60
   orthographic: 1
@@ -6178,7 +6176,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -7711,7 +7709,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1075529765}
         m_TargetAssemblyTypeName: ApplicationController, Assembly-CSharp
-        m_MethodName: SetPassword
+        m_MethodName: HashAndSetPassword
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8032,6 +8030,8 @@ GameObject:
   - component: {fileID: 623899539}
   - component: {fileID: 623899542}
   - component: {fileID: 623899540}
+  - component: {fileID: 623899541}
+  - component: {fileID: 623899543}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged
@@ -8094,6 +8094,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &623899541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 623899538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f39b2978a01cf4ea74c9a18888ec7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sampleButton: {fileID: 8758460577351867728, guid: a2a0cef81e8e0974e8be0c9808a02961, type: 3}
 --- !u!33 &623899542
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -8102,6 +8115,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 623899538}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!65 &623899543
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 623899538}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 10.000006, y: 1.1515207, z: 10.000002}
+  m_Center: {x: -0, y: -0.5757593, z: -1.076606e-15}
 --- !u!1 &625673674
 GameObject:
   m_ObjectHideFlags: 0
@@ -9118,7 +9144,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1075529765}
         m_TargetAssemblyTypeName: ApplicationController, Assembly-CSharp
-        m_MethodName: SetPassword
+        m_MethodName: HashAndSetPassword
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10365,7 +10391,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 62136128}
-        m_TargetAssemblyTypeName: BaseEditor, Assembly-CSharp
+        m_TargetAssemblyTypeName: BaseConstructor, Assembly-CSharp
         m_MethodName: UpdateName
         m_Mode: 0
         m_Arguments:
@@ -15599,13 +15625,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 390b6759cf86fcf47adae57157a04eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraSpeedSlider: {fileID: 937119591}
-  cameraSpeedSliderText: {fileID: 1604361656}
-  mainCamera: {fileID: 519420030}
   generalPopup: {fileID: 46597873}
   login: {fileID: 559291729}
   password: {fileID: 1163788066}
   server: {fileID: 2127641903}
+  cameraSpeedSlider: {fileID: 937119591}
+  cameraSpeedSliderText: {fileID: 1604361656}
+  mainCamera: {fileID: 519420030}
 --- !u!1 &1077276254
 GameObject:
   m_ObjectHideFlags: 0
@@ -20105,7 +20131,7 @@ GameObject:
   - component: {fileID: 1367535002}
   - component: {fileID: 1367535001}
   m_Layer: 5
-  m_Name: Button.1
+  m_Name: Close
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

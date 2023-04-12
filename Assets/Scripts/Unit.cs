@@ -40,8 +40,6 @@ public class Unit : MonoBehaviour {
 		transform.position = position;
 		turnStartPosition = position;
 
-		Debug.Log($"[{name}][{id}] Initialization");
-
 		//Adds equipment only if there is some to add, otherwise creates a new Eq list.
 		if (unitEquipment.Count > 0) {
 			AddEquipment(unitEquipment);
@@ -51,6 +49,8 @@ public class Unit : MonoBehaviour {
 
 		ChangeTier(Convert.ToInt16(unitTier));
 		ChangeName(unitName);
+
+		Debug.Log($"[{id}][{name}] Initiated");
 	}
 
 	internal List<Equipment> unitEquipment;
@@ -65,7 +65,7 @@ public class Unit : MonoBehaviour {
 			unitEquipment = equipmentList.ToList();
 			equipment.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
 
-			unitEquipment.ForEach(eq => Debug.Log($"[{name}][{id}] Adding Equipment | {eq.amount} {eq.equipmentName}"));
+			unitEquipment.ForEach(eq => Debug.Log($"[{id}][{name}] Adding Equipment | {eq.amount} {eq.equipmentName}"));
 
 			movementRangeValue = equipmentList.Min(e => e.movementRange);
 			sightRangeValue = equipmentList.Max(e => e.sightRange);
@@ -163,7 +163,7 @@ public class Unit : MonoBehaviour {
 			unitName.text = EnumUtil.NumberWithSuffix(Convert.ToInt16(identification));
 		}
 		name = identification;
-		Debug.Log($"[{name}][{id}] Name changed to {identification}");
+		Debug.Log($"[{id}][{name}] Name changed to {identification}");
 	}
 
 	/// <summary>
@@ -173,7 +173,7 @@ public class Unit : MonoBehaviour {
 	internal void ChangeTier(int echelon) {
 		tier.text = EnumUtil.GetUnitTier(echelon);
 		UnitTier = (UnitTier)echelon;
-		Debug.Log($"[{name}][{id}] Tier changed to {UnitTier}");
+		Debug.Log($"[{id}][{name}] Tier changed to {UnitTier}");
 	}
 
 	internal static int GetSpecialization(GroundUnit unit) {

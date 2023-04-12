@@ -23,10 +23,10 @@ public class ApplicationController : MonoBehaviour {
 		//Loads registry items for the settings.
 		LoadSettings();
 	}
-	private void Start() {
+	private async void Start() {
 		//Loads basic UI elements and starts server syncing.
 		transform.Find("UI/Points").GetComponent<TextMeshProUGUI>().text = $"A:{server.pointsA}pts B:{server.pointsB}pts";
-		server.LoadSheet();
+		await server.LoadSheet();
 		transform.Find("UI/Loading").gameObject.SetActive(false);
 	}
 	private void Update() {
@@ -94,7 +94,7 @@ public class ApplicationController : MonoBehaviour {
 	#endregion
 
 	//Used by buttons in the UI calls. Cannot be put to the Pw setter since that would hash already hashed passwords.
-	public void SetPassword(string password) => Password = PasswordManager.HashPassword(password);
+	public void HashAndSetPassword(string password) => Password = PasswordManager.HashPassword(password);
 
 	/// <summary>
 	/// Logs in the user based on input fields in the settings.

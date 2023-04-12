@@ -2,14 +2,15 @@
 using UnityEngine;
 
 public class AerialUnit : Unit {
-	private bool isFixedAviation = true;
+	//private bool isFixedAviation = true;
 	internal AerialSpecialization specialization = AerialSpecialization.None;
 
 	public void Initiate(object ID, Vector3 position, UnitTier unitTier, string unitName, bool sideB, AerialSpecialization specialization, List<Equipment> unitEquipment) {
+		/* Helicopters able to land everywhere but planes merely on pads.
 		if (specialization > AerialSpecialization.UAV) {
 			isFixedAviation = false;
-		}
-		
+		}*/
+
 		Initiate(ID, position, unitTier, unitName, unitEquipment);
 		main.transform.parent.GetChild(0).gameObject.SetActive(false);
 		main.transform.parent.GetChild(1).gameObject.SetActive(false);
@@ -26,13 +27,13 @@ public class AerialUnit : Unit {
 			main.transform.localScale = new Vector3(0.8f, 0.8f, 1); 
 		}
 		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, !sideB);
-		Debug.Log($"[{name}][{id}] Affiliation changed");
+		Debug.Log($"[{id}][{name}] Affiliation changed");
 	}
 
 	internal void ChangeSpecialization(AerialSpecialization specialization) {
 		this.specialization = specialization;
 		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, sideB);
-		Debug.Log($"[{name}][{id}] Specialization changed | {specialization}");
+		Debug.Log($"[{id}][{name}] Specialization changed | {specialization}");
 	}
 }
 

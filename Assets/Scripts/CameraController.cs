@@ -3,14 +3,19 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 	public float speed = 20;
-	public Camera cam;
+	internal Camera cam;
 	public GameObject map;
-	public ApplicationController settings;
+	private ApplicationController aC;
 	public float maxZoom = 5;
 	public float minZoom = 20;
 	public float sensitivity = 1;
 	private Vector3 mapMin;
 	private Vector3 mapMax;
+
+	private void Awake() {
+		cam = GetComponent<Camera>();
+		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
+	}
 
 	private void Start() {
 		Texture2D loadedMap = new Texture2D(2, 2);

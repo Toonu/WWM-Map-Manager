@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 
 public class BaseConstructor : MonoBehaviour {
-	private Base b;
+	private Base constructedBase;
 	private TMP_Dropdown type;
 	private TMP_InputField baseName;
 
@@ -20,21 +20,28 @@ public class BaseConstructor : MonoBehaviour {
 	/// </summary>
 	/// <param name="identification"></param>
 	public void UpdateName(string identification) {
-		b.ChangeIdentification(identification);
+		constructedBase.ChangeIdentification(identification);
 	}
 	/// <summary>
 	/// Updates the constructed base type attribute.
 	/// </summary>
 	/// <param name="type"></param>
 	public void UpdateType(int type) {
-		b.ChangeType((BaseType)type);
+		constructedBase.ChangeType((BaseType)type);
+	}
+	/// <summary>
+	/// Updates the constructed base position attribute.
+	/// </summary>
+	/// <param name="position"></param>
+	public void UpdatePosition(Vector3 position) {
+		constructedBase.transform.position = position;
 	}
 	/// <summary>
 	/// Updates the constructed base with the one that was clicked.
 	/// </summary>
 	/// <param name="b"></param>
 	public void UpdateBase(Base b) {
-		this.b = b;
+		this.constructedBase = b;
 		type.value = (int)b.baseType;
 		baseName.text = b.identification.text;
 	}
@@ -43,7 +50,7 @@ public class BaseConstructor : MonoBehaviour {
 	/// Creates a new empty base for construction.
 	/// </summary>
 	public void CreateBase() {
-		b = GameObject.FindWithTag("Units").GetComponent<UnitManager>().SpawnBase("NewBase", Vector3.zero, BaseType.Base, false);
+		constructedBase = GameObject.FindWithTag("Units").GetComponent<UnitManager>().SpawnBase("NewBase", Vector3.zero, BaseType.Base, false);
 		//TODO add some form of movement to the base on creation so even user can place it
 	}
 }

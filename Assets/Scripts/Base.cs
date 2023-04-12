@@ -2,7 +2,7 @@
 using UnityEngine;
 
 public class Base : MonoBehaviour {
-	internal BaseType baseType;
+	public BaseType baseType { set; get; }
 	public bool sideB;
 	private MeshRenderer main;
 	internal TextMeshProUGUI identification;
@@ -25,7 +25,7 @@ public class Base : MonoBehaviour {
 		this.identification = transform.Find("Canvas/Name").GetComponent<TextMeshProUGUI>();
 		ChangeIdentification(identification);
 
-		Debug.Log($"[{identification}] Initialization");
+		Debug.Log($"[{identification}] Initiated");
 	}
 
 	#region Movement

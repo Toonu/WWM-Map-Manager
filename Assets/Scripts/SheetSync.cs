@@ -4,6 +4,7 @@ using System.Globalization;
 using UnityEngine;
 using System.Linq;
 using UnityEditor;
+using System.Threading.Tasks;
 
 public class SheetSync : MonoBehaviour {
 	public Popup generalPopup;
@@ -17,6 +18,7 @@ public class SheetSync : MonoBehaviour {
 	internal int pointsB = 0;
 	private UnitManager manager;
 	private EquipmentManager eqManager;
+	private ApplicationController aC; 
 	private int basesLength = 0;
 	private int unitsLength = 0;
 	public GameObject equipmentTemplate;
@@ -25,6 +27,7 @@ public class SheetSync : MonoBehaviour {
 		ss = GetComponent<SheetReader>();
 		manager = GameObject.FindWithTag("Units").GetComponent<UnitManager>();
 		eqManager = GameObject.FindWithTag("Equipment").GetComponent<EquipmentManager>();
+		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 	}
 
 
@@ -83,7 +86,7 @@ public class SheetSync : MonoBehaviour {
 		generalPopup.PopUp("Saved!");
 	}
 
-	public async void LoadSheet() {
+	public async Task LoadSheet() {
 		try {
 			IList<IList<object>> units = await ss.GetSheetRangeAsync("Units!A2:J");
 			IList<IList<object>> bases = await ss.GetSheetRangeAsync("Bases!A2:E");
@@ -122,6 +125,14 @@ public class SheetSync : MonoBehaviour {
 			 * Remove unit option with no equipment. Always require equipment - overhaul the spawn menu 
 			 * to take equipment as the main thing and changing icon, size echelon and others based on that
 			 * Equipment-centric unit creation
+			 * 
+			 * 
+			 * Terrain based movement
+			 * if (Physics.Raycast(ray, out hit))
+             {
+                 hit.collider.renderer.material.color = Color.red;
+                 //Debug.Log(hit);
+             }
 			 */
 
 
@@ -188,7 +199,7 @@ public class SheetSync : MonoBehaviour {
 						manager.SpawnBase(
 							bases[i][0].ToString(),
 							new Vector3(Convert.ToSingle(bases[i][1], enGbCulture),
-							Convert.ToSingle(bases[i][2], enGbCulture), -1),
+							Convert.ToSingle(bases[i][2], enGbCulture), -0.1f),
 							(BaseType)Enum.Parse(typeof(BaseType), bases[i][3].ToString()),
 							EnumUtil.ConvertIntToBool(Convert.ToInt16(bases[i][4])));
 						basesLength++;
@@ -205,7 +216,7 @@ public class SheetSync : MonoBehaviour {
 						List<Equipment> equip = new List<Equipment>();
 
 						Unit newUnit = manager.SpawnUnit(
-							new Vector3(Convert.ToSingle(units[i][0], enGbCulture), Convert.ToSingle(units[i][1], enGbCulture), 0),
+							new Vector3(Convert.ToSingle(units[i][0], enGbCulture), Convert.ToSingle(units[i][1], enGbCulture), -0.1f),
 							Convert.ToInt16(units[i][2]), //Domain
 							Convert.ToInt16(units[i][3]), //Spec.
 							units[i][4].ToString(), //Name
@@ -288,12 +299,16 @@ public class SheetSync : MonoBehaviour {
 			//PrintData();
 		}
 		catch (Exception e) {
-			await GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUpAsync("Error! " + e.Message + e, 30);
+			await aC.generalPopup.PopUpAsync("Error! " + e.Message + e, 30);
 			Application.Quit();
 			#if UNITY_EDITOR
 			EditorApplication.ExitPlaymode();
 			#endif
 		}
+
+
+		Debug.Log("Server data loaded!");
+		return;
 	}
 
 	public string GetData(int x, int y) {
