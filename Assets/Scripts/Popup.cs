@@ -1,6 +1,8 @@
 using System.Collections;
 using UnityEngine;
 using TMPro;
+using System.Threading.Tasks;
+using System;
 
 public class Popup : MonoBehaviour {
 	public TextMeshProUGUI UI;
@@ -9,6 +11,13 @@ public class Popup : MonoBehaviour {
 		UI.text = title;
 		gameObject.SetActive(true);
 		StartCoroutine(Begone(duration));
+	}
+
+	public async Task PopUpAsync(string title = "Saved!", float duration = 1.75f) {
+		UI.text = title;
+		gameObject.SetActive(true);
+		await Task.Delay(Convert.ToInt16(duration) * 1000);
+		gameObject.SetActive(false);
 	}
 
 	private IEnumerator Begone(float duration) {

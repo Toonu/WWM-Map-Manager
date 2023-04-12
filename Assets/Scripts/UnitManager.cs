@@ -187,11 +187,12 @@ public class UnitManager : MonoBehaviour {
 
 	#region Spawning
 
-	internal void SpawnBase(string identification, Vector3 position, BaseType baseType, bool sideB) {
+	internal Base SpawnBase(string identification, Vector3 position, BaseType baseType, bool sideB) {
 		GameObject newBase = Instantiate(baseTemplate, transform);
 		Base b = newBase.AddComponent<Base>();
 		b.Initiate(identification, position, baseType, sideB);
 		bases.Add(b);
+		return b;
 	}
 
 	internal Unit SpawnUnit(Vector3 position, int domain, int specialization,

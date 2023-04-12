@@ -156,8 +156,6 @@ public class EquipmentManager : MonoBehaviour {
 		Destroy(equipment.gameObject);
 	}
 
-
-
 	public void UpdateEquipmentList() {
 		GameObject newEquipmentObject = Instantiate(equipmentTemplate, GameObject.FindWithTag("ServerSync").transform);
 		Equipment newEquipment = newEquipmentObject.AddComponent<Equipment>();
@@ -187,11 +185,11 @@ public class EquipmentManager : MonoBehaviour {
 		GameObject newButtonObject1 = Instantiate(button, buttons.transform.Find("2").transform);
 		Button newButton = newButtonObject1.GetComponent<Button>();
 		newButtonObject1.GetComponentInChildren<TextMeshProUGUI>().text = $"DELETE";
-		newButtonObject1.GetComponent<ButtonStorage>().button = newButtonObject;
-		newButtonObject1.GetComponent<ButtonStorage>().buttons = newButtonObject1;
+		newButtonObject1.GetComponent<EquipmentMenuButton>().button = newButtonObject;
+		newButtonObject1.GetComponent<EquipmentMenuButton>().buttons = newButtonObject1;
 		newButton.onClick.AddListener(() => {
 			RemoveEquipment(newEquipment);
-			ButtonStorage b = newButtonObject1.GetComponent<ButtonStorage>();
+			EquipmentMenuButton b = newButtonObject1.GetComponent<EquipmentMenuButton>();
 			Destroy(b.button);
 			Destroy(b.buttons);
 		});

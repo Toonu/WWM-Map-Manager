@@ -29,16 +29,20 @@ public class Unit : MonoBehaviour {
 		this.unitName = transform.Find("Canvas/unitName").gameObject.GetComponent<TextMeshProUGUI>();
 		tier = transform.Find("Canvas/Tier").gameObject.GetComponent<TextMeshProUGUI>();
 		equipment = transform.Find("Canvas/Eq").gameObject.GetComponent<TextMeshProUGUI>();
-		
+
+		//For deleting units by index/ID
 		id = Convert.ToInt16(ID);
+		//Application controller for checking permissions
 		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 
-		//distance = 0f;
 		offset = new Vector3(0, 0, 0);
 		movementRangeValue = 0.3f;
 		transform.position = position;
 		turnStartPosition = position;
 
+		Debug.Log($"[{name}][{id}] Initialization");
+
+		//Adds equipment only if there is some to add, otherwise creates a new Eq list.
 		if (unitEquipment.Count > 0) {
 			AddEquipment(unitEquipment);
 		} else {
@@ -52,10 +56,16 @@ public class Unit : MonoBehaviour {
 	internal List<Equipment> unitEquipment;
 	private TextMeshProUGUI equipment;
 
+	/// <summary>
+	/// Adds Equipment from the List to the Unit equipment and edits the equipment string label.
+	/// </summary>
+	/// <param name="equipmentList">List of Equipment to add.</param>
 	internal void AddEquipment(List<Equipment> equipmentList) {
 		if (equipmentList.Count > 0) {
 			unitEquipment = equipmentList.ToList();
 			equipment.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
+
+			unitEquipment.ForEach(eq => Debug.Log($"[{name}][{id}] Adding Equipment | {eq.amount} {eq.equipmentName}"));
 
 			movementRangeValue = equipmentList.Min(e => e.movementRange);
 			sightRangeValue = equipmentList.Max(e => e.sightRange);
@@ -70,8 +80,6 @@ public class Unit : MonoBehaviour {
 		}
 	}
 
-	//TODO Team points, Fog of War, Turns, Drawing things, Zooming out merging of units, artillery and dice rolls, Deciding unit icon based on equipment
-
 	internal float sightRangeValue = 0.25f;
 	internal float weaponRangeValue = 0.2f;
 
@@ -81,6 +89,9 @@ public class Unit : MonoBehaviour {
 	internal Vector3 turnStartPosition;
 	public float movementRangeValue;
 
+	/// <summary>
+	/// Shows range circles.
+	/// </summary>
 	internal void OnMouseOver() {
 		if (!aC.admin && aC.sideB != sideB) {
 			return;
@@ -90,12 +101,18 @@ public class Unit : MonoBehaviour {
 		equipment.gameObject.SetActive(true);
 	}
 
+	/// <summary>
+	/// Hides range circles.
+	/// </summary>
 	internal void OnMouseExit() {
 		sightRange.SetActive(false);
 		movementRange.SetActive(false);
 		equipment.gameObject.SetActive(false);
 	}
 
+	/// <summary>
+	/// Starts dragging function by checking the permissions and side and then saves offset.
+	/// </summary>
 	private void OnMouseDown() {
 		if (!aC.admin && aC.sideB != sideB) {
 			return;
@@ -106,6 +123,9 @@ public class Unit : MonoBehaviour {
 		offset = transform.position - Camera.main.ScreenToWorldPoint(mousePosition);
 	}
 
+	/// <summary>
+	/// Drags the unit up to its maximal range based on range.
+	/// </summary>
 	private void OnMouseDrag() {
 		if (!aC.admin && aC.sideB != sideB) {
 			return;
@@ -119,6 +139,9 @@ public class Unit : MonoBehaviour {
 		ResizeMovementCircle();
 	}
 
+	/// <summary>
+	/// Resized range circle based on remaining range.
+	/// </summary>
 	internal void ResizeMovementCircle() {
 		// Resize the range circle based on the distance between the starting position and the new position of the draggable object
 		float maxRange = movementRangeValue - Vector3.Distance(turnStartPosition, transform.position);
@@ -127,6 +150,12 @@ public class Unit : MonoBehaviour {
 
 	#endregion
 
+	#region Attribute Get/Setters
+
+	/// <summary>
+	/// Setter for the unit identifier name which changed the name label and Object name.
+	/// </summary>
+	/// <param name="identification">New identifier</param>
 	internal void ChangeName(string identification) {
 		if (UnitTier > UnitTier.Division) {
 			unitName.text = EnumUtil.GetCorps(identification);
@@ -134,11 +163,17 @@ public class Unit : MonoBehaviour {
 			unitName.text = EnumUtil.NumberWithSuffix(Convert.ToInt16(identification));
 		}
 		name = identification;
+		Debug.Log($"[{name}][{id}] Name changed to {identification}");
 	}
 
+	/// <summary>
+	/// Changes the unit tier from int to Enum and assigns it to unit and its label.
+	/// </summary>
+	/// <param name="echelon">Echelon int</param>
 	internal void ChangeTier(int echelon) {
 		tier.text = EnumUtil.GetUnitTier(echelon);
 		UnitTier = (UnitTier)echelon;
+		Debug.Log($"[{name}][{id}] Tier changed to {UnitTier}");
 	}
 
 	internal static int GetSpecialization(GroundUnit unit) {
@@ -159,5 +194,6 @@ public class Unit : MonoBehaviour {
 			return GetSpecialization((NavalUnit)unit);
 		}
 	}
+	#endregion
 }
 

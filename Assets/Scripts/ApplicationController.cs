@@ -1,13 +1,10 @@
 using System;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ApplicationController : MonoBehaviour {
-	#region Settings
-	public Slider cameraSpeedSlider;
-	public TextMeshProUGUI cameraSpeedSliderText;
-	public CameraController mainCamera;
 	public Popup generalPopup;
 	public GameObject login;
 	public GameObject password;
@@ -18,7 +15,41 @@ public class ApplicationController : MonoBehaviour {
 	internal bool admin = false;
 	internal bool sideB = false;
 	internal bool deletingMenus = false;
+	internal static string applicationVersion = "v0.0.7";
 
+	private void Awake() {
+		admin = false;
+		Debug.unityLogger.filterLogType = LogType.Log;
+		//Loads registry items for the settings.
+		LoadSettings();
+	}
+	private void Start() {
+		//Loads basic UI elements and starts server syncing.
+		transform.Find("UI/Points").GetComponent<TextMeshProUGUI>().text = $"A:{server.pointsA}pts B:{server.pointsB}pts";
+		server.LoadSheet();
+		transform.Find("UI/Loading").gameObject.SetActive(false);
+	}
+	private void Update() {
+		//Checks for context menus so they can be deleted when any is open.
+		if (deletingMenus && Input.GetKeyUp(KeyCode.Mouse0)) {
+			foreach (GameObject child in GameObject.FindGameObjectsWithTag("ContextMenus")) {
+				if (child.name == "ContextMenu(Clone)") {
+					Destroy(child.gameObject);
+				}
+			}
+			deletingMenus = false;
+		}
+	}
+
+
+	#region Settings
+	public Slider cameraSpeedSlider;
+	public TextMeshProUGUI cameraSpeedSliderText;
+	public CameraController mainCamera;
+
+	/// <summary>
+	/// Loads settings from the registry if they exist. Also loads the credentials.
+	/// </summary>
 	public void LoadSettings() {
 		if (PlayerPrefs.HasKey("CameraSpeed")) {
 			float newSpeed = PlayerPrefs.GetFloat("CameraSpeed");
@@ -40,11 +71,19 @@ public class ApplicationController : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Saves the setting into registry.
+	/// </summary>
+	/// <param name="stick">If sticky</param>
 	public void SetStickyCredentials(bool stick) {
 		PlayerPrefs.SetInt("KeepLogin", Convert.ToInt16(stick));
 		PlayerPrefs.Save();
 	}
 
+	/// <summary>
+	/// Set the camera zooming and moving speed.
+	/// </summary>
+	/// <param name="newSpeed">New camera speed float</param>
 	public void SetCameraSpeed(float newSpeed) {
 		mainCamera.speed = newSpeed;
 		PlayerPrefs.SetFloat("CameraSpeed", newSpeed);
@@ -54,38 +93,16 @@ public class ApplicationController : MonoBehaviour {
 
 	#endregion
 
-	private void Awake() {
-		admin = false;
-		Debug.unityLogger.filterLogType = LogType.Log;
-		LoadSettings();
-	}
-	private void Start() {
-		transform.Find("UI/Points").GetComponent<TextMeshProUGUI>().text = $"A:{server.pointsA}pts B:{server.pointsB}pts";
-		server.LoadSheet();
-		transform.Find("UI/Loading").gameObject.SetActive(false);
-	}
-
-	private void Update() {
-		if (deletingMenus && Input.GetKeyUp(KeyCode.Mouse0)) {
-			foreach (GameObject child in GameObject.FindGameObjectsWithTag("ContextMenus")) {
-				if (child.name == "ContextMenu(Clone)") {
-					Destroy(child.gameObject);
-				}
-			}
-			deletingMenus = false;
-		}
-	}
-
-
-	public void SetPassword(string password) {
-		Password = PasswordManager.HashPassword(password);
-	}
+	//Used by buttons in the UI calls. Cannot be put to the Pw setter since that would hash already hashed passwords.
+	public void SetPassword(string password) => Password = PasswordManager.HashPassword(password);
 
 	/// <summary>
 	/// Logs in the user based on input fields in the settings.
 	/// </summary>
 	public void Login() {
+		//Sidechange swaps the unit icons if the side changes.
 		bool sideChange = false;
+		//Login logic based on three user approach
 		if (Username == "A" && Password == server.passwordA) {
 			if (sideB) {
 				sideChange = true;
@@ -122,12 +139,15 @@ public class ApplicationController : MonoBehaviour {
 				UnitManager.Instance.SwitchSide(sideB);
 			}
 		} else {
-			generalPopup.PopUp("Error!");
+			generalPopup.PopUp("Wrong credentials!", 3);
 		}
 	}
 
+	//Used by the UI calls. Exist the application and also play editor mode.
 	public void ExitApplication() {
 		Application.Quit();
-		//EditorApplication.ExitPlaymode();
+		#if UNITY_EDITOR
+		EditorApplication.ExitPlaymode();
+		#endif
 	}
 }

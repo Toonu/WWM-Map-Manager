@@ -23,8 +23,6 @@ public class ItemController : MonoBehaviour {
 		contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
 		contextMenuItems.Add(new ContextMenuItem("Despawn", sampleButton, delete));
 		contextMenuItems.Add(new ContextMenuItem("Soft Reset", sampleButton, softReset));
-
-
 	}
 
 	public void Start() {
@@ -50,7 +48,7 @@ public class ItemController : MonoBehaviour {
 			UnitManager.Instance.unitEditMenu.GetComponent<UnitEditor>().UpdateUnit(GetComponent<Unit>());
 		} else if (aC.admin) {
 			UnitManager.Instance.baseEditMenu.SetActive(true);
-			UnitManager.Instance.baseEditMenu.GetComponent<BaseEditor>().UpdateBase(GetComponent<Base>());
+			UnitManager.Instance.baseEditMenu.GetComponent<BaseConstructor>().UpdateBase(GetComponent<Base>());
 		}
 	}
 

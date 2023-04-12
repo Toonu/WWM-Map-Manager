@@ -26,11 +26,13 @@ public class AerialUnit : Unit {
 			main.transform.localScale = new Vector3(0.8f, 0.8f, 1); 
 		}
 		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, !sideB);
+		Debug.Log($"[{name}][{id}] Affiliation changed");
 	}
 
 	internal void ChangeSpecialization(AerialSpecialization specialization) {
 		this.specialization = specialization;
 		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, sideB);
+		Debug.Log($"[{name}][{id}] Specialization changed | {specialization}");
 	}
 }
 

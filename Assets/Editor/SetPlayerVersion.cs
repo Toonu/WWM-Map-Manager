@@ -37,6 +37,7 @@ public class SetPlayerVersion : EditorWindow {
 			}
 
 			EditorPrefs.SetString("ProgramVersion", newVersion);
+			Debug.Log($"Set application version to {newVersion}");
 		}
 	}
 }

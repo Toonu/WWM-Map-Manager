@@ -11,9 +11,6 @@ public class Equipment : MonoBehaviour {
 	internal int side;
 	internal int domain;
 
-	[JsonIgnore]
-	public GameObject gameObject;
-
 	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, int cost, int side, int domain) {
 		this.equipmentName = equipmentName;
 		this.amount = amount;

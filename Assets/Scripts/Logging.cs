@@ -20,17 +20,6 @@ public class Logging : MonoBehaviour {
 		logFileWriter = File.CreateText(Path.Combine(Application.dataPath, logFileName));
 	}
 
-	void OnDestroy() {
-		// Unsubscribe from the log message received event
-		Application.logMessageReceived -= HandleLog;
-
-		// Flush any remaining log messages to the file
-		FlushLogMessages();
-
-		// Close the log file
-		logFileWriter.Close();
-	}
-
 	void HandleLog(string logString, string stackTrace, LogType type) {
 		// Add the log message to the list
 		logMessages.Add(logString);
