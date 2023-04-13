@@ -6,8 +6,6 @@ using UnityEngine.UI;
 
 public class ApplicationController : MonoBehaviour {
 	public Popup generalPopup;
-	public GameObject login;
-	public GameObject password;
 	public SheetSync server;
 	public string Username { private get; set; }
 	public string Password { private get; set; }
@@ -25,7 +23,7 @@ public class ApplicationController : MonoBehaviour {
 	}
 	private async void Start() {
 		//Loads basic UI elements and starts server syncing.
-		transform.Find("UI/Points").GetComponent<TextMeshProUGUI>().text = $"A:{server.pointsA}pts B:{server.pointsB}pts";
+		transform.Find("UI/BottomPanel/Points").GetComponent<TextMeshProUGUI>().text = $"A:{server.pointsA}pts B:{server.pointsB}pts";
 		await server.LoadSheet();
 		transform.Find("UI/Loading").gameObject.SetActive(false);
 	}
@@ -59,15 +57,15 @@ public class ApplicationController : MonoBehaviour {
 		}
 		if (PlayerPrefs.HasKey("KeepLogin") && PlayerPrefs.GetInt("KeepLogin") == 1) {
 			Username = PlayerPrefs.GetString("username");
-
-			login.transform.Find("Username/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = Username;
-			login.transform.Find("Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
 			Password = PlayerPrefs.GetString("password");
-			login.transform.Find("Sticky").GetComponent<Toggle>().isOn = true;
 
-			password.transform.Find("Username/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = Username;
-			password.transform.Find("Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
-			password.transform.Find("Sticky").GetComponent<Toggle>().isOn = true;
+			transform.Find("UI/Login/Items/Username/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = Username;
+			transform.Find("UI/Login/Items/Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
+			transform.Find("UI/Login/Items/Sticky").GetComponent<Toggle>().isOn = true;
+
+			transform.Find("UI/BottomPanel/Username/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = Username;
+			transform.Find("UI/BottomPanel/Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
+			transform.Find("UI/BottomPanel/Sticky").GetComponent<Toggle>().isOn = true;
 		}
 	}
 
@@ -134,7 +132,7 @@ public class ApplicationController : MonoBehaviour {
 		//Do when user logs in
 		if (loggedIn) {
 			generalPopup.PopUp("Logged In!");
-			login.SetActive(false);
+			transform.Find("UI/Login").gameObject.SetActive(false);
 			if (sideChange) {
 				UnitManager.Instance.SwitchSide(sideB);
 			}

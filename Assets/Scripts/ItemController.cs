@@ -28,9 +28,10 @@ public class ItemController : MonoBehaviour {
 	public void Start() {
 		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 		if (GetComponent<Base>() == null) {
-			sideB = GetComponent<Unit>().sideB;
+			
+			sideB = GetComponentInParent<Unit>().sideB;
 		} else {
-			sideB = GetComponent<Base>().sideB;
+			sideB = GetComponentInParent<Base>().sideB;
 		}
 	}
 

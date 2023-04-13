@@ -5,16 +5,21 @@ using System.Threading.Tasks;
 using System;
 
 public class Popup : MonoBehaviour {
-	public TextMeshProUGUI UI;
+	private TextMeshProUGUI textUI;
+
+	void Awake() {
+		textUI = GetComponent<TextMeshProUGUI>();
+		gameObject.SetActive(false);
+	}
 
 	public void PopUp(string title = "Saved!", float duration = 1.75f) {
-		UI.text = title;
+		textUI.text = title;
 		gameObject.SetActive(true);
 		StartCoroutine(Begone(duration));
 	}
 
 	public async Task PopUpAsync(string title = "Saved!", float duration = 1.75f) {
-		UI.text = title;
+		textUI.text = title;
 		gameObject.SetActive(true);
 		await Task.Delay(Convert.ToInt16(duration) * 1000);
 		gameObject.SetActive(false);

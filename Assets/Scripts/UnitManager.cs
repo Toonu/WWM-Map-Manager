@@ -97,7 +97,7 @@ public class UnitManager : MonoBehaviour {
 
 	public void PopulateUI(GameObject menu, int domain = 0) {
 
-		TMP_Dropdown currentSpawningDropdownMenu = menu.transform.Find("Specialization").GetComponent<TMP_Dropdown>();
+		TMP_Dropdown currentSpawningDropdownMenu = menu.transform.Find("GameObject/Specialization").GetComponent<TMP_Dropdown>();
 		string[] enumNames;
 		List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
 
@@ -126,9 +126,6 @@ public class UnitManager : MonoBehaviour {
 			break;
 		}
 		
-		
-
-
 		currentSpawningDropdownMenu.ClearOptions();
 		currentSpawningDropdownMenu.AddOptions(options);
 		if (menu.GetComponent<UnitConstructor>() != null) {
@@ -138,7 +135,9 @@ public class UnitManager : MonoBehaviour {
 		//Removal of non-domain attributes
 		switch (domain) {
 			case 0:
-			currentSpawningDropdownMenu = menu.transform.Find("GroundMovementType").GetComponent<TMP_Dropdown>();
+			menu.transform.Find("GameObject.1/UnitImages/Movement").gameObject.SetActive(true);
+			menu.transform.Find("GameObject.1/UnitImages/Transport").gameObject.SetActive(true);
+			currentSpawningDropdownMenu = menu.transform.Find("GameObject.2/GroundMovementType").GetComponent<TMP_Dropdown>();
 			currentSpawningDropdownMenu.gameObject.SetActive(true);
 			enumNames = Enum.GetNames(typeof(GroundMovementType));
 			options = new List<TMP_Dropdown.OptionData>();
@@ -148,7 +147,7 @@ public class UnitManager : MonoBehaviour {
 			}
 			currentSpawningDropdownMenu.ClearOptions();
 			currentSpawningDropdownMenu.AddOptions(options);
-			currentSpawningDropdownMenu = menu.transform.Find("GroundTransportType").GetComponent<TMP_Dropdown>();
+			currentSpawningDropdownMenu = menu.transform.Find("GameObject.2/GroundTransportType").GetComponent<TMP_Dropdown>();
 			currentSpawningDropdownMenu.gameObject.SetActive(true);
 			enumNames = Enum.GetNames(typeof(GroundTransportType));
 			options = new List<TMP_Dropdown.OptionData>();
@@ -160,18 +159,20 @@ public class UnitManager : MonoBehaviour {
 			currentSpawningDropdownMenu.AddOptions(options);
 			break;
 			default:
-			menu.transform.Find("GroundMovementType").gameObject.SetActive(false);
-			menu.transform.Find("GroundTransportType").gameObject.SetActive(false);
+			menu.transform.Find("GameObject.2/GroundMovementType").gameObject.SetActive(false);
+			menu.transform.Find("GameObject.2/GroundTransportType").gameObject.SetActive(false);
+			menu.transform.Find("GameObject.1/UnitImages/Movement").gameObject.SetActive(false);
+			menu.transform.Find("GameObject.1/UnitImages/Transport").gameObject.SetActive(false);
 			break;
 		}
 
-		currentSpawningDropdownMenu = menu.transform.Find("UnitTier").GetComponent<TMP_Dropdown>();
+		currentSpawningDropdownMenu = menu.transform.Find("GameObject.1/UnitTier").GetComponent<TMP_Dropdown>();
 		enumNames = Enum.GetNames(typeof(UnitTier));
 		currentSpawningDropdownMenu.ClearOptions();
 		currentSpawningDropdownMenu.AddOptions(enumNames.ToList());
 
 		if (menu.GetComponent<UnitConstructor>() != null) {
-			menu.transform.Find("UnitName").GetComponent<TMP_InputField>().text = (GetLast() + 1).ToString();
+			menu.transform.Find("GameObject/UnitName").GetComponent<TMP_InputField>().text = (GetLast() + 1).ToString();
 		}
 		
 	}

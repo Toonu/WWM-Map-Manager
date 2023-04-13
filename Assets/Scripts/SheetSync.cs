@@ -107,6 +107,8 @@ public class SheetSync : MonoBehaviour {
 			}
 
 			/* TODO
+			 * Implement IPointerClickHandler to handle all context menus
+			 * Remove editing menu by mergining it with the spawning menu since they are very similar, also may merge UnitConstructor and UnitEditor classes while at it, hide and rename buttons per usage.
 			 * Delete units and bases when reloading the sheet second and other times
 			 * Spawned unit Icon determined based on the equipment
 			 * But also keep unit icon editor

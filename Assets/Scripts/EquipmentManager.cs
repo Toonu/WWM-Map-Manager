@@ -13,12 +13,12 @@ public class EquipmentManager : MonoBehaviour {
 	private TextFloatAppender costLabel;
 	private TextFloatAppender sightLabel;
 	private TextFloatAppender rangeLabel;
-	public GameObject buttons;
-	public GameObject button;
+	private GameObject buttonPanel;
+	public GameObject buttonEquipment;
 	public GameObject equipmentTemplate;
-	public Popup generalPopup;
-	public GameObject finish;
-	public GameObject finishEdit;
+	private Popup generalPopup;
+	private GameObject finish;
+	private GameObject finishEdit;
 	private GameObject menu;
 
 	private int amount;
@@ -26,13 +26,15 @@ public class EquipmentManager : MonoBehaviour {
 
 
 	private void Awake() {
-		amountInput = transform.Find("Menu/EqAmount").GetComponent<TMP_InputField>();
-		types = transform.Find("Menu/EqType").GetComponent<TMP_Dropdown>();
-		costLabel = transform.Find("Menu/EqCost").GetComponent<TextFloatAppender>();
-		finish = transform.Find("Menu/Finish").gameObject;
-		finishEdit = transform.Find("Menu/FinishEdit").gameObject;
-		sightLabel = transform.Find("Menu/EqSight").GetComponent<TextFloatAppender>();
-		rangeLabel = transform.Find("Menu/EqRange").GetComponent<TextFloatAppender>();
+		amountInput = transform	.Find("Menu/MainBackground/GameObject.1/EqAmount").GetComponent<TMP_InputField>();
+		costLabel = transform	.Find("Menu/MainBackground/GameObject.1/EqCost").GetComponent<TextFloatAppender>();
+		types = transform		.Find("Menu/MainBackground/GameObject.2/EqType").GetComponent<TMP_Dropdown>();
+		sightLabel = transform	.Find("Menu/MainBackground/GameObject.2/EqSight").GetComponent<TextFloatAppender>();
+		rangeLabel = transform	.Find("Menu/MainBackground/GameObject.3/EqRange").GetComponent<TextFloatAppender>();
+		finish = transform		.Find("Menu/MainBackground/Buttons/Finishing/Finish").gameObject;
+		finishEdit = transform	.Find("Menu/MainBackground/Buttons/Finishing/FinishEdit").gameObject;
+		buttonPanel = transform.Find("Menu/ButtonPanel").gameObject;
+		generalPopup = GameObject.FindGameObjectWithTag("GameController").GetComponent<ApplicationController>().generalPopup;
 	}
 
 	internal static List<Equipment> eqNaval = new List<Equipment>();
@@ -132,10 +134,10 @@ public class EquipmentManager : MonoBehaviour {
 	}
 
 	public void CloseMenu() {
-		foreach (Transform item in buttons.transform.Find("1")) {
+		foreach (Transform item in buttonPanel.transform.Find("1")) {
 			Destroy(item.gameObject);
 		}
-		foreach (Transform item in buttons.transform.Find("2")) {
+		foreach (Transform item in buttonPanel.transform.Find("2")) {
 			Destroy(item.gameObject);
 		}
 		equipmentList.Clear();
@@ -178,11 +180,11 @@ public class EquipmentManager : MonoBehaviour {
 
 	private void CreateEquipmentButtons(Equipment newEquipment) {
 		// Loop through the button labels
-		GameObject newButtonObject = Instantiate(button, buttons.transform.Find("1").transform);
+		GameObject newButtonObject = Instantiate(buttonEquipment, buttonPanel.transform.Find("1").transform);
 		Button newButton1 = newButtonObject.GetComponent<Button>();
 		newButtonObject.GetComponentInChildren<TextMeshProUGUI>().text = $"{newEquipment.equipmentName}:{newEquipment.amount}";
 
-		GameObject newButtonObject1 = Instantiate(button, buttons.transform.Find("2").transform);
+		GameObject newButtonObject1 = Instantiate(buttonEquipment, buttonPanel.transform.Find("2").transform);
 		Button newButton = newButtonObject1.GetComponent<Button>();
 		newButtonObject1.GetComponentInChildren<TextMeshProUGUI>().text = $"DELETE";
 		newButtonObject1.GetComponent<EquipmentMenuButton>().button = newButtonObject;

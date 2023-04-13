@@ -36,14 +36,11 @@ public class ContextMenu : MonoBehaviour {
 	}
 
 	public void CreateContextMenu(List<ContextMenuItem> items, Vector3 position) {
-		// here we are creating and displaying Context Menu
-		position -= new Vector3(0.15f * position.x, 0.15f * position.y, 0);
-		position = new Vector3(Mathf.Clamp(position.x, 75, Screen.width - 560), Mathf.Clamp(position.y, 50, Screen.height - 320));
 		Image panel = Instantiate(contentPanel, position, Quaternion.identity);
+
 		panel.transform.SetParent(canvas.transform);
 		panel.transform.SetAsLastSibling();
-		panel.rectTransform.anchoredPosition = position;
-
+		
 		foreach (var item in items) {
 			ContextMenuItem tempReference = item;
 			Button button = Instantiate(item.button);
@@ -52,5 +49,11 @@ public class ContextMenu : MonoBehaviour {
 			button.onClick.AddListener(delegate { tempReference.action(panel); });
 			button.transform.SetParent(panel.transform);
 		}
+
+		//position -= new Vector3(0.15f * position.x, 0.15f * position.y, 0);
+		//position = new Vector3(Mathf.Clamp(position.x, 75, Screen.width - 560), Mathf.Clamp(position.y, 50, Screen.height - 320));
+		Vector2 canvasSize = new Vector2(panel.rectTransform.rect.width, panel.rectTransform.rect.height);
+		position = new Vector3(Mathf.Clamp(position.x, 75, Screen.width - 75), Mathf.Clamp(position.y, panel.transform.childCount * 20, Screen.height - (panel.transform.childCount * 20)));
+		panel.rectTransform.anchoredPosition = position;
 	}
 }
