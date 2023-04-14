@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour {
 	public int id;
-	public UnitTier UnitTier { get; private set; }
+	public UnitTier unitTier;
+	public int unitSpecialization;
 
 	#region UnitVisuals
 	protected MeshRenderer main;
@@ -21,14 +22,16 @@ public class Unit : MonoBehaviour {
 	protected ApplicationController aC;
 	#endregion
 
-	public void Initiate(object ID, Vector3 position, UnitTier unitTier, string unitName, List<Equipment> unitEquipment) {
+	public void Initiate(object ID, Vector3 position, UnitTier unitTier, string unitName, int specialization, List<Equipment> unitEquipment) {
 		main = transform.GetChild(0).GetChild(2).GetComponent<MeshRenderer>();
 		movementRange = transform.Find("Range").gameObject;
 		sightRange = transform.Find("SightRange").gameObject;
 		weaponRange = transform.Find("WeaponRange").gameObject;
 		this.unitName = transform.Find("Canvas/unitName").gameObject.GetComponent<TextMeshProUGUI>();
 		tier = transform.Find("Canvas/Tier").gameObject.GetComponent<TextMeshProUGUI>();
-		equipment = transform.Find("Canvas/Eq").gameObject.GetComponent<TextMeshProUGUI>();
+		equipmentTextUI = transform.Find("Canvas/Eq").gameObject.GetComponent<TextMeshProUGUI>();
+
+		ChangeSpecialization(this, specialization);
 
 		//For deleting units by index/ID
 		id = Convert.ToInt16(ID);
@@ -54,7 +57,7 @@ public class Unit : MonoBehaviour {
 	}
 
 	internal List<Equipment> unitEquipment;
-	private TextMeshProUGUI equipment;
+	private TextMeshProUGUI equipmentTextUI;
 
 	/// <summary>
 	/// Adds Equipment from the List to the Unit equipment and edits the equipment string label.
@@ -63,7 +66,7 @@ public class Unit : MonoBehaviour {
 	internal void AddEquipment(List<Equipment> equipmentList) {
 		if (equipmentList.Count > 0) {
 			unitEquipment = equipmentList.ToList();
-			equipment.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
+			equipmentTextUI.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
 
 			unitEquipment.ForEach(eq => Debug.Log($"[{id}][{name}] Adding Equipment | {eq.amount} {eq.equipmentName}"));
 
@@ -76,7 +79,7 @@ public class Unit : MonoBehaviour {
 			ResizeMovementCircle();
 		} else {
 			unitEquipment = new List<Equipment>();
-			equipment.text = "";
+			equipmentTextUI.text = "";
 		}
 	}
 
@@ -98,7 +101,7 @@ public class Unit : MonoBehaviour {
 		}
 		sightRange.SetActive(true);
 		movementRange.SetActive(true);
-		equipment.gameObject.SetActive(true);
+		equipmentTextUI.gameObject.SetActive(true);
 	}
 
 	/// <summary>
@@ -107,7 +110,7 @@ public class Unit : MonoBehaviour {
 	internal void OnMouseExit() {
 		sightRange.SetActive(false);
 		movementRange.SetActive(false);
-		equipment.gameObject.SetActive(false);
+		equipmentTextUI.gameObject.SetActive(false);
 	}
 
 	/// <summary>
@@ -157,7 +160,7 @@ public class Unit : MonoBehaviour {
 	/// </summary>
 	/// <param name="identification">New identifier</param>
 	internal void ChangeName(string identification) {
-		if (UnitTier > UnitTier.Division) {
+		if (unitTier > UnitTier.Division) {
 			unitName.text = EnumUtil.GetCorps(identification);
 		} else {
 			unitName.text = EnumUtil.NumberWithSuffix(Convert.ToInt16(identification));
@@ -166,14 +169,33 @@ public class Unit : MonoBehaviour {
 		Debug.Log($"[{id}][{name}] Name changed to {identification}");
 	}
 
+	internal void ChangeSpecialization(GroundUnit unit, int specialization) {
+		unitSpecialization = specialization;
+		unit.specialization = (GroundSpecialization)(int)specialization;
+		unit.main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(unit, unit.sideB);
+		Debug.Log($"[{id}][{name}] Specialization changed | {specialization}");
+	}
+	internal void ChangeSpecialization(AerialUnit unit, int specialization) {
+		unitSpecialization = specialization;
+		unit.specialization = (AerialSpecialization)(int)specialization;
+		unit.main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(unit, unit.sideB);
+		Debug.Log($"[{id}][{name}] Specialization changed | {specialization}");
+	}
+	internal void ChangeSpecialization(NavalUnit unit, int specialization) {
+		unitSpecialization = specialization;
+		unit.specialization = (NavalSpecialization)(int)specialization;
+		unit.main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(unit, unit.sideB);
+		Debug.Log($"[{id}][{name}] Specialization changed | {specialization}");
+	}
+
 	/// <summary>
 	/// Changes the unit tier from int to Enum and assigns it to unit and its label.
 	/// </summary>
 	/// <param name="echelon">Echelon int</param>
 	internal void ChangeTier(int echelon) {
 		tier.text = EnumUtil.GetUnitTier(echelon);
-		UnitTier = (UnitTier)echelon;
-		Debug.Log($"[{id}][{name}] Tier changed to {UnitTier}");
+		unitTier = (UnitTier)echelon;
+		Debug.Log($"[{id}][{name}] Tier changed to {unitTier}");
 	}
 
 	internal static int GetSpecialization(GroundUnit unit) {

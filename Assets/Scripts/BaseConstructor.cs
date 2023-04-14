@@ -51,6 +51,5 @@ public class BaseConstructor : MonoBehaviour {
 	/// </summary>
 	public void CreateBase() {
 		constructedBase = GameObject.FindWithTag("Units").GetComponent<UnitManager>().SpawnBase("NewBase", Vector3.zero, BaseType.Base, false);
-		//TODO add some form of movement to the base on creation so even user can place it
 	}
 }

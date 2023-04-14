@@ -10,6 +10,7 @@ public class UnitConstructor : MonoBehaviour {
 	private GroundTransportType transportModifier = GroundTransportType.None;
 	private UnitTier tier = UnitTier.Team;
 	private string identification = "";
+	private Unit constructedUnit;
 	public List<Equipment> unitEquipment = new List<Equipment>();
 
 	public void UpdatePosition(Vector3 position) {
@@ -35,6 +36,9 @@ public class UnitConstructor : MonoBehaviour {
 	}
 	public void UpdateAffiliation(bool sideB) {
 		this.sideB = sideB;
+	}
+	public void CreateUnit() {
+		constructedUnit = GameObject.FindWithTag("Units").GetComponent<UnitManager>().SpawnUnit("NewBase", Vector3.zero, BaseType.Base, false);
 	}
 	public void Spawn() {
 		UnitManager.Instance.SpawnUnit(new Vector3(basePosition.x, basePosition.y, basePosition.z), domain, specialization, identification, tier, sideB, movementModifier, transportModifier, unitEquipment);

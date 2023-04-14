@@ -20,4 +20,3 @@ public class TextFloatAppender : MonoBehaviour {
 		} catch (System.NullReferenceException) { }
 	}
 }
-

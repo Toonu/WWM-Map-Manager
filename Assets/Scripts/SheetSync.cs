@@ -51,7 +51,7 @@ public class SheetSync : MonoBehaviour {
 				sheetUnits.Add(new List<object> {
 				unit.transform.position.x, unit.transform.position.y, 0,
 				(int)unit.specialization, unit.name,
-				(int)unit.UnitTier,
+				(int)unit.unitTier,
 				EnumUtil.ConvertBoolToInt(unit.sideB),
 				(int)unit.movementModifier,
 				(int)unit.transportModifier,
@@ -64,7 +64,7 @@ public class SheetSync : MonoBehaviour {
 				unit.transform.position.x, unit.transform.position.y, 1,
 				(int)unit.specialization,
 				unit.name,
-				(int)unit.UnitTier,
+				(int)unit.unitTier,
 				EnumUtil.ConvertBoolToInt(unit.sideB), 0, 0,
 				string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
 			}
@@ -75,7 +75,7 @@ public class SheetSync : MonoBehaviour {
 				unit.transform.position.x, unit.transform.position.y, 2,
 				(int) unit.specialization,
 				unit.name,
-				(int) unit.UnitTier,
+				(int) unit.unitTier,
 				EnumUtil.ConvertBoolToInt(unit.sideB), 0, 0,
 				string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
 			}
@@ -107,6 +107,7 @@ public class SheetSync : MonoBehaviour {
 			}
 
 			/* TODO
+			 * Move unit specialization to Unit
 			 * Implement IPointerClickHandler to handle all context menus
 			 * Remove editing menu by mergining it with the spawning menu since they are very similar, also may merge UnitConstructor and UnitEditor classes while at it, hide and rename buttons per usage.
 			 * Delete units and bases when reloading the sheet second and other times

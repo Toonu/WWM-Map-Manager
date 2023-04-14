@@ -12,14 +12,13 @@ public class GroundUnit : Unit {
 	internal MeshRenderer transportTexture;
 	internal GroundTransportType transportModifier = GroundTransportType.None;
 
-	public void Initiate(object ID, Vector3 position, UnitTier unitTier, string unitName, bool sideB, GroundSpecialization specialization, GroundMovementType movementModifier, GroundTransportType transportModifier, List<Equipment> unitEquipment, GroundUnit higherUnit) {
+	public void Initiate(int ID, Vector3 position, UnitTier unitTier, string unitName, bool sideB, int specialization, GroundMovementType movementModifier, GroundTransportType transportModifier, List<Equipment> unitEquipment, GroundUnit higherUnit) {
 		higherEchelon = transform.Find("Canvas/HigherEchelon").gameObject.GetComponent<TextMeshProUGUI>();
 
-		Initiate(ID, position, unitTier, unitName, unitEquipment);
+		Initiate(ID, position, unitTier, unitName, specialization, unitEquipment);
 		movementTexture = main.transform.parent.GetChild(0).GetComponent<MeshRenderer>();
 		transportTexture = main.transform.parent.GetChild(1).GetComponent<MeshRenderer>();
 
-		ChangeSpecialization(specialization);
 		ChangeSpecialization(movementModifier);
 		ChangeSpecialization(transportModifier);
 		this.sideB = sideB;
@@ -31,10 +30,6 @@ public class GroundUnit : Unit {
 		}
 	}
 
-	internal void ChangeSpecialization(GroundSpecialization specialization) {
-		this.specialization = specialization;
-		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, sideB);
-	}
 	internal void ChangeSpecialization(GroundMovementType movementModifier) {
 		this.movementModifier = movementModifier;
 		movementTexture.material.mainTexture = UnitManager.Instance.GetMovementTexture(this, sideB);
