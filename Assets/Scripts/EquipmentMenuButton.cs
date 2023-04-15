@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
 public class EquipmentMenuButton : MonoBehaviour {
-	internal GameObject button;
-	internal GameObject buttons;
+	internal GameObject mainButton;
+	internal GameObject removeButton;
 }

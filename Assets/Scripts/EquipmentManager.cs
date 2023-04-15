@@ -46,25 +46,25 @@ public class EquipmentManager : MonoBehaviour {
 
 	public void UpdateUI() {
 		List<string> eqNames = new List<string>();
-		if (menu.GetComponent<UnitConstructor>().constructedUnit.SideB) {
-			if (menu.GetComponent<UnitConstructor>().unitDomain == 0) {
+		if (constructor.constructedUnit.SideB) {
+			if (constructor.unitDomain == 0) {
 				eqNames = eqGroundB.Select(e => e.equipmentName).ToList();
 				equipmentNames = eqGroundB;
-			} else if (menu.GetComponent<UnitConstructor>().unitDomain == 1) {
+			} else if (constructor.unitDomain == 1) {
 				eqNames = eqAerialB.Select(e => e.equipmentName).ToList();
 				equipmentNames = eqAerialB;
-			} else if (menu.GetComponent<UnitConstructor>().unitDomain == 2) {
+			} else if (constructor.unitDomain == 2) {
 				eqNames = eqNavalB.Select(e => e.equipmentName).ToList();
 				equipmentNames = eqNavalB;
 			}
 		} else {
-			if (menu.GetComponent<UnitConstructor>().unitDomain == 0) {
+			if (constructor.unitDomain == 0) {
 				eqNames = eqGround.Select(e => e.equipmentName).ToList();
 				equipmentNames = eqGround;
-			} else if (menu.GetComponent<UnitConstructor>().unitDomain == 1) {
+			} else if (constructor.unitDomain == 1) {
 				eqNames = eqAerial.Select(e => e.equipmentName).ToList();
 				equipmentNames = eqAerial;
-			} else if (menu.GetComponent<UnitConstructor>().unitDomain == 2) {
+			} else if (constructor.unitDomain == 2) {
 				eqNames = eqNaval.Select(e => e.equipmentName).ToList();
 				equipmentNames = eqNaval;
 			}
@@ -91,12 +91,12 @@ public class EquipmentManager : MonoBehaviour {
 	}
 
 	public void AddEquipment(UnitConstructor menu) {
-		menu.GetComponent<UnitConstructor>().unitEquipment = equipmentList.ToList();
+		constructor.unitEquipment = equipmentList.ToList();
 		menu.transform.Find("Eq").GetComponent<TextMeshProUGUI>().text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
 		CloseMenu();
 	}
 	public void AddEquipment() {
-		menu.GetComponent<UnitConstructor>().constructedUnit.AddEquipment(equipmentList);
+		constructor.constructedUnit.AddEquipment(equipmentList);
 		menu.transform.Find("Eq").GetComponent<TextMeshProUGUI>().text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
 		CloseMenu();
 	}
@@ -137,7 +137,7 @@ public class EquipmentManager : MonoBehaviour {
 	public void UpdateEquipmentList(Equipment newEquipment) {
 		foreach (Equipment equp in equipmentList) {
 			if (equp.equipmentName == eq.equipmentName) {
-				controller.PopUp("Equipment already added");
+				controller.generalPopup.GetComponent<Popup>().PopUp("Equipment already added");
 				Destroy(newEquipment.gameObject);
 				return;
 			}
@@ -148,25 +148,26 @@ public class EquipmentManager : MonoBehaviour {
 
 	private void CreateEquipmentButtons(Equipment newEquipment) {
 		// Loop through the button labels
-		GameObject newButtonObject = Instantiate(buttonEquipment, buttonPanel.transform.Find("1").transform);
-		Button newButton1 = newButtonObject.GetComponent<Button>();
-		newButtonObject.GetComponentInChildren<TextMeshProUGUI>().text = $"{newEquipment.equipmentName}:{newEquipment.amount}";
+		GameObject equipmentLabel = Instantiate(buttonEquipment, buttonPanel.transform.Find("1").transform);
+		Button equipmentLabelButton = equipmentLabel.GetComponent<Button>();
+		equipmentLabel.GetComponentInChildren<TextMeshProUGUI>().text = $"{newEquipment.equipmentName}:{newEquipment.amount}";
 
-		GameObject newButtonObject1 = Instantiate(buttonEquipment, buttonPanel.transform.Find("2").transform);
-		Button newButton = newButtonObject1.GetComponent<Button>();
-		newButtonObject1.GetComponentInChildren<TextMeshProUGUI>().text = $"DELETE";
-		newButtonObject1.GetComponent<EquipmentMenuButton>().button = newButtonObject;
-		newButtonObject1.GetComponent<EquipmentMenuButton>().buttons = newButtonObject1;
-		newButton.onClick.AddListener(() => {
+		GameObject deleteButton = Instantiate(buttonEquipment, buttonPanel.transform.Find("2").transform);
+		Button deleteButtonButton = deleteButton.GetComponent<Button>();
+		deleteButton.GetComponentInChildren<TextMeshProUGUI>().text = $"DELETE";
+
+		deleteButton.GetComponent<EquipmentMenuButton>().mainButton = equipmentLabel;
+		deleteButton.GetComponent<EquipmentMenuButton>().removeButton = deleteButton;
+		deleteButtonButton.onClick.AddListener(() => {
 			RemoveEquipment(newEquipment);
-			EquipmentMenuButton b = newButtonObject1.GetComponent<EquipmentMenuButton>();
-			Destroy(b.button);
-			Destroy(b.buttons);
+			EquipmentMenuButton b = deleteButton.GetComponent<EquipmentMenuButton>();
+			Destroy(b.mainButton);
+			Destroy(b.removeButton);
 		});
 	}
 
 	public void UpdateEquipmentList(UnitConstructor menu) {
-		foreach (Equipment item in menu.GetComponent<UnitConstructor>().unitEquipment) {
+		foreach (Equipment item in constructor.unitEquipment) {
 			eq = item;
 			UpdateEquipmentList(item);
 		}

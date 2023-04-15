@@ -4,7 +4,7 @@ using TMPro;
 using System.Threading.Tasks;
 using System;
 
-public class ApplicationController : MonoBehaviour {
+public class Popup : MonoBehaviour {
 	private TextMeshProUGUI textUI;
 
 	void Awake() {
