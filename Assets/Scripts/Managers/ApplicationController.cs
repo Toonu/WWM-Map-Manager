@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ApplicationController : MonoBehaviour {
-	public Popup generalPopup;
+	public UIPopup generalPopup;
 	public SheetSync server;
 	public string Username { private get; set; }
 	public string Password { private get; set; }
@@ -87,7 +87,7 @@ public class ApplicationController : MonoBehaviour {
 		mainCamera.speed = newSpeed;
 		PlayerPrefs.SetFloat("CameraSpeed", newSpeed);
 		PlayerPrefs.Save();
-		cameraSpeedSliderText.GetComponent<TextFloatAppender>().UpdateText(newSpeed);
+		cameraSpeedSliderText.GetComponent<UITextFloatAppender>().UpdateText(newSpeed);
 	}
 
 	#endregion

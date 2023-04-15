@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 public class AerialUnit : Unit {
@@ -29,3 +31,18 @@ public class AerialUnit : Unit {
 	}
 }
 
+#if UNITY_EDITOR
+[CustomEditor(typeof(AerialUnit))]
+public class AerialUnitEditor : Editor {
+	public override void OnInspectorGUI() {
+		// Draw the default inspector
+		DrawDefaultInspector();
+
+		AerialUnit unit = (AerialUnit)target;
+		FieldInfo[] fields = typeof(AerialUnit).GetFields(BindingFlags.NonPublic);
+		foreach (FieldInfo field in fields) {
+			EditorGUILayout.LabelField(field.Name, field.GetValue(unit).ToString());
+		}
+	}
+}
+#endif

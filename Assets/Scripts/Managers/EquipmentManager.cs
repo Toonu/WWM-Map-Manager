@@ -10,9 +10,9 @@ public class EquipmentManager : MonoBehaviour {
 	internal List<Equipment> equipmentList = new List<Equipment>();
 	private TMP_InputField amountInput;
 	private TMP_Dropdown types;
-	private TextFloatAppender costLabel;
-	private TextFloatAppender sightLabel;
-	private TextFloatAppender rangeLabel;
+	private UITextFloatAppender costLabel;
+	private UITextFloatAppender sightLabel;
+	private UITextFloatAppender rangeLabel;
 	private GameObject buttonPanel;
 	public GameObject buttonEquipment;
 	public GameObject equipmentTemplate;
@@ -27,14 +27,14 @@ public class EquipmentManager : MonoBehaviour {
 
 
 	private void Awake() {
-		amountInput = transform	.Find("Equipment/GameObject.1/EqAmount").GetComponent<TMP_InputField>();
-		costLabel = transform	.Find("Equipment/GameObject.1/EqCost").GetComponent<TextFloatAppender>();
-		types = transform		.Find("Equipment/GameObject.2/EqType").GetComponent<TMP_Dropdown>();
-		sightLabel = transform	.Find("Equipment/GameObject.2/EqSight").GetComponent<TextFloatAppender>();
-		rangeLabel = transform	.Find("Equipment/GameObject.3/EqRange").GetComponent<TextFloatAppender>();
-		buttonPanel = transform.Find("Equipment/ButtonPanel").gameObject;
+		amountInput = transform	.Find("Menu/Equipment/GameObject.1/EqAmount").GetComponent<TMP_InputField>();
+		costLabel = transform	.Find("Menu/Equipment/GameObject.1/EqCost").GetComponent<UITextFloatAppender>();
+		types = transform		.Find("Menu/Equipment/GameObject.2/EqType").GetComponent<TMP_Dropdown>();
+		sightLabel = transform	.Find("Menu/Equipment/GameObject.2/EqSight").GetComponent<UITextFloatAppender>();
+		rangeLabel = transform	.Find("Menu/Equipment/GameObject.3/EqRange").GetComponent<UITextFloatAppender>();
+		buttonPanel = transform.Find("Menu/Equipment/ButtonPanel").gameObject;
 		controller = GameObject.FindGameObjectWithTag("GameController").GetComponent<ApplicationController>();
-		constructor = GetComponent<UnitConstructor>();
+		constructor = transform.GetChild(0).GetComponent<UnitConstructor>();
 	}
 
 	internal static List<Equipment> eqNaval = new List<Equipment>();
@@ -44,7 +44,9 @@ public class EquipmentManager : MonoBehaviour {
 	internal static List<Equipment> eqAerialB = new List<Equipment>();
 	internal static List<Equipment> eqGroundB = new List<Equipment>();
 
+
 	public void UpdateUI() {
+		types.ClearOptions();
 		List<string> eqNames = new List<string>();
 		if (constructor.constructedUnit.SideB) {
 			if (constructor.unitDomain == 0) {
@@ -69,7 +71,6 @@ public class EquipmentManager : MonoBehaviour {
 				equipmentNames = eqNaval;
 			}
 		}
-		types.ClearOptions();
 		types.AddOptions(eqNames);
 		SetType(0);
 	}
@@ -137,7 +138,7 @@ public class EquipmentManager : MonoBehaviour {
 	public void UpdateEquipmentList(Equipment newEquipment) {
 		foreach (Equipment equp in equipmentList) {
 			if (equp.equipmentName == eq.equipmentName) {
-				controller.generalPopup.GetComponent<Popup>().PopUp("Equipment already added");
+				controller.generalPopup.GetComponent<UIPopup>().PopUp("Equipment already added");
 				Destroy(newEquipment.gameObject);
 				return;
 			}

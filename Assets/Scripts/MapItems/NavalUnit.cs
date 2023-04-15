@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 public class NavalUnit : Unit {
+	[SerializeField]
 	internal NavalSpecialization specialization = NavalSpecialization.None;
 
 	public override void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newName, List<Equipment> newEquipment, bool newSideB, int newSpecialization) {
@@ -22,3 +25,20 @@ public class NavalUnit : Unit {
 		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, SideB);
 	}
 }
+
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(NavalUnit))]
+public class NavalUnitEditor : Editor {
+	public override void OnInspectorGUI() {
+		// Draw the default inspector
+		DrawDefaultInspector();
+
+		NavalUnit unit = (NavalUnit)target;
+		FieldInfo[] fields = typeof(NavalUnit).GetFields(BindingFlags.NonPublic);
+		foreach (FieldInfo field in fields) {
+			EditorGUILayout.LabelField(field.Name, field.GetValue(unit).ToString());
+		}
+	}
+}
+#endif

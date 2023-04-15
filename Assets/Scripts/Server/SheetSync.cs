@@ -7,7 +7,7 @@ using UnityEditor;
 using System.Threading.Tasks;
 
 public class SheetSync : MonoBehaviour {
-	public ApplicationController generalPopup;
+	public UIPopup generalPopup;
 	private IList<IList<object>> sheetUnits = new List<IList<object>>();
 	private IList<IList<object>> sheetBases = new List<IList<object>>();
 	private SheetReader ss;
@@ -18,7 +18,7 @@ public class SheetSync : MonoBehaviour {
 	internal int pointsB = 0;
 	private UnitManager manager;
 	private EquipmentManager eqManager;
-	private ApplicationController aC; 
+	private ApplicationController controller; 
 	private int basesLength = 0;
 	private int unitsLength = 0;
 	public GameObject equipmentTemplate;
@@ -27,7 +27,7 @@ public class SheetSync : MonoBehaviour {
 		ss = GetComponent<SheetReader>();
 		manager = GameObject.FindWithTag("Units").GetComponent<UnitManager>();
 		eqManager = GameObject.FindWithTag("Equipment").GetComponent<EquipmentManager>();
-		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
+		controller = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 	}
 
 
@@ -51,7 +51,7 @@ public class SheetSync : MonoBehaviour {
 				sheetUnits.Add(new List<object> {
 				unit.transform.position.x, unit.transform.position.y, 0,
 				(int)unit.specialization, unit.name,
-				(int)unit.UnitTier,
+				(int)unit.GetUnitTier(),
 				EnumUtil.ConvertBoolToInt(unit.SideB),
 				(int)unit.movementModifier,
 				(int)unit.transportModifier,
@@ -64,7 +64,7 @@ public class SheetSync : MonoBehaviour {
 				unit.transform.position.x, unit.transform.position.y, 1,
 				(int)unit.specialization,
 				unit.name,
-				(int)unit.UnitTier,
+				(int)unit.GetUnitTier(),
 				EnumUtil.ConvertBoolToInt(unit.SideB), 0, 0,
 				string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
 			}
@@ -75,7 +75,7 @@ public class SheetSync : MonoBehaviour {
 				unit.transform.position.x, unit.transform.position.y, 2,
 				(int) unit.specialization,
 				unit.name,
-				(int) unit.UnitTier,
+				(int) unit.GetUnitTier(),
 				EnumUtil.ConvertBoolToInt(unit.SideB), 0, 0,
 				string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
 			}
@@ -107,6 +107,7 @@ public class SheetSync : MonoBehaviour {
 			}
 
 			/* TODO
+			 * Getters and setters instead of update methods
 			 * Swap unit constructor attributes to change them on the assigned unit directly instead. Removing intermediary.
 			 * Merge unit and equipment menu within the equipment-central logic
 			 * Move unit specialization to Unit
@@ -159,7 +160,7 @@ public class SheetSync : MonoBehaviour {
 
 			eqManager.equipmentNames.Clear();
 
-			GameObject templates = Instantiate(new GameObject("Templates"), transform);
+			GameObject templates = controller.transform.Find("Templates").gameObject;
 
 			foreach (IList<object> col in equipmentData) {
 				if (Convert.ToInt16(col[6]) == 3) {
@@ -303,7 +304,7 @@ public class SheetSync : MonoBehaviour {
 		}
 		catch (Exception e) {
 			Debug.LogException(e);
-			await aC.generalPopup.PopUpAsync("Error! " + e.Message + e, 30);
+			await controller.generalPopup.PopUpAsync("Error! " + e.Message + e, 30);
 			Application.Quit();
 			#if UNITY_EDITOR
 			EditorApplication.ExitPlaymode();

@@ -1,11 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 public class GroundUnit : Unit {
+	[SerializeField]
 	internal GroundSpecialization specialization = GroundSpecialization.None;
 	internal MeshRenderer movementTexture;
+	[SerializeField]
 	internal GroundMovementType movementModifier = GroundMovementType.None;
 	internal MeshRenderer transportTexture;
+	[SerializeField]
 	internal GroundTransportType transportModifier = GroundTransportType.None;
 
 	public void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newName, List<Equipment> newEquipment, bool newSideB, int newSpecialization, GroundMovementType newMovement, GroundTransportType newTransport) {
@@ -46,6 +51,20 @@ public class GroundUnit : Unit {
 		this.transportModifier = transportModifier;
 		transportTexture.material.mainTexture = UnitManager.Instance.GetTransportTexture(this, SideB);
 	}
-
-	
 }
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(GroundUnit))]
+public class GroundUnitEditor : Editor {
+	public override void OnInspectorGUI() {
+		// Draw the default inspector
+		DrawDefaultInspector();
+
+		GroundUnit unit = (GroundUnit)target;
+		FieldInfo[] fields = typeof(GroundUnit).GetFields(BindingFlags.NonPublic);
+		foreach (FieldInfo field in fields) {
+			EditorGUILayout.LabelField(field.Name, field.GetValue(unit).ToString());
+		}
+	}
+}
+#endif

@@ -1,9 +1,8 @@
 ﻿using System.Linq;
-using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 
-public class TextFloatAppender : MonoBehaviour {
+public class UITextFloatAppender : MonoBehaviour {
 	private TextMeshProUGUI text;
 	//Loads the text component on awake.
 	void Awake() {

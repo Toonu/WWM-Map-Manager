@@ -5,9 +5,32 @@ using TMPro;
 using UnityEngine;
 
 public abstract class Unit : MonoBehaviour {
-	public int ID;
-	public UnitTier UnitTier;
+
+	#region Attribute Get/Setters
+
+	[SerializeField]
+	internal int ID;
+
+	private UnitTier unitTier;
+
+	public UnitTier GetUnitTier() { return unitTier; }
+
+	public void SetUnitTier(int echelon) {
+		tierTextUI.text = EnumUtil.GetUnitTier(echelon);
+		unitTier = (UnitTier)echelon;
+		Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
+	}
+
+	public void SetUnitTier(UnitTier echelon) {
+		tierTextUI.text = echelon.ToString();
+		unitTier = echelon;
+		Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
+	}
+
+
+	[SerializeField]
 	internal List<Equipment> unitEquipment;
+	[SerializeField]
 	private Unit UnitParent {
 		get => UnitParent;
 		set {
@@ -15,6 +38,32 @@ public abstract class Unit : MonoBehaviour {
 			parentTextUI.text = value.name;
 		}
 	}
+
+	/// <summary>
+	/// Setter for the unit identifier name which changed the name label and Object name.
+	/// </summary>
+	/// <param name="identification">New identifier</param>
+	internal virtual void ChangeName(string identification) {
+		if (GetUnitTier() > UnitTier.Division) {
+			nameTextUI.text = EnumUtil.GetCorps(identification);
+		} else {
+			nameTextUI.text = EnumUtil.NumberWithSuffix(Convert.ToInt16(identification));
+		}
+		name = identification;
+		Debug.Log($"[{ID}][{name}] Name changed to {identification}");
+	}
+
+
+	internal abstract void ChangeAffiliation();
+	internal virtual void ChangeAffiliation(bool sideB) {
+		SideB = sideB;
+		ChangeAffiliation();
+	}
+
+	internal abstract void ChangeSpecialization(int specialization);
+	#endregion
+
+	
 
 	#region UnitVisuals
 	protected MeshRenderer iconImage;
@@ -26,7 +75,8 @@ public abstract class Unit : MonoBehaviour {
 	private TextMeshProUGUI tierTextUI;
 	private TextMeshProUGUI parentTextUI;
 	private TextMeshProUGUI equipmentTextUI;
-	public bool SideB;
+	[SerializeField]
+	internal bool SideB;
 
 	protected ApplicationController aC;
 	#endregion
@@ -63,7 +113,7 @@ public abstract class Unit : MonoBehaviour {
 			unitEquipment = new List<Equipment>();
 		}
 
-		ChangeTier(Convert.ToInt16(newTier));
+		SetUnitTier(newTier);
 		ChangeName(newIdentifier);
 
 		Debug.Log($"[{ID}][{name}] Initiated");
@@ -92,15 +142,16 @@ public abstract class Unit : MonoBehaviour {
 			equipmentTextUI.text = "";
 		}
 	}
-
+	[SerializeField]
 	internal float sightRange = 0.25f;
 	internal float weaponRange = 0.2f;
 
 	#region Movement
-
 	private Vector3 offset;
+	[SerializeField]
 	internal Vector3 turnStartPosition;
-	public float movementRange;
+	[SerializeField]
+	internal float movementRange;
 
 	/// <summary>
 	/// Shows range circles.
@@ -163,40 +214,4 @@ public abstract class Unit : MonoBehaviour {
 
 	#endregion
 
-	#region Attribute Get/Setters
-
-	/// <summary>
-	/// Setter for the unit identifier name which changed the name label and Object name.
-	/// </summary>
-	/// <param name="identification">New identifier</param>
-	internal virtual void ChangeName(string identification) {
-		if (UnitTier > UnitTier.Division) {
-			nameTextUI.text = EnumUtil.GetCorps(identification);
-		} else {
-			nameTextUI.text = EnumUtil.NumberWithSuffix(Convert.ToInt16(identification));
-		}
-		name = identification;
-		Debug.Log($"[{ID}][{name}] Name changed to {identification}");
-	}
-
-
-	internal abstract void ChangeAffiliation();
-	internal virtual void ChangeAffiliation(bool sideB) {
-		SideB = sideB;
-		ChangeAffiliation();
-	}
-
-	internal abstract void ChangeSpecialization(int specialization);
-
-	/// <summary>
-	/// Changes the unit tier from int to Enum and assigns it to unit and its label.
-	/// </summary>
-	/// <param name="echelon">Echelon int</param>
-	internal virtual void ChangeTier(int echelon) {
-		tierTextUI.text = EnumUtil.GetUnitTier(echelon);
-		UnitTier = (UnitTier)echelon;
-		Debug.Log($"[{ID}][{name}] Tier changed to {UnitTier}");
-	}
-	#endregion
 }
-

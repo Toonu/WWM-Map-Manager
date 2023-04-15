@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class ClickController : MonoBehaviour, IPointerClickHandler {
 	public Button sampleButton;
 	private List<ContextMenuItem> contextMenuItems;
-	ApplicationController aC;
+	ApplicationController controller;
 	private Vector3 position;
 	private bool sideB;
 	private PointerEventData click;
@@ -28,7 +28,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 		spawnBase = new Action<Image>(SpawnBaseAction);
 		reset = new Action<Image>(ResetAction);
 		softReset = new Action<Image>(SoftResetAction);
-		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
+		controller = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 	}
 
 	public void OnPointerClick(PointerEventData eventData) {
@@ -38,25 +38,33 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 			if (eventData.pointerClick.GetComponent<Base>() != null) {
 				sideB = GetComponent<Unit>().SideB;
 				position = eventData.selectedObject.transform.position;
+				if (controller.admin) {
+					contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
+					contextMenuItems.Add(new ContextMenuItem("Despawn", sampleButton, delete));
+					contextMenuItems.Add(new ContextMenuItem("Spawn", sampleButton, spawn));
+				}
 				contextMenuItems.Add(new ContextMenuItem("Reset", sampleButton, reset));
-				contextMenuItems.Add(new ContextMenuItem("Spawn", sampleButton, spawn));
-				contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
-				contextMenuItems.Add(new ContextMenuItem("Despawn", sampleButton, delete));
+				
 			} else if (GetComponent<Base>() != null) {
 				sideB = GetComponent<Base>().sideB;
 				position = eventData.selectedObject.transform.position;
-				contextMenuItems.Add(new ContextMenuItem("Reset", sampleButton, reset));
-				contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
-				contextMenuItems.Add(new ContextMenuItem("Despawn", sampleButton, delete));
-				contextMenuItems.Add(new ContextMenuItem("Soft Reset", sampleButton, softReset));
-			} else {
-				sideB = aC.sideB;
+				if (controller.admin) {
+					contextMenuItems.Add(new ContextMenuItem("Reset", sampleButton, reset));
+					contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
+					contextMenuItems.Add(new ContextMenuItem("Despawn", sampleButton, delete));
+					contextMenuItems.Add(new ContextMenuItem("Soft Reset", sampleButton, softReset));
+				}
 				contextMenuItems.Add(new ContextMenuItem("Spawn", sampleButton, spawn));
+			} else {
+				sideB = controller.sideB;
+				if (controller.admin) {
+					contextMenuItems.Add(new ContextMenuItem("Spawn", sampleButton, spawn));
+				}
 				contextMenuItems.Add(new ContextMenuItem("Spawn Base", sampleButton, spawnBase));
 				position = eventData.pointerCurrentRaycast.screenPosition;
 			}
 			ContextMenu.Instance.CreateContextMenu(contextMenuItems, position);
-			aC.deletingMenus = true;
+			controller.deletingMenus = true;
 		}
 	}
 
@@ -80,10 +88,10 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 
 	void EditAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
-		if (GetComponent<Base>() == null && aC.admin) {
+		if (GetComponent<Base>() == null) {
 			UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>().UpdateUnit(GetComponent<Unit>());
 			UnitManager.Instance.unitMenu.SetActive(true);
-		} else if (aC.admin) {
+		} else {
 			UnitManager.Instance.baseMenu.GetComponent<BaseConstructor>().UpdateBase(GetComponent<Base>());
 			UnitManager.Instance.baseMenu.SetActive(true);
 		}
@@ -91,9 +99,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 
 	void DeleteAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
-		if (aC.admin) {
-			UnitManager.Instance.Despawn(gameObject);
-		}
+		UnitManager.Instance.Despawn(gameObject);
 	}
 
 	void ResetAction(Image contextPanel) {
@@ -107,9 +113,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 
 	void SoftResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
-		if (aC.admin) {
-			GetComponent<Unit>().turnStartPosition = transform.position;
-			GetComponent<Unit>().ResizeMovementCircle();
-		}
+		GetComponent<Unit>().turnStartPosition = transform.position;
+		GetComponent<Unit>().ResizeMovementCircle();
 	}
 }

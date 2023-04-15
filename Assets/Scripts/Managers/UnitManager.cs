@@ -12,7 +12,7 @@ public class UnitManager : MonoBehaviour {
 	void Start() {
 		_instance = GetComponent<UnitManager>();
 
-		unitMenu = unitUIMenus.transform.Find("UnitMenu").gameObject;
+		unitMenu = unitUIMenus.transform.Find("UnitMenu/Menu").gameObject;
 		baseMenu = unitUIMenus.transform.Find("BaseMenu").gameObject;
 	}
 
