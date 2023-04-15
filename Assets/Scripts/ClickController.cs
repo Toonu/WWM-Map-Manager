@@ -19,24 +19,24 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 	}
 
 	void OnMouseOver() {
-		if (Input.GetMouseButtonDown(1)) {
+		/*if (Input.GetMouseButtonDown(1)) {
 			ContextMenu.Instance.CreateContextMenu(contextMenuItems, new Vector3(Screen.width / 2, Screen.height / 2));
 			position = Input.mousePosition;
 			aC.deletingMenus = true;
-		}
+		}*/
 	}
 
 	void SpawnAction(Image contextPanel) {
-		UnitManager.Instance.baseEditMenu.SetActive(true);
-		UnitManager.Instance.baseEditMenu.GetComponent<BaseConstructor>().CreateBase();
-		UnitManager.Instance.baseEditMenu.GetComponent<BaseConstructor>().UpdatePosition(Camera.main.ScreenToWorldPoint(new Vector3(position.x, position.y, -0.1f)));
+		UnitManager.Instance.baseMenu.SetActive(true);
+		UnitManager.Instance.baseMenu.GetComponent<BaseConstructor>().CreateBase();
+		UnitManager.Instance.baseMenu.GetComponent<BaseConstructor>().UpdatePosition(Camera.main.ScreenToWorldPoint(new Vector3(position.x, position.y, -0.1f)));
 	}
 
 	public void OnPointerClick(PointerEventData eventData) {
-		/*if (eventData.button == PointerEventData.InputButton.Right) {
+		if (eventData.button == PointerEventData.InputButton.Right) {
 			position = eventData.position;
 			ContextMenu.Instance.CreateContextMenu(contextMenuItems, position);
 			aC.deletingMenus = true;
-		}*/
+		}
 	}
 }

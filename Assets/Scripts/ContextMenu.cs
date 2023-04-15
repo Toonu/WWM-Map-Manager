@@ -1,4 +1,7 @@
-﻿using System;
+﻿
+
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -37,23 +40,28 @@ public class ContextMenu : MonoBehaviour {
 
 	public void CreateContextMenu(List<ContextMenuItem> items, Vector3 position) {
 		Image panel = Instantiate(contentPanel, position, Quaternion.identity);
-
 		panel.transform.SetParent(canvas.transform);
 		panel.transform.SetAsLastSibling();
-		
+
 		foreach (var item in items) {
 			ContextMenuItem tempReference = item;
 			Button button = Instantiate(item.button);
 			TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
 			buttonText.text = item.text;
+			button.GetComponent<LayoutElement>().minHeight = Screen.height / 16;
+			button.GetComponent<LayoutElement>().minWidth = Screen.width / 8;
 			button.onClick.AddListener(delegate { tempReference.action(panel); });
 			button.transform.SetParent(panel.transform);
 		}
+		StartCoroutine(DelayTilEndOfFrame(panel, position));
+	}
 
-		//position -= new Vector3(0.15f * position.x, 0.15f * position.y, 0);
-		//position = new Vector3(Mathf.Clamp(position.x, 75, Screen.width - 560), Mathf.Clamp(position.y, 50, Screen.height - 320));
-		Vector2 canvasSize = new Vector2(panel.rectTransform.rect.width, panel.rectTransform.rect.height);
-		position = new Vector3(Mathf.Clamp(position.x, 75, Screen.width - 75), Mathf.Clamp(position.y, panel.transform.childCount * 20, Screen.height - (panel.transform.childCount * 20)));
-		panel.rectTransform.anchoredPosition = position;
+	IEnumerator DelayTilEndOfFrame(Image panel, Vector3 position) {
+		yield return new WaitForEndOfFrame();
+		panel.rectTransform.localScale = Vector3.one;
+		panel.rectTransform.anchoredPosition = new Vector3(
+			Mathf.Clamp(panel.rectTransform.anchoredPosition.x, panel.rectTransform.rect.xMax, panel.gameObject.transform.parent.GetComponent<RectTransform>().rect.width - panel.rectTransform.rect.xMax), 
+			Mathf.Clamp(panel.rectTransform.anchoredPosition.y, panel.rectTransform.rect.yMax, panel.gameObject.transform.parent.GetComponent<RectTransform>().rect.height - panel.rectTransform.rect.yMax),0
+		);
 	}
 }

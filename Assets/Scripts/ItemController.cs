@@ -29,43 +29,41 @@ public class ItemController : MonoBehaviour {
 		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 		if (GetComponent<Base>() == null) {
 			
-			sideB = GetComponentInParent<Unit>().sideB;
+			sideB = GetComponentInParent<Unit>().SideB;
 		} else {
 			sideB = GetComponentInParent<Base>().sideB;
 		}
 	}
 
 	void OnMouseOver() {
-		if (Input.GetMouseButtonDown(1) && (aC.admin || aC.sideB == sideB)) {
+		/*if (Input.GetMouseButtonDown(1) && (aC.admin || aC.sideB == sideB)) {
 			ContextMenu.Instance.CreateContextMenu(contextMenuItems, Camera.main.WorldToScreenPoint(transform.position));
 			aC.deletingMenus = true;
-		}
+		}*/
 	}
 
 	void EditAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		if (GetComponent<Base>() == null && aC.admin) {
-			UnitManager.Instance.unitEditMenu.SetActive(true);
-			UnitManager.Instance.unitEditMenu.GetComponent<UnitEditor>().UpdateUnit(GetComponent<Unit>());
+			UnitManager.Instance.unitMenu.SetActive(true);
+			UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>().UpdateUnit(GetComponent<Unit>());
 		} else if (aC.admin) {
-			UnitManager.Instance.baseEditMenu.SetActive(true);
-			UnitManager.Instance.baseEditMenu.GetComponent<BaseConstructor>().UpdateBase(GetComponent<Base>());
+			UnitManager.Instance.baseMenu.SetActive(true);
+			UnitManager.Instance.baseMenu.GetComponent<BaseConstructor>().UpdateBase(GetComponent<Base>());
 		}
 	}
 
 	void SpawnAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		if (GetComponent<Base>() != null || aC.admin) {
-			UnitManager.Instance.PopulateUI(0);
-			UnitManager.Instance.unitSpawnMenu.SetActive(true);
-			UnitConstructor constructor = UnitManager.Instance.unitSpawnMenu.GetComponent<UnitConstructor>();
+			UnitManager.Instance.unitMenu.SetActive(true);
+			UnitConstructor constructor = UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>();
 			constructor.UpdatePosition(transform.position);
 			if (GetComponent<Base>() == null) {
-				constructor.UpdateAffiliation(GetComponent<Unit>().sideB);
+				constructor.UpdateAffiliation(GetComponent<Unit>().SideB);
 			} else {
 				constructor.UpdateAffiliation(GetComponent<Base>().sideB);
-			}
-			
+			}	
 		}
 	}
 

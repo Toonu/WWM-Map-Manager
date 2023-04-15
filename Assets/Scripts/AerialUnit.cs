@@ -4,23 +4,28 @@ using UnityEngine;
 public class AerialUnit : Unit {
 	internal AerialSpecialization specialization = AerialSpecialization.None;
 
-	public void Initiate(int ID, Vector3 position, UnitTier unitTier, string unitName, bool sideB, int specialization, List<Equipment> unitEquipment) {
-		Initiate(ID, position, unitTier, unitName, specialization, unitEquipment);
-		main.transform.parent.GetChild(0).gameObject.SetActive(false);
-		main.transform.parent.GetChild(1).gameObject.SetActive(false);
-		this.sideB = sideB;
-		ChangeAffiliation();
+	public override void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newName, List<Equipment> newEquipment, bool newSideB, int newSpecialization) {
+		//Disabling texture not required for aerial units
+		transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+		transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
+		base.Initiate(newID, newPosition, newTier, newName, newEquipment, newSideB, newSpecialization: newSpecialization);
 	}
 
-	internal void ChangeAffiliation() {
-		bool sideB = aC.sideB == this.sideB;
-		if (sideB) {
-			main.transform.localScale = Vector3.one;
+	internal override void ChangeAffiliation() {
+		bool isEnemy = aC.sideB != SideB;
+		if (isEnemy) {
+			iconImage.transform.localScale = new Vector3(0.8f, 0.8f, 1);
 		} else {
-			main.transform.localScale = new Vector3(0.8f, 0.8f, 1); 
+			iconImage.transform.localScale = Vector3.one;
 		}
-		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, !sideB);
-		Debug.Log($"[{id}][{name}] Affiliation changed");
+		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, isEnemy);
+		Debug.Log($"[{ID}][{name}] Affiliation changed");
+	}
+
+	internal override void ChangeSpecialization(int specialization) {
+		this.specialization = (AerialSpecialization)specialization;
+		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, SideB);
+		Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
 	}
 }
 

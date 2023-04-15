@@ -16,6 +16,7 @@ public class ApplicationController : MonoBehaviour {
 	internal static string applicationVersion = "v0.0.7";
 
 	private void Awake() {
+		mainCamera = Camera.main.GetComponent<CameraController>();
 		admin = false;
 		Debug.unityLogger.filterLogType = LogType.Log;
 		//Loads registry items for the settings.
@@ -43,7 +44,7 @@ public class ApplicationController : MonoBehaviour {
 	#region Settings
 	public Slider cameraSpeedSlider;
 	public TextMeshProUGUI cameraSpeedSliderText;
-	public CameraController mainCamera;
+	private CameraController mainCamera;
 
 	/// <summary>
 	/// Loads settings from the registry if they exist. Also loads the credentials.

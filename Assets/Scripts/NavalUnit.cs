@@ -4,16 +4,21 @@ using UnityEngine;
 public class NavalUnit : Unit {
 	internal NavalSpecialization specialization = NavalSpecialization.None;
 
-	public void Initiate(int ID, Vector3 position, UnitTier unitTier, string unitName, bool sideB, int specialization, List<Equipment> unitEquipment) {
-		Initiate(ID, position, unitTier, unitName, specialization, unitEquipment);
-		main.transform.parent.GetChild(0).gameObject.SetActive(false);
-		main.transform.parent.GetChild(1).gameObject.SetActive(false);
-		main.transform.localScale = Vector3.one;
-		this.sideB = sideB;
-		ChangeAffiliation();
+	public override void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newName, List<Equipment> newEquipment, bool newSideB, int newSpecialization) {
+		//Disabling texture not required for naval units
+		transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+		transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
+		base.Initiate(newID, newPosition, newTier, newName, newEquipment, newSideB, newSpecialization: newSpecialization);
+		//Naval aspect ratio rectangular.
+		iconImage.transform.localScale = Vector3.one;
 	}
 
-	internal void ChangeAffiliation() {
-		main.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, !(aC.sideB == sideB));
+	internal override void ChangeAffiliation() {
+		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, aC.sideB != SideB);
+	}
+
+	internal override void ChangeSpecialization(int specialization) {
+		this.specialization = (NavalSpecialization)specialization;
+		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, SideB);
 	}
 }

@@ -51,8 +51,8 @@ public class SheetSync : MonoBehaviour {
 				sheetUnits.Add(new List<object> {
 				unit.transform.position.x, unit.transform.position.y, 0,
 				(int)unit.specialization, unit.name,
-				(int)unit.unitTier,
-				EnumUtil.ConvertBoolToInt(unit.sideB),
+				(int)unit.UnitTier,
+				EnumUtil.ConvertBoolToInt(unit.SideB),
 				(int)unit.movementModifier,
 				(int)unit.transportModifier,
 				unit.unitEquipment.Count == 0 ? "" : string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
@@ -64,8 +64,8 @@ public class SheetSync : MonoBehaviour {
 				unit.transform.position.x, unit.transform.position.y, 1,
 				(int)unit.specialization,
 				unit.name,
-				(int)unit.unitTier,
-				EnumUtil.ConvertBoolToInt(unit.sideB), 0, 0,
+				(int)unit.UnitTier,
+				EnumUtil.ConvertBoolToInt(unit.SideB), 0, 0,
 				string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
 			}
 		}
@@ -75,8 +75,8 @@ public class SheetSync : MonoBehaviour {
 				unit.transform.position.x, unit.transform.position.y, 2,
 				(int) unit.specialization,
 				unit.name,
-				(int) unit.unitTier,
-				EnumUtil.ConvertBoolToInt(unit.sideB), 0, 0,
+				(int) unit.UnitTier,
+				EnumUtil.ConvertBoolToInt(unit.SideB), 0, 0,
 				string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
 			}
 		}
@@ -107,9 +107,11 @@ public class SheetSync : MonoBehaviour {
 			}
 
 			/* TODO
+			 * Swap unit constructor attributes to change them on the assigned unit directly instead. Removing intermediary.
+			 * Merge unit and equipment menu within the equipment-central logic
 			 * Move unit specialization to Unit
 			 * Implement IPointerClickHandler to handle all context menus
-			 * Remove editing menu by mergining it with the spawning menu since they are very similar, also may merge UnitConstructor and UnitEditor classes while at it, hide and rename buttons per usage.
+			 * Remove editing menu by mergining it with the spawning menu since they are very similar, also may merge UnitConstructor and UnitConstructor classes while at it, hide and rename buttons per usage.
 			 * Delete units and bases when reloading the sheet second and other times
 			 * Spawned unit Icon determined based on the equipment
 			 * But also keep unit icon editor
@@ -220,15 +222,14 @@ public class SheetSync : MonoBehaviour {
 
 						Unit newUnit = manager.SpawnUnit(
 							new Vector3(Convert.ToSingle(units[i][0], enGbCulture), Convert.ToSingle(units[i][1], enGbCulture), -0.1f),
-							Convert.ToInt16(units[i][2]), //Domain
-							Convert.ToInt16(units[i][3]), //Spec.
-							units[i][4].ToString(), //Name
 							(UnitTier)Enum.Parse(typeof(UnitTier), units[i][5].ToString()), //Tier
+							units[i][4].ToString(), //Spec.
+							equip, //Equipment blank list
 							EnumUtil.ConvertIntToBool(Convert.ToInt16(units[i][6])), //Side
+							Convert.ToInt16(units[i][3]), //Side
 							(GroundMovementType)Enum.Parse(typeof(GroundMovementType), units[i][7].ToString()), //Ground movement type
 							(GroundTransportType)Enum.Parse(typeof(GroundTransportType), units[i][8].ToString()), //Ground transport type
-							equip
-							);
+							Convert.ToInt16(units[i][2])); //Domain
 						if (units[i].Count > 9) {
 							string[] lines = units[i][9].ToString().Split('\n');
 
@@ -298,10 +299,9 @@ public class SheetSync : MonoBehaviour {
 				newEquipment.Initiate(equipment.equipmentName, Convert.ToInt16(word[1]), equipment.movementRange, equipment.sightRange, equipment.weaponRange, equipment.cost, equipment.side, equipment.domain);
 				return newEquipment;
 			}
-
-			//PrintData();
 		}
 		catch (Exception e) {
+			Debug.LogException(e);
 			await aC.generalPopup.PopUpAsync("Error! " + e.Message + e, 30);
 			Application.Quit();
 			#if UNITY_EDITOR
