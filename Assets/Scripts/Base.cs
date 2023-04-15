@@ -42,7 +42,7 @@ public class Base : MonoBehaviour {
 
 	private void OnMouseDrag() {
 		//Movement allowed only for admins.
-		if (GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin) {
+		if (aC.admin) {
 			Vector3 mousePosition = Input.mousePosition;
 			mousePosition.z = Camera.main.nearClipPlane;
 			transform.position = Camera.main.ScreenToWorldPoint(mousePosition) + offset;
@@ -54,8 +54,13 @@ public class Base : MonoBehaviour {
 	#region Attribute Get/Setters
 
 	internal void ChangeAffiliation() {
-		bool sideB = aC.sideB == this.sideB;
-		main.material.color = sideB ? Color.red : Color.black;
+		bool isEnemy = aC.sideB != sideB;
+		main.material.color = isEnemy ? Color.red : Color.black;
+	}
+
+	internal void ChangeAffiliation(bool sideB) {
+		this.sideB = sideB;
+		ChangeAffiliation();
 	}
 
 	internal void ChangeType(BaseType type) {

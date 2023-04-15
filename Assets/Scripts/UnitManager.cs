@@ -13,8 +13,7 @@ public class UnitManager : MonoBehaviour {
 		_instance = GetComponent<UnitManager>();
 
 		unitMenu = unitUIMenus.transform.Find("UnitMenu").gameObject;
-		equipmentMenu = unitUIMenus.transform.Find("EquipmentMenu").gameObject;
-		baseMenu = unitUIMenus.transform.Find("BaseEditMenu").gameObject;
+		baseMenu = unitUIMenus.transform.Find("BaseMenu").gameObject;
 	}
 
 	#region Textures
@@ -77,7 +76,6 @@ public class UnitManager : MonoBehaviour {
 	public GameObject unitUIMenus;
 	internal GameObject unitMenu;
 	internal GameObject baseMenu;
-	internal GameObject equipmentMenu;
 	#endregion
 
 	#region Units

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ApplicationController : MonoBehaviour {
-	public Popup generalPopup;
+	public ApplicationController generalPopup;
 	public SheetSync server;
 	public string Username { private get; set; }
 	public string Password { private get; set; }

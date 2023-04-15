@@ -7,7 +7,7 @@ using UnityEditor;
 using System.Threading.Tasks;
 
 public class SheetSync : MonoBehaviour {
-	public Popup generalPopup;
+	public ApplicationController generalPopup;
 	private IList<IList<object>> sheetUnits = new List<IList<object>>();
 	private IList<IList<object>> sheetBases = new List<IList<object>>();
 	private SheetReader ss;
@@ -118,6 +118,7 @@ public class SheetSync : MonoBehaviour {
 			 * Add debug logs everywhere
 			 * Spotting system/For of War
 			 * Turn system
+			 * Airborne and marine units cost more points
 			 * Keep movement range in sheet due to non finished turns
 			 * Base spawning menu
 			 * Team points - removal on spawning new units and so on

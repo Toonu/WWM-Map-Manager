@@ -181,7 +181,13 @@ public abstract class Unit : MonoBehaviour {
 
 
 	internal abstract void ChangeAffiliation();
+	internal virtual void ChangeAffiliation(bool sideB) {
+		SideB = sideB;
+		ChangeAffiliation();
+	}
+
 	internal abstract void ChangeSpecialization(int specialization);
+
 	/// <summary>
 	/// Changes the unit tier from int to Enum and assigns it to unit and its label.
 	/// </summary>

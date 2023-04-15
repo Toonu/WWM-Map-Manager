@@ -15,6 +15,11 @@ public class BaseConstructor : MonoBehaviour {
 		type.AddOptions(new List<string>() { "Base", "Airfield", "Port", "Spawn" });
 	}
 
+	private void OnEnable() {
+		type.value = (int)constructedBase.baseType;
+		baseName.text = constructedBase.identification.text;
+	}
+
 	/// <summary>
 	/// Updates the constructed base name attribute.
 	/// </summary>
@@ -37,19 +42,23 @@ public class BaseConstructor : MonoBehaviour {
 		constructedBase.transform.position = position;
 	}
 	/// <summary>
+	/// Updates the constructed base affiliation attribute.
+	/// </summary>
+	/// <param name="sideB">New side</param>
+	public void UpdateAffiliation(bool sideB) {
+		constructedBase.ChangeAffiliation(sideB);
+	}
+	/// <summary>
 	/// Updates the constructed base with the one that was clicked.
 	/// </summary>
 	/// <param name="b"></param>
 	public void UpdateBase(Base b) {
-		this.constructedBase = b;
-		type.value = (int)b.baseType;
-		baseName.text = b.identification.text;
+		constructedBase = b;
 	}
-
 	/// <summary>
 	/// Creates a new empty base for construction.
 	/// </summary>
-	public void CreateBase() {
+	public void UpdateBase() {
 		constructedBase = GameObject.FindWithTag("Units").GetComponent<UnitManager>().SpawnBase("NewBase", Vector3.zero, BaseType.Base, false);
 	}
 }
