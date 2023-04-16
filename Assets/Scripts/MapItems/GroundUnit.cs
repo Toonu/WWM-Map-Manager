@@ -1,16 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
 public class GroundUnit : Unit {
-	[SerializeField]
 	internal GroundSpecialization specialization = GroundSpecialization.None;
 	internal MeshRenderer movementTexture;
-	[SerializeField]
 	internal GroundMovementType movementModifier = GroundMovementType.None;
 	internal MeshRenderer transportTexture;
-	[SerializeField]
 	internal GroundTransportType transportModifier = GroundTransportType.None;
 
 	public void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newName, List<Equipment> newEquipment, bool newSideB, int newSpecialization, GroundMovementType newMovement, GroundTransportType newTransport) {
@@ -23,7 +21,7 @@ public class GroundUnit : Unit {
 	}
 
 	internal override void ChangeAffiliation() {
-		bool isEnemy = aC.sideB != SideB;
+		bool isEnemy = ApplicationController.sideB != SideB;
 		//True if the unit is on the same side as the user
 		if (isEnemy) {
 			iconImage.transform.localScale = Vector3.one;
@@ -57,14 +55,18 @@ public class GroundUnit : Unit {
 [CustomEditor(typeof(GroundUnit))]
 public class GroundUnitEditor : Editor {
 	public override void OnInspectorGUI() {
-		// Draw the default inspector
 		DrawDefaultInspector();
 
 		GroundUnit unit = (GroundUnit)target;
-		FieldInfo[] fields = typeof(GroundUnit).GetFields(BindingFlags.NonPublic);
-		foreach (FieldInfo field in fields) {
-			EditorGUILayout.LabelField(field.Name, field.GetValue(unit).ToString());
-		}
+
+		EditorGUILayout.LabelField("ID", unit.ID.ToString());
+		EditorGUILayout.LabelField("Side", unit.SideB.ToString());
+		EditorGUILayout.LabelField("Sight", unit.sightRange.ToString());
+		EditorGUILayout.LabelField("Movement", unit.movementRange.ToString());
+		EditorGUILayout.LabelField("Specialization", unit.specialization.ToString());
+		EditorGUILayout.LabelField("Movement", unit.movementModifier.ToString());
+		EditorGUILayout.LabelField("Transport", unit.transportModifier.ToString());
+		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")), EditorStyles.wordWrappedLabel);
 	}
 }
 #endif

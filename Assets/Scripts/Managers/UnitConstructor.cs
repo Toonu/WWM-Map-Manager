@@ -23,7 +23,7 @@ public class UnitConstructor : MonoBehaviour {
 	internal void SetNavalUnit(NavalUnit value) { navalUnit = value; constructedUnit = value; }
 
 	internal List<Equipment> unitEquipment = new List<Equipment>();
-	private int higherUnitIdentifierNumber = 0;
+	//private int higherUnitIdentifierNumber = 0;
 
 	private TMP_Dropdown tierUI;
 	private TMP_Dropdown domainUI;
@@ -32,7 +32,6 @@ public class UnitConstructor : MonoBehaviour {
 	private TMP_Dropdown specializationUI;
 	private TMP_InputField nameUI;
 	private UnitManager manager;
-	private ApplicationController controller;
 	private EquipmentManager equipmentManager;
 
 
@@ -45,7 +44,6 @@ public class UnitConstructor : MonoBehaviour {
 		transportUI = transform.GetChild(3).Find("TransportType").GetComponent<TMP_Dropdown>();
 
 		manager = GameObject.FindWithTag("Units").GetComponent<UnitManager>();
-		controller = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 		equipmentManager = GameObject.FindWithTag("Equipment").GetComponent<EquipmentManager>();
 	}
 
@@ -94,7 +92,7 @@ public class UnitConstructor : MonoBehaviour {
 		//Removal of non-domain attributes
 		switch (unitDomain) {
 			case 0:
-				if (controller.admin) {
+				if (ApplicationController.admin) {
 					movementUI.gameObject.SetActive(true);
 					enumNames = Enum.GetNames(typeof(GroundMovementType));
 					options = new List<TMP_Dropdown.OptionData>();
@@ -128,11 +126,11 @@ public class UnitConstructor : MonoBehaviour {
 		tierUI.value = (int)constructedUnit.GetUnitTier();
 
 
-		tierUI.gameObject.SetActive(controller.admin);
-		nameUI.gameObject.SetActive(controller.admin);
-		movementUI.gameObject.SetActive(controller.admin);
-		transportUI.gameObject.SetActive(controller.admin);
-		specializationUI.gameObject.SetActive (controller.admin);
+		tierUI.gameObject.SetActive(ApplicationController.admin);
+		nameUI.gameObject.SetActive(ApplicationController.admin);
+		movementUI.gameObject.SetActive(ApplicationController.admin);
+		transportUI.gameObject.SetActive(ApplicationController.admin);
+		specializationUI.gameObject.SetActive (ApplicationController.admin);
 	}
 
 	public void UpdateSpecialization(int i) {
@@ -152,7 +150,7 @@ public class UnitConstructor : MonoBehaviour {
 		nameUI.text = constructedUnit.name;
 	}
 	public void UpdateName(string identification) {
-		constructedUnit.ChangeName(identification);
+		constructedUnit.SetName(identification);
 	}
 	
 	public void UpdateDomain(int domain) {
@@ -191,7 +189,7 @@ public class UnitConstructor : MonoBehaviour {
 	}
 
 	public void UpdateUnit() {
-		SetGroundUnit((GroundUnit)GameObject.FindWithTag("Units").GetComponent<UnitManager>().SpawnUnit(Vector3.zero, UnitTier.Company, "0", unitEquipment, false, 2, GroundMovementType.None, GroundTransportType.None, 0));
+		SetGroundUnit((GroundUnit)GameObject.FindWithTag("Units").GetComponent<UnitManager>().SpawnUnit(Vector3.zero, UnitTier.Company, manager.GetLast().ToString(), unitEquipment, false, 2, GroundMovementType.None, GroundTransportType.None, 0));
 		unitDomain = 0;
 	}
 }

@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
 public class NavalUnit : Unit {
-	[SerializeField]
 	internal NavalSpecialization specialization = NavalSpecialization.None;
 
 	public override void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newName, List<Equipment> newEquipment, bool newSideB, int newSpecialization) {
@@ -17,7 +16,7 @@ public class NavalUnit : Unit {
 	}
 
 	internal override void ChangeAffiliation() {
-		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, aC.sideB != SideB);
+		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, ApplicationController.sideB != SideB);
 	}
 
 	internal override void ChangeSpecialization(int specialization) {
@@ -31,14 +30,16 @@ public class NavalUnit : Unit {
 [CustomEditor(typeof(NavalUnit))]
 public class NavalUnitEditor : Editor {
 	public override void OnInspectorGUI() {
-		// Draw the default inspector
 		DrawDefaultInspector();
 
 		NavalUnit unit = (NavalUnit)target;
-		FieldInfo[] fields = typeof(NavalUnit).GetFields(BindingFlags.NonPublic);
-		foreach (FieldInfo field in fields) {
-			EditorGUILayout.LabelField(field.Name, field.GetValue(unit).ToString());
-		}
+
+		EditorGUILayout.LabelField("ID", unit.ID.ToString());
+		EditorGUILayout.LabelField("Side", unit.SideB.ToString());
+		EditorGUILayout.LabelField("Sight", unit.sightRange.ToString());
+		EditorGUILayout.LabelField("Movement", unit.movementRange.ToString());
+		EditorGUILayout.LabelField("Specialization", unit.specialization.ToString());
+		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")), EditorStyles.wordWrappedLabel);
 	}
 }
 #endif

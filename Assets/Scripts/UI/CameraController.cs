@@ -5,7 +5,6 @@ public class CameraController : MonoBehaviour {
 	public float speed = 20;
 	internal Camera cam;
 	public GameObject map;
-	private ApplicationController aC;
 	public float maxZoom = 5;
 	public float minZoom = 20;
 	public float sensitivity = 1;
@@ -14,7 +13,6 @@ public class CameraController : MonoBehaviour {
 
 	private void Awake() {
 		cam = GetComponent<Camera>();
-		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
 	}
 
 	private void Start() {

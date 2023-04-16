@@ -8,7 +8,7 @@ public class BaseConstructor : MonoBehaviour {
 	private TMP_InputField baseName;
 
 	public void Awake() { 
-		type = transform.Find("BaseType").GetComponent<TMP_Dropdown>();
+		type = transform.Find("baseType").GetComponent<TMP_Dropdown>();
 		baseName = transform.Find("BaseName").GetComponent<TMP_InputField>();
 		//Populates the UI with base options.
 		type.ClearOptions();
@@ -16,7 +16,7 @@ public class BaseConstructor : MonoBehaviour {
 	}
 
 	private void OnEnable() {
-		type.value = (int)constructedBase.baseType;
+		type.value = (int)constructedBase.BaseType;
 		baseName.text = constructedBase.identification.text;
 	}
 

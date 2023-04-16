@@ -3,47 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
-public abstract class Unit : MonoBehaviour {
-
+public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler {
 	#region Attribute Get/Setters
 
-	[SerializeField]
 	internal int ID;
-
-	private UnitTier unitTier;
-
-	public UnitTier GetUnitTier() { return unitTier; }
-
-	public void SetUnitTier(int echelon) {
-		tierTextUI.text = EnumUtil.GetUnitTier(echelon);
-		unitTier = (UnitTier)echelon;
-		Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
-	}
-
-	public void SetUnitTier(UnitTier echelon) {
-		tierTextUI.text = echelon.ToString();
-		unitTier = echelon;
-		Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
-	}
-
-
-	[SerializeField]
-	internal List<Equipment> unitEquipment;
-	[SerializeField]
-	private Unit UnitParent {
-		get => UnitParent;
-		set {
-			UnitParent = value;
-			parentTextUI.text = value.name;
-		}
-	}
+	internal bool SideB;
 
 	/// <summary>
-	/// Setter for the unit identifier name which changed the name label and Object name.
+	/// Setter for the unit name which changes the name label and Object name.
 	/// </summary>
 	/// <param name="identification">New identifier</param>
-	internal virtual void ChangeName(string identification) {
+	internal virtual void SetName(string identification) {
 		if (GetUnitTier() > UnitTier.Division) {
 			nameTextUI.text = EnumUtil.GetCorps(identification);
 		} else {
@@ -53,8 +26,46 @@ public abstract class Unit : MonoBehaviour {
 		Debug.Log($"[{ID}][{name}] Name changed to {identification}");
 	}
 
+	private UnitTier unitTier;
+	public UnitTier GetUnitTier() { return unitTier; }
+	/// <summary>
+	/// Setter for the unit tier which changes the tier label and tier.
+	/// </summary>
+	/// <param name="echelon"></param>
+	public void SetUnitTier(int echelon) {
+		tierTextUI.text = EnumUtil.GetUnitTier(echelon);
+		unitTier = (UnitTier)echelon;
+		Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
+	}
+	/// <summary>
+	/// Setter for the unit tier which changes the tier label and tier.
+	/// </summary>
+	/// <param name="echelon"></param>
+	public void SetUnitTier(UnitTier echelon) {
+		tierTextUI.text = EnumUtil.GetUnitTier((int)echelon);
+		unitTier = echelon;
+		Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
+	}
 
+	private Unit unitParent;
+	public Unit UnitParent {
+		get => unitParent;
+		set {
+			unitParent = value;
+			parentTextUI.text = value.name;
+		}
+	}
+
+	internal List<Equipment> unitEquipment;
+	
+	/// <summary>
+	/// Changes unit affiliation textures based on user side and unit side.
+	/// </summary>
 	internal abstract void ChangeAffiliation();
+	/// <summary>
+	/// Changes unit affiliation directly.
+	/// </summary>
+	/// <param name="sideB"></param>
 	internal virtual void ChangeAffiliation(bool sideB) {
 		SideB = sideB;
 		ChangeAffiliation();
@@ -62,8 +73,6 @@ public abstract class Unit : MonoBehaviour {
 
 	internal abstract void ChangeSpecialization(int specialization);
 	#endregion
-
-	
 
 	#region UnitVisuals
 	protected MeshRenderer iconImage;
@@ -75,10 +84,6 @@ public abstract class Unit : MonoBehaviour {
 	private TextMeshProUGUI tierTextUI;
 	private TextMeshProUGUI parentTextUI;
 	private TextMeshProUGUI equipmentTextUI;
-	[SerializeField]
-	internal bool SideB;
-
-	protected ApplicationController aC;
 	#endregion
 
 	public virtual void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newIdentifier, List<Equipment> newEquipment, bool newSideB, int newSpecialization) {
@@ -91,20 +96,15 @@ public abstract class Unit : MonoBehaviour {
 		equipmentTextUI = transform.Find("Canvas/Eq").gameObject.GetComponent<TextMeshProUGUI>();
 		parentTextUI = transform.Find("Canvas/HigherEchelon").gameObject.GetComponent<TextMeshProUGUI>();
 
-		
-
-		//For deleting units by index/ID
-		ID = Convert.ToInt16(newID);
-		//Application controller for checking permissions
-		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
-		SideB = newSideB;
+		//For affecting units by their ID
+		ID = newID;
+		ChangeAffiliation(newSideB);
 		ChangeAffiliation();
 		ChangeSpecialization(newSpecialization);
 
-		offset = new Vector3(0, 0, 0);
 		movementRange = 0.3f;
 		transform.position = newPosition;
-		turnStartPosition = newPosition;
+		startPosition = newPosition;
 
 		//Adds equipment only if there is some to add, otherwise creates a new Eq list.
 		if (newEquipment.Count > 0) {
@@ -114,7 +114,7 @@ public abstract class Unit : MonoBehaviour {
 		}
 
 		SetUnitTier(newTier);
-		ChangeName(newIdentifier);
+		SetName(newIdentifier);
 
 		Debug.Log($"[{ID}][{name}] Initiated");
 	}
@@ -142,22 +142,35 @@ public abstract class Unit : MonoBehaviour {
 			equipmentTextUI.text = "";
 		}
 	}
-	[SerializeField]
 	internal float sightRange = 0.25f;
 	internal float weaponRange = 0.2f;
 
 	#region Movement
-	private Vector3 offset;
-	[SerializeField]
-	internal Vector3 turnStartPosition;
-	[SerializeField]
 	internal float movementRange;
+	internal Vector3 startPosition;
+
+	public void OnDrag(PointerEventData eventData) {
+		if (!ApplicationController.admin && ApplicationController.sideB != SideB) {
+			return;
+		}
+		Vector3 newPosition = eventData.pointerCurrentRaycast.worldPosition;
+		newPosition = Vector3.ClampMagnitude(newPosition - startPosition, ApplicationController.admin ? 9999999f : movementRange) + startPosition;
+
+		transform.position = newPosition;
+		ResizeMovementCircle();
+	}
+
+	public void OnEndDrag(PointerEventData eventData) {
+		Debug.Log($"[{ID}][{name}] Moved to {transform.position}");
+		//transform.position = startPosition; //Returns unit to its original position.
+	}
 
 	/// <summary>
-	/// Shows range circles.
+	/// Shows unit data.
 	/// </summary>
-	internal void OnMouseOver() {
-		if (!aC.admin && aC.sideB != SideB) {
+	/// <param name="eventData"></param>
+	public void OnPointerEnter(PointerEventData eventData) {
+		if (!ApplicationController.admin && ApplicationController.sideB != SideB) {
 			return;
 		}
 		sightRangeCircle.SetActive(true);
@@ -166,41 +179,13 @@ public abstract class Unit : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Hides range circles.
+	/// Hides unit data.
 	/// </summary>
-	internal void OnMouseExit() {
+	/// <param name="eventData"></param>
+	public void OnPointerExit(PointerEventData eventData) {
 		sightRangeCircle.SetActive(false);
 		movementRangeCircle.SetActive(false);
 		equipmentTextUI.gameObject.SetActive(false);
-	}
-
-	/// <summary>
-	/// Starts dragging function by checking the permissions and side and then saves offset.
-	/// </summary>
-	private void OnMouseDown() {
-		if (!aC.admin && aC.sideB != SideB) {
-			return;
-		}
-		// Calculate the offset between the object's position and the mouse position
-		Vector3 mousePosition = Input.mousePosition;
-		mousePosition.z = Camera.main.nearClipPlane;
-		offset = transform.position - Camera.main.ScreenToWorldPoint(mousePosition);
-	}
-
-	/// <summary>
-	/// Drags the unit up to its maximal range based on range.
-	/// </summary>
-	private void OnMouseDrag() {
-		if (!aC.admin && aC.sideB != SideB) {
-			return;
-		}
-		// Calculate the new position of the object based on the mouse position and the range
-		Vector3 mousePosition = Input.mousePosition;
-		mousePosition.z = Camera.main.nearClipPlane;
-		Vector3 newPosition = Camera.main.ScreenToWorldPoint(mousePosition) + offset;
-		newPosition = Vector3.ClampMagnitude(newPosition - turnStartPosition, GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().admin ? 9999999f : movementRange) + turnStartPosition;
-		transform.position = newPosition;
-		ResizeMovementCircle();
 	}
 
 	/// <summary>
@@ -208,10 +193,8 @@ public abstract class Unit : MonoBehaviour {
 	/// </summary>
 	internal void ResizeMovementCircle() {
 		// Resize the range circle based on the distance between the starting position and the new position of the draggable object
-		float maxRange = movementRange - Vector3.Distance(turnStartPosition, transform.position);
+		float maxRange = movementRange - Vector3.Distance(startPosition, transform.position);
 		movementRangeCircle.transform.localScale = new Vector3(212 * maxRange, 212 * maxRange, 0);
 	}
-
 	#endregion
-
 }

@@ -1,52 +1,43 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Base : MonoBehaviour {
-	public BaseType baseType { set; get; }
-	public bool sideB;
+public class Base : MonoBehaviour, IDragHandler, IEndDragHandler {
+	internal BaseType BaseType;
+	internal bool sideB;
 	private MeshRenderer main;
-	internal TextMeshProUGUI identification;
-	protected ApplicationController aC;
+	private TextMeshProUGUI nameUI;
 
 	public void Initiate(string identification, Vector3 position, BaseType baseType, bool sideB) {
+		nameUI = transform.Find("Canvas/Name").GetComponent<TextMeshProUGUI>();
+		main = transform.Find("Main").GetComponent<MeshRenderer>();
+
 		transform.position = position;
-		turnStartPosition = transform.position;
-		this.baseType = baseType;
+		startPosition = transform.position;
+		BaseType = baseType;
 		this.sideB = sideB;
 
-		//Texture management
-		main = transform.Find("Main").GetComponent<MeshRenderer>();
 		ChangeType(baseType);
-
-		//Application controller for permissions and sides.
-		aC = GameObject.FindWithTag("GameController").GetComponent<ApplicationController>();
-
-		//Name identification management
-		this.identification = transform.Find("Canvas/Name").GetComponent<TextMeshProUGUI>();
 		ChangeIdentification(identification);
 
-		Debug.Log($"[{identification}] Initiated");
+		Debug.Log($"[{name}] Initiated");
 	}
 
 	#region Movement
+	internal Vector3 startPosition;
 
-	private Vector3 offset;
-	internal Vector3 turnStartPosition;
-
-
-	private void OnMouseDown() {
-		Vector3 mousePosition = Input.mousePosition;
-		mousePosition.z = Camera.main.nearClipPlane;
-		offset = transform.position - Camera.main.ScreenToWorldPoint(mousePosition);
+	/// <summary>
+	/// Drags the unit up to its maximal range based on range.
+	/// </summary>
+	public void OnDrag(PointerEventData eventData) {
+		if (!ApplicationController.admin) {
+			return;
+		}
+		transform.position = eventData.pointerCurrentRaycast.worldPosition;
 	}
 
-	private void OnMouseDrag() {
-		//Movement allowed only for admins.
-		if (aC.admin) {
-			Vector3 mousePosition = Input.mousePosition;
-			mousePosition.z = Camera.main.nearClipPlane;
-			transform.position = Camera.main.ScreenToWorldPoint(mousePosition) + offset;
-		}
+	public void OnEndDrag(PointerEventData eventData) {
+		Debug.Log($"[{name}] Moved to {transform.position}");
 	}
 
 	#endregion
@@ -54,7 +45,7 @@ public class Base : MonoBehaviour {
 	#region Attribute Get/Setters
 
 	internal void ChangeAffiliation() {
-		bool isEnemy = aC.sideB != sideB;
+		bool isEnemy = ApplicationController.sideB != sideB;
 		main.material.color = isEnemy ? Color.red : Color.black;
 	}
 
@@ -64,15 +55,15 @@ public class Base : MonoBehaviour {
 	}
 
 	internal void ChangeType(BaseType type) {
-		baseType = type;
-		main.material.mainTexture = UnitManager.Instance.GetBaseTexture(baseType);
+		BaseType = type;
+		main.material.mainTexture = UnitManager.Instance.GetBaseTexture(BaseType);
 		main.material.color = sideB ? Color.red : Color.black;
-		if (baseType == BaseType.Airfield) main.transform.localScale = new Vector3(1.5f, 1, 1);
+		if (BaseType == BaseType.Airfield) main.transform.localScale = new Vector3(1.5f, 1, 1);
 		else main.transform.localScale = Vector3.one;
 	}
 
 	internal void ChangeIdentification(string identification) {
-		this.identification.text = identification;
+		nameUI.text = identification;
 		name = identification;
 	}
 

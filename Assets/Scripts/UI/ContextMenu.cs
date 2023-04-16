@@ -31,7 +31,9 @@ public class ContextMenu : MonoBehaviour {
 			if (instance == null) {
 				instance = FindObjectOfType(typeof(ContextMenu)) as ContextMenu;
 				if (instance == null) {
+#pragma warning disable UNT0010 // Component instance creation
 					instance = new ContextMenu();
+#pragma warning restore UNT0010 // Component instance creation
 				}
 			}
 			return instance;
@@ -53,10 +55,10 @@ public class ContextMenu : MonoBehaviour {
 			button.onClick.AddListener(delegate { tempReference.action(panel); });
 			button.transform.SetParent(panel.transform);
 		}
-		StartCoroutine(DelayTilEndOfFrame(panel, position));
+		StartCoroutine(DelayTilEndOfFrame(panel));
 	}
 
-	IEnumerator DelayTilEndOfFrame(Image panel, Vector3 position) {
+	IEnumerator DelayTilEndOfFrame(Image panel) {
 		yield return new WaitForEndOfFrame();
 		panel.rectTransform.localScale = Vector3.one;
 		panel.rectTransform.anchoredPosition = new Vector3(

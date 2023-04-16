@@ -23,15 +23,13 @@ public class SetPlayerVersion : EditorWindow {
 			// Find the TMP Text label object by name
 			GameObject labelObject = GameObject.Find("VersionLabel");
 			if (labelObject != null) {
-				versionLabel = labelObject.GetComponent<TMP_Text>();
-				if (versionLabel != null) {
+				if (labelObject.TryGetComponent(out versionLabel)) {
 					versionLabel.text = $"World War Mode Manager v{newVersion}\nby Toonu";
 				}
 			}
 			labelObject = GameObject.Find("World War Map Manager");
 			if (labelObject != null) {
-				versionLabel = labelObject.GetComponent<TMP_Text>();
-				if (versionLabel != null) {
+				if (labelObject.TryGetComponent(out versionLabel)) {
 					versionLabel.text = $"World War Mode\r\nMap Manager\r\nv{newVersion}";
 				}
 			}

@@ -85,24 +85,19 @@ public static class EnumUtil {
 	}
 
 	internal static string GetUnitTier(int tier) {
-		switch (tier) {
-			case 0:
-			return "Ø";
-			case int i when i >= 1 && i <= 3:
-			return new string('●', i);
-			case int i when i >= 4 && i <= 6:
-			return new string('I', i - 3);
-			case int i when i >= 7:
-			return new string('X', i - 6);
-			default:
-			return "";
-		}
+		return tier switch {
+			0 => "Ø",
+			int i when i >= 1 && i <= 3 => new string('●', i),
+			int i when i >= 4 && i <= 6 => new string('I', i - 3),
+			int i when i >= 7 => new string('X', i - 6),
+			_ => "",
+		};
 	}
 
 	/// <summary>
 	/// Transfer int to roman numeral.
 	/// </summary>
-	/// <param name="unitIdentification">Unit int identification</param>
+	/// <param name="unitIdentification">Unit int nameUI</param>
 	/// <returns>Roman numeral string</returns>
 	internal static string GetCorps(int unitIdentification) {
 		string[] thousands = { "", "M", "MM", "MMM" };
@@ -119,7 +114,7 @@ public static class EnumUtil {
 	/// <summary>
 	/// Transfer string to roman numeral if its int.
 	/// </summary>
-	/// <param name="unitIdentification">Unit identification string.</param>
+	/// <param name="unitIdentification">Unit nameUI string.</param>
 	/// <returns>Roman numeral string</returns>
 	internal static string GetCorps(string unitIdentification) {
 		if (unitIdentification == "") {
@@ -135,16 +130,12 @@ public static class EnumUtil {
 	/// <returns>A string representing the ordinal version of the input number.</returns>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown if the input number is less than 1.</exception>
 	public static string NumberWithSuffix(int number) {
-		switch (number % 10) {
-			case 1 when number % 100 != 11:
-			return $"{number}st";
-			case 2 when number % 100 != 12:
-			return $"{number}nd";
-			case 3 when number % 100 != 13:
-			return $"{number}rd";
-			default:
-			return $"{number}th";
-		}
+		return (number % 10) switch {
+			1 when number % 100 != 11 => $"{number}st",
+			2 when number % 100 != 12 => $"{number}nd",
+			3 when number % 100 != 13 => $"{number}rd",
+			_ => $"{number}th",
+		};
 	}
 
 	public static bool ConvertIntToBool(int value) {

@@ -8,9 +8,6 @@ public class Circle : MonoBehaviour {
 	[Range(3, 256)]
 	public int numSegments = 128;
 
-	void Start() {
-	}
-
 	public void Update() {
 		LineRenderer lineRenderer = gameObject.GetComponent<LineRenderer>();
 		lineRenderer.positionCount = numSegments + 1;

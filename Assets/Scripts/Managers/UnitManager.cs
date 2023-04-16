@@ -88,7 +88,7 @@ public class UnitManager : MonoBehaviour {
 	#region Spawning
 
 	internal Base SpawnBase(string identification, Vector3 position, BaseType baseType, bool sideB) {
-		GameObject newBase = Instantiate(baseTemplate, transform);
+		GameObject newBase = Instantiate(baseTemplate, transform.GetChild(0));
 		Base b = newBase.AddComponent<Base>();
 		b.Initiate(identification, position, baseType, sideB);
 		bases.Add(b);
@@ -139,6 +139,17 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	public int GetLast() {
+		int result = 1;
+		//Starts at 1 because Child 0 are bases
+		for (int child = 1; child < transform.childCount; child++) {
+			if (transform.GetChild(child).name == child.ToString()) {
+				Debug.Log(child.ToString() + transform.GetChild(child).name);
+			}
+		}
+		return result;
+	}
+	/*
+	public int GetLast() {
 		int maxLength = Math.Max(groundUnits.Count, Math.Max(aerialUnits.Count, navalUnits.Count));
 		for (int i = 0; i < maxLength; i++) {
 			if (groundUnits[i] == null && aerialUnits[i] == null && navalUnits[i] == null) {
@@ -146,24 +157,24 @@ public class UnitManager : MonoBehaviour {
 			}
 		}
 		return maxLength;
-	}
+	}*/
 
 	private void AppendList<J, K, L>(J obj, int index, List<J> list, List<K> otherList, List<L> theOtherList) {
 		int count = list.Count;
 		
 		// If the index is greater than the current count, add null elements until the index is reached
 		while (index > count) {
-			list.Add(default(J));
+			list.Add(default);
 			count++;
 		}
 		count = otherList.Count;
 		while (index >= count) {
-			otherList.Add(default(K));
+			otherList.Add(default);
 			count++;
 		}
 		count = theOtherList.Count;
 		while (index >= count) {
-			theOtherList.Add(default(L));
+			theOtherList.Add(default);
 			count++;
 		}
 
@@ -183,7 +194,7 @@ public class UnitManager : MonoBehaviour {
 		groundUnits.ForEach(unit => { if (unit != null && unit.specialization == GroundSpecialization.SAM) { unit.WeaponRangeCircle.SetActive(show); } });
 	}
 
-	public void SwitchSide(bool sideB) {
+	public void SwitchSide() {
 		groundUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation();}});
 		aerialUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation();}});
 		navalUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation(); }});

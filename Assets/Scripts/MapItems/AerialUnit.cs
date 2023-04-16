@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,7 +14,7 @@ public class AerialUnit : Unit {
 	}
 
 	internal override void ChangeAffiliation() {
-		bool isEnemy = aC.sideB != SideB;
+		bool isEnemy = ApplicationController.sideB != SideB;
 		if (isEnemy) {
 			iconImage.transform.localScale = new Vector3(0.8f, 0.8f, 1);
 		} else {
@@ -35,14 +35,16 @@ public class AerialUnit : Unit {
 [CustomEditor(typeof(AerialUnit))]
 public class AerialUnitEditor : Editor {
 	public override void OnInspectorGUI() {
-		// Draw the default inspector
 		DrawDefaultInspector();
 
 		AerialUnit unit = (AerialUnit)target;
-		FieldInfo[] fields = typeof(AerialUnit).GetFields(BindingFlags.NonPublic);
-		foreach (FieldInfo field in fields) {
-			EditorGUILayout.LabelField(field.Name, field.GetValue(unit).ToString());
-		}
+
+		EditorGUILayout.LabelField("ID", unit.ID.ToString());
+		EditorGUILayout.LabelField("Side", unit.SideB.ToString());
+		EditorGUILayout.LabelField("Sight", unit.sightRange.ToString());
+		EditorGUILayout.LabelField("Movement", unit.movementRange.ToString());
+		EditorGUILayout.LabelField("Specialization", unit.specialization.ToString());
+		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")), EditorStyles.wordWrappedLabel);
 	}
 }
 #endif

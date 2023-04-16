@@ -40,7 +40,7 @@ public class SheetSync : MonoBehaviour {
 		}
 
 		foreach (Base b in manager.bases) {
-			sheetBases.Add(new List<object> {b.identification.text.ToString(), b.transform.position.x, b.transform.position.y, b.baseType.ToString(), EnumUtil.ConvertBoolToInt(b.sideB)});
+			sheetBases.Add(new List<object> {b.name, b.transform.position.x, b.transform.position.y, b.BaseType.ToString(), EnumUtil.ConvertBoolToInt(b.sideB)});
 		}
 
 		ss.SetSheetRange(sheetBases, $"Bases!A2:E{basesLength+1}");
@@ -296,7 +296,7 @@ public class SheetSync : MonoBehaviour {
 			}
 
 			Equipment CreateEquipment(string[] word, Equipment equipment) {
-				GameObject newEquipmentObject = Instantiate(equipmentTemplate, GameObject.FindWithTag("ServerSync").transform);
+				GameObject newEquipmentObject = Instantiate(equipmentTemplate, controller.transform.GetChild(2));
 				Equipment newEquipment = newEquipmentObject.AddComponent<Equipment>();
 				newEquipment.Initiate(equipment.equipmentName, Convert.ToInt16(word[1]), equipment.movementRange, equipment.sightRange, equipment.weaponRange, equipment.cost, equipment.side, equipment.domain);
 				return newEquipment;
@@ -322,50 +322,5 @@ public class SheetSync : MonoBehaviour {
 
 	public void SetData(int x, int y, string data) {
 		sheetUnits[x][y] = data;
-	}
-
-	/// <summary>
-	/// Prints data in 2D array of lists.
-	/// </summary>
-	/// <param name="list">List<List<object>> 2D list"</param>
-	private void PrintData(List<List<object>> list) {
-		for (int i = 0; i < list.Count; i++) {
-			IList<object> row = sheetUnits[i];
-			for (int j = 0; j < row.Count; j++) {
-				if (row[j].ToString() != "") {
-					Debug.Log(i + ":" + j + " " + row[j].ToString());
-				}
-			}
-		}
-	}
-
-	/// <summary>
-	/// Returns letter position of a number
-	/// </summary>
-	/// <param name="col">Column to find</param>
-	/// <returns>string</returns>
-	private string GetLocation(int col) {
-		col++;
-		string column = "";
-		while (col > 0) {
-			int modulo = (col - 1) % 26;
-			column = (char)(65 + modulo) + column;
-			col = (col - modulo) / 26;
-		}
-		return column;
-	}
-
-	/// <summary>
-	/// Returns column number of a letter
-	/// </summary>
-	/// <param name="col">Column to find</param>
-	/// <returns>int</returns>
-	private int GetLocation(string col) {
-		int result = 0;
-		foreach (char c in col) {
-			result *= 26;
-			result += c - 64;
-		}
-		return result - 1;
 	}
 }

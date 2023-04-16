@@ -10,9 +10,9 @@ public class ApplicationController : MonoBehaviour {
 	public string Username { private get; set; }
 	public string Password { private get; set; }
 	internal bool loggedIn = false;
-	internal bool admin = false;
-	internal bool sideB = false;
 	internal bool deletingMenus = false;
+	internal static bool sideB = false;
+	internal static bool admin = false;
 	internal static string applicationVersion = "v0.0.7";
 
 	private void Awake() {
@@ -33,7 +33,7 @@ public class ApplicationController : MonoBehaviour {
 		if (deletingMenus && Input.GetKeyUp(KeyCode.Mouse0)) {
 			foreach (GameObject child in GameObject.FindGameObjectsWithTag("ContextMenus")) {
 				if (child.name == "ContextMenu(Clone)") {
-					Destroy(child.gameObject);
+					Destroy(child);
 				}
 			}
 			deletingMenus = false;
@@ -135,7 +135,7 @@ public class ApplicationController : MonoBehaviour {
 			generalPopup.PopUp("Logged In!");
 			transform.Find("UI/Login").gameObject.SetActive(false);
 			if (sideChange) {
-				UnitManager.Instance.SwitchSide(sideB);
+				UnitManager.Instance.SwitchSide();
 			}
 		} else {
 			generalPopup.PopUp("Wrong credentials!", 3);
