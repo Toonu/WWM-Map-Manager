@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class UnitConstructor : MonoBehaviour {
-    internal int unitDomain;
+	internal int unitDomain;
 	internal Unit constructedUnit;
 
 	private GroundUnit groundUnit;
@@ -25,13 +23,13 @@ public class UnitConstructor : MonoBehaviour {
 	internal List<Equipment> unitEquipment = new List<Equipment>();
 	//private int higherUnitIdentifierNumber = 0;
 
-	private TMP_Dropdown tierUI;
+	private TextMeshProUGUI tierUI;
 	private TMP_Dropdown domainUI;
 	private TMP_Dropdown movementUI;
 	private TMP_Dropdown transportUI;
 	private TMP_Dropdown specializationUI;
 	private TMP_InputField nameUI;
-	private UnitManager manager;
+	private GameObject imageUI;
 	private EquipmentManager equipmentManager;
 
 
@@ -39,16 +37,17 @@ public class UnitConstructor : MonoBehaviour {
 		domainUI = transform.GetChild(1).Find("UnitDomain").GetComponent<TMP_Dropdown>();
 		specializationUI = transform.GetChild(1).Find("UnitSpecialization").GetComponent<TMP_Dropdown>();
 		nameUI = transform.GetChild(1).Find("UnitName").GetComponent<TMP_InputField>();
-		tierUI = transform.GetChild(2).Find("UnitTier").GetComponent<TMP_Dropdown>();
-		movementUI = transform.GetChild(3).Find("MovementType").GetComponent<TMP_Dropdown>();
-		transportUI = transform.GetChild(3).Find("TransportType").GetComponent<TMP_Dropdown>();
+		movementUI = transform.GetChild(1).Find("MovementType").GetComponent<TMP_Dropdown>();
+		transportUI = transform.GetChild(1).Find("TransportType").GetComponent<TMP_Dropdown>();
+		tierUI = transform.GetChild(2).GetChild(3).GetComponent<TextMeshProUGUI>();
+		imageUI = transform.GetChild(2).GetChild(4).gameObject;
 
-		manager = GameObject.FindWithTag("Units").GetComponent<UnitManager>();
-		equipmentManager = GameObject.FindWithTag("Equipment").GetComponent<EquipmentManager>();
+		equipmentManager = transform.parent.GetComponent<EquipmentManager>();
 	}
 
-	private void OnEnable()	{
+	private void OnEnable() {
 		UpdateUI();
+		equipmentManager.AddEquipmentList(unitEquipment);
 		equipmentManager.UpdateUI();
 	}
 
@@ -59,30 +58,28 @@ public class UnitConstructor : MonoBehaviour {
 		//Specialization domain switch
 		switch (unitDomain) {
 			case 1:
-				enumNames = Enum.GetNames(typeof(AerialSpecialization));
-				for (int i = 0; i < enumNames.Length; i++) {
-					options.Add(new TMP_Dropdown.OptionData(enumNames[i], Sprite.Create(manager.aerialSpecialization[i],
-						new Rect(0, 0, manager.aerialSpecialization[i].width, manager.aerialSpecialization[i].height), new Vector2(0.5f, 0.5f))));
-				}
-				specializationUI.value = (int)GetAerialUnit().specialization;
-				break;
+			enumNames = Enum.GetNames(typeof(AerialSpecialization));
+			for (int i = 0; i < enumNames.Length; i++) {
+				options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.aerialSpecialization[i]));
+			}
+			specializationUI.value = (int)GetAerialUnit().specialization;
+			break;
 			case 2:
-				enumNames = Enum.GetNames(typeof(NavalSpecialization));
-				for (int i = 0; i < enumNames.Length; i++) {
-					options.Add(new TMP_Dropdown.OptionData(enumNames[i], Sprite.Create(manager.navalSpecialization[i],
-					new Rect(0, 0, manager.navalSpecialization[i].width, manager.navalSpecialization[i].height), new Vector2(0.5f, 0.5f))));
-				}
-				specializationUI.value = (int)GetNavalUnit().specialization;
-				break;
+			enumNames = Enum.GetNames(typeof(NavalSpecialization));
+			for (int i = 0; i < enumNames.Length; i++) {
+				options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.navalSpecialization[i]));
+			}
+			specializationUI.value = (int)GetNavalUnit().specialization;
+			break;
 			default:
-				enumNames = Enum.GetNames(typeof(GroundSpecialization));
-				for (int i = 0; i < enumNames.Length; i++) {
-					options.Add(new TMP_Dropdown.OptionData(enumNames[i], Sprite.Create(manager.groundSpecialization[i],
-						new Rect(0, 0, manager.groundSpecialization[i].width, manager.groundSpecialization[i].height), new Vector2(0.5f, 0.5f))));
-				}
-				movementUI.value = (int)GetGroundUnit().movementModifier;
-				transportUI.value = (int)GetGroundUnit().transportModifier;
-				specializationUI.value = (int)GetGroundUnit().specialization;
+			enumNames = Enum.GetNames(typeof(GroundSpecialization));
+			//HQ assignable only by admin
+			for (int i = 0; i < enumNames.Length - (ApplicationController.admin ? 1 : 0); i++) {
+				options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.groundSpecialization[i]));
+			}
+			movementUI.value = (int)GetGroundUnit().movementModifier;
+			transportUI.value = (int)GetGroundUnit().transportModifier;
+			specializationUI.value = (int)GetGroundUnit().specialization;
 			break;
 		}
 
@@ -92,49 +89,50 @@ public class UnitConstructor : MonoBehaviour {
 		//Removal of non-domain attributes
 		switch (unitDomain) {
 			case 0:
-				if (ApplicationController.admin) {
-					movementUI.gameObject.SetActive(true);
-					enumNames = Enum.GetNames(typeof(GroundMovementType));
-					options = new List<TMP_Dropdown.OptionData>();
-					for (int i = 0; i < enumNames.Length; i++) {
-						options.Add(new TMP_Dropdown.OptionData(enumNames[i], Sprite.Create(manager.movementType[i],
-							new Rect(0, 0, manager.movementType[i].width, manager.movementType[i].height), new Vector2(0.5f, 0.5f))));
-					}
-					movementUI.ClearOptions();
-					movementUI.AddOptions(options);
-					transportUI.gameObject.SetActive(true);
-					enumNames = Enum.GetNames(typeof(GroundTransportType));
-					options = new List<TMP_Dropdown.OptionData>();
-					for (int i = 0; i < enumNames.Length; i++) {
-						options.Add(new TMP_Dropdown.OptionData(enumNames[i], Sprite.Create(manager.transportType[i],
-							new Rect(0, 0, manager.transportType[i].width, manager.transportType[i].height), new Vector2(0.5f, 0.5f))));
-					}
-					transportUI.ClearOptions();
-					transportUI.AddOptions(options);
+			if (ApplicationController.admin) {
+				movementUI.gameObject.SetActive(true);
+				enumNames = Enum.GetNames(typeof(GroundMovementType));
+				options = new List<TMP_Dropdown.OptionData>();
+				for (int i = 0; i < enumNames.Length; i++) {
+					options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.movementType[i]));
 				}
-				break;
+				movementUI.ClearOptions();
+				movementUI.AddOptions(options);
+				transportUI.gameObject.SetActive(true);
+				enumNames = Enum.GetNames(typeof(GroundTransportType));
+				options = new List<TMP_Dropdown.OptionData>();
+				for (int i = 0; i < enumNames.Length; i++) {
+					options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.transportType[i]));
+				}
+				transportUI.ClearOptions();
+				transportUI.AddOptions(options);
+			}
+			break;
 			default:
-				movementUI.gameObject.SetActive(false);
-				transportUI.gameObject.SetActive(false);
-				break;
+			movementUI.gameObject.SetActive(false);
+			transportUI.gameObject.SetActive(false);
+			imageUI.transform.GetChild(2).gameObject.SetActive(false);
+			break;
 		}
 
-		enumNames = Enum.GetNames(typeof(UnitTier));
-		tierUI.ClearOptions();
-		tierUI.AddOptions(enumNames.ToList());
-		nameUI.text = (manager.GetLast() + 1).ToString();
-		tierUI.value = (int)constructedUnit.GetUnitTier();
+		nameUI.text = (UnitManager.Instance.GetLast() + 1).ToString();
+		tierUI.text = constructedUnit.GetUnitTierText();
 
 
 		tierUI.gameObject.SetActive(ApplicationController.admin);
 		nameUI.gameObject.SetActive(ApplicationController.admin);
+		specializationUI.gameObject.SetActive(ApplicationController.admin);
 		movementUI.gameObject.SetActive(ApplicationController.admin);
 		transportUI.gameObject.SetActive(ApplicationController.admin);
-		specializationUI.gameObject.SetActive (ApplicationController.admin);
+		domainUI.gameObject.SetActive(ApplicationController.admin);
 	}
 
 	public void UpdateSpecialization(int i) {
 		constructedUnit.ChangeSpecialization(i);
+		if (navalUnit != null) {
+			constructedUnit.SetUnitTier(i + 5);
+			tierUI.text = constructedUnit.GetUnitTierText();
+		}
 	}
 	public void UpdateMovementModifier(int i) {
 		GroundMovementType movementModifier = (GroundMovementType)i;
@@ -144,21 +142,20 @@ public class UnitConstructor : MonoBehaviour {
 		GroundTransportType transportModifier = (GroundTransportType)i;
 		GetGroundUnit().ChangeSpecialization(transportModifier);
 	}
-	public void UpdateTier(int i) {
-		constructedUnit.SetUnitTier(i);
-		UpdateName(constructedUnit.name);
-		nameUI.text = constructedUnit.name;
-	}
 	public void UpdateName(string identification) {
-		constructedUnit.SetName(identification);
+		if (identification != "") {
+			constructedUnit.SetName(identification);
+		}
 	}
-	
+
 	public void UpdateDomain(int domain) {
 		unitDomain = domain;
-		manager.Despawn(constructedUnit.gameObject);
+		domainUI.SetValueWithoutNotify(domain);
+		DespawnUnit();
 		UpdateUnit();
+		OnEnable();
 	}
-	
+
 	public void UpdatePosition(Vector3 position) {
 		constructedUnit.transform.position = position;
 	}
@@ -166,11 +163,16 @@ public class UnitConstructor : MonoBehaviour {
 		constructedUnit.ChangeAffiliation(sideB);
 	}
 	public void Close() {
-		domainUI.value = 0;
 		unitEquipment.Clear();
+		aerialUnit = null;
+		navalUnit = null;
+		groundUnit = null;
+		constructedUnit = null;
 	}
-	public void Cancel() {
-		manager.Despawn(constructedUnit.gameObject);
+	public void DespawnUnit() {
+		if (constructedUnit != null) {
+			UnitManager.Instance.Despawn(constructedUnit.gameObject);
+		}
 		Close();
 	}
 
@@ -189,7 +191,17 @@ public class UnitConstructor : MonoBehaviour {
 	}
 
 	public void UpdateUnit() {
-		SetGroundUnit((GroundUnit)GameObject.FindWithTag("Units").GetComponent<UnitManager>().SpawnUnit(Vector3.zero, UnitTier.Company, manager.GetLast().ToString(), unitEquipment, false, 2, GroundMovementType.None, GroundTransportType.None, 0));
-		unitDomain = 0;
+		switch (unitDomain) {
+			case 1:
+			SetAerialUnit((AerialUnit)UnitManager.Instance.SpawnUnit(Vector3.zero, UnitTier.Company, UnitManager.Instance.GetLast().ToString(), unitEquipment, false, 0, GroundMovementType.Motorized, GroundTransportType.None, unitDomain));
+			break;
+			case 2:
+			SetNavalUnit((NavalUnit)UnitManager.Instance.SpawnUnit(Vector3.zero, UnitTier.Company, UnitManager.Instance.GetLast().ToString(), unitEquipment, false, 0, GroundMovementType.Motorized, GroundTransportType.None, unitDomain));
+			break;
+			default:
+			SetGroundUnit((GroundUnit)UnitManager.Instance.SpawnUnit(Vector3.zero, UnitTier.Company, UnitManager.Instance.GetLast().ToString(), unitEquipment, false, 0, GroundMovementType.Motorized, GroundTransportType.None, unitDomain));
+			break;
+		}
+
 	}
 }

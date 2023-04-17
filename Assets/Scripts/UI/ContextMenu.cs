@@ -22,7 +22,7 @@ public class ContextMenuItem {
 
 public class ContextMenu : MonoBehaviour {
 	public Image contentPanel;              // content panel prefab
-	public Canvas canvas;                   // link to main canvas, where will be Context Menu
+	public Canvas canvas;                   // link to icon canvas, where will be Context Menu
 
 	private static ContextMenu instance;    // some kind of singleton here
 
@@ -62,8 +62,8 @@ public class ContextMenu : MonoBehaviour {
 		yield return new WaitForEndOfFrame();
 		panel.rectTransform.localScale = Vector3.one;
 		panel.rectTransform.anchoredPosition = new Vector3(
-			Mathf.Clamp(panel.rectTransform.anchoredPosition.x, panel.rectTransform.rect.xMax, panel.gameObject.transform.parent.GetComponent<RectTransform>().rect.width - panel.rectTransform.rect.xMax), 
-			Mathf.Clamp(panel.rectTransform.anchoredPosition.y, panel.rectTransform.rect.yMax, panel.gameObject.transform.parent.GetComponent<RectTransform>().rect.height - panel.rectTransform.rect.yMax),0
+			Mathf.Clamp(panel.rectTransform.anchoredPosition.x, panel.rectTransform.rect.xMax, panel.gameObject.transform.parent.GetComponent<RectTransform>().rect.width - panel.rectTransform.rect.xMax),
+			Mathf.Clamp(panel.rectTransform.anchoredPosition.y, panel.rectTransform.rect.yMax, panel.gameObject.transform.parent.GetComponent<RectTransform>().rect.height - panel.rectTransform.rect.yMax), 0
 		);
 	}
 }

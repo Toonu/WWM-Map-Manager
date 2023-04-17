@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 public class NavalUnit : Unit {
-	internal NavalSpecialization specialization = NavalSpecialization.None;
+	internal NavalSpecialization specialization = NavalSpecialization.TaskElement;
 
 	public override void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newName, List<Equipment> newEquipment, bool newSideB, int newSpecialization) {
 		//Disabling texture not required for naval units
@@ -19,9 +19,10 @@ public class NavalUnit : Unit {
 		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, ApplicationController.sideB != SideB);
 	}
 
-	internal override void ChangeSpecialization(int specialization) {
-		this.specialization = (NavalSpecialization)specialization;
+	internal override void ChangeSpecialization(int newSpecialization) {
+		specialization = (NavalSpecialization)newSpecialization;
 		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, SideB);
+		Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
 	}
 }
 
@@ -36,10 +37,11 @@ public class NavalUnitEditor : Editor {
 
 		EditorGUILayout.LabelField("ID", unit.ID.ToString());
 		EditorGUILayout.LabelField("Side", unit.SideB.ToString());
+		EditorGUILayout.LabelField("Tier", unit.GetUnitTier().ToString());
 		EditorGUILayout.LabelField("Sight", unit.sightRange.ToString());
 		EditorGUILayout.LabelField("Movement", unit.movementRange.ToString());
 		EditorGUILayout.LabelField("Specialization", unit.specialization.ToString());
-		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")), EditorStyles.wordWrappedLabel);
+		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")), EditorStyles.wordWrappedLabel);
 	}
 }
 #endif

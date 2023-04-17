@@ -1,8 +1,8 @@
-using System.Collections;
-using UnityEngine;
-using TMPro;
-using System.Threading.Tasks;
 using System;
+using System.Collections;
+using System.Threading.Tasks;
+using TMPro;
+using UnityEngine;
 
 public class UIPopup : MonoBehaviour {
 	private TextMeshProUGUI textUI;

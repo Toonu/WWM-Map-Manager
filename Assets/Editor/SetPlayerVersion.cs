@@ -1,6 +1,6 @@
-using UnityEngine;
-using UnityEditor;
 using TMPro;
+using UnityEditor;
+using UnityEngine;
 
 public class SetPlayerVersion : EditorWindow {
 	private static string newVersion = "0.0.0";

@@ -7,17 +7,22 @@ public class BaseConstructor : MonoBehaviour {
 	private TMP_Dropdown type;
 	private TMP_InputField baseName;
 
-	public void Awake() { 
-		type = transform.Find("baseType").GetComponent<TMP_Dropdown>();
+	public void Awake() {
+		type = transform.Find("BaseType").GetComponent<TMP_Dropdown>();
 		baseName = transform.Find("BaseName").GetComponent<TMP_InputField>();
 		//Populates the UI with base options.
 		type.ClearOptions();
-		type.AddOptions(new List<string>() { "Base", "Airfield", "Port", "Spawn" });
+		List<string> options = new List<string>() { "Base", "Airfield", "Port" };
+		if (ApplicationController.admin) {
+			options.Add("Spawn");
+		}
+
+		type.AddOptions(options);
 	}
 
 	private void OnEnable() {
 		type.value = (int)constructedBase.BaseType;
-		baseName.text = constructedBase.identification.text;
+		baseName.text = constructedBase.name;
 	}
 
 	/// <summary>
@@ -32,7 +37,7 @@ public class BaseConstructor : MonoBehaviour {
 	/// </summary>
 	/// <param name="type"></param>
 	public void UpdateType(int type) {
-		constructedBase.ChangeType((BaseType)type);
+		constructedBase.BaseType = (BaseType)type;
 	}
 	/// <summary>
 	/// Updates the constructed base position attribute.
@@ -60,5 +65,17 @@ public class BaseConstructor : MonoBehaviour {
 	/// </summary>
 	public void UpdateBase() {
 		constructedBase = GameObject.FindWithTag("Units").GetComponent<UnitManager>().SpawnBase("NewBase", Vector3.zero, BaseType.Base, false);
+	}
+
+	public void Cancel() {
+		Destroy(constructedBase.gameObject);
+		gameObject.SetActive(false);
+	}
+
+	public void Close() {
+		if (!ApplicationController.admin) {
+			SheetSync.UpdatePoints(-100);
+		}
+		gameObject.SetActive(false);
 	}
 }

@@ -1,30 +1,62 @@
 ﻿using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Base : MonoBehaviour, IDragHandler, IEndDragHandler {
-	internal BaseType BaseType;
-	internal bool sideB;
-	private MeshRenderer main;
+public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
+	[HideInInspector]
+	public Vector3 StartPosition { get; set; }
+	[HideInInspector]
+	public bool SideB { get; set; }
+	[HideInInspector]
+	public BaseType BaseType {
+		get { return baseType; }
+		set {
+			baseType = value;
+			icon.material.mainTexture = UnitManager.Instance.GetBaseTexture(BaseType);
+			icon.material.color = SideB ? Color.red : Color.black;
+			icon.transform.localScale = BaseType == BaseType.Airfield ? new Vector3(1.5f, 1, 1) : Vector3.one;
+		}
+	}
+	private BaseType baseType;
+	private MeshRenderer icon;
 	private TextMeshProUGUI nameUI;
 
-	public void Initiate(string identification, Vector3 position, BaseType baseType, bool sideB) {
+	public void Initiate(string newName, Vector3 newPosition, BaseType newType, bool newSideB) {
 		nameUI = transform.Find("Canvas/Name").GetComponent<TextMeshProUGUI>();
-		main = transform.Find("Main").GetComponent<MeshRenderer>();
+		icon = transform.Find("Main").GetComponent<MeshRenderer>();
 
-		transform.position = position;
-		startPosition = transform.position;
-		BaseType = baseType;
-		this.sideB = sideB;
+		transform.position = newPosition;
+		StartPosition = transform.position;
+		BaseType = newType;
+		SideB = newSideB;
 
-		ChangeType(baseType);
-		ChangeIdentification(identification);
+		BaseType = newType;
+		ChangeIdentification(newName);
 
 		Debug.Log($"[{name}] Initiated");
 	}
 
+	#region Attribute Get/Setters
+
+	internal void ChangeAffiliation() {
+		bool isEnemy = ApplicationController.sideB != SideB;
+		icon.material.color = isEnemy ? Color.red : Color.black;
+	}
+
+	internal void ChangeAffiliation(bool sideB) {
+		SideB = sideB;
+		ChangeAffiliation();
+	}
+
+	internal void ChangeIdentification(string identification) {
+		nameUI.text = identification;
+		name = identification;
+	}
+
+	#endregion
+
 	#region Movement
-	internal Vector3 startPosition;
 
 	/// <summary>
 	/// Drags the unit up to its maximal range based on range.
@@ -36,36 +68,28 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler {
 		transform.position = eventData.pointerCurrentRaycast.worldPosition;
 	}
 
+	/// <summary>
+	/// Logs the final newPosition.
+	/// </summary>
+	/// <param name="eventData"></param>
 	public void OnEndDrag(PointerEventData eventData) {
 		Debug.Log($"[{name}] Moved to {transform.position}");
 	}
 
 	#endregion
-
-	#region Attribute Get/Setters
-
-	internal void ChangeAffiliation() {
-		bool isEnemy = ApplicationController.sideB != sideB;
-		main.material.color = isEnemy ? Color.red : Color.black;
-	}
-
-	internal void ChangeAffiliation(bool sideB) {
-		this.sideB = sideB;
-		ChangeAffiliation();
-	}
-
-	internal void ChangeType(BaseType type) {
-		BaseType = type;
-		main.material.mainTexture = UnitManager.Instance.GetBaseTexture(BaseType);
-		main.material.color = sideB ? Color.red : Color.black;
-		if (BaseType == BaseType.Airfield) main.transform.localScale = new Vector3(1.5f, 1, 1);
-		else main.transform.localScale = Vector3.one;
-	}
-
-	internal void ChangeIdentification(string identification) {
-		nameUI.text = identification;
-		name = identification;
-	}
-
-	#endregion
 }
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(Base))]
+public class BaseEditor : Editor {
+	public override void OnInspectorGUI() {
+		DrawDefaultInspector();
+
+		Base b = (Base)target;
+
+		EditorGUILayout.LabelField("ID", b.name);
+		EditorGUILayout.LabelField("SideB", b.SideB.ToString());
+		EditorGUILayout.LabelField("Type", b.BaseType.ToString());
+	}
+}
+#endif

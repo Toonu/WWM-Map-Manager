@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 public class AerialUnit : Unit {
-	internal AerialSpecialization specialization = AerialSpecialization.None;
+	internal AerialSpecialization specialization = AerialSpecialization.F;
 
 	public override void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newName, List<Equipment> newEquipment, bool newSideB, int newSpecialization) {
 		//Disabling texture not required for aerial units
@@ -24,8 +24,8 @@ public class AerialUnit : Unit {
 		Debug.Log($"[{ID}][{name}] Affiliation changed");
 	}
 
-	internal override void ChangeSpecialization(int specialization) {
-		this.specialization = (AerialSpecialization)specialization;
+	internal override void ChangeSpecialization(int newSpecialization) {
+		specialization = (AerialSpecialization)newSpecialization;
 		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, SideB);
 		Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
 	}
@@ -41,10 +41,11 @@ public class AerialUnitEditor : Editor {
 
 		EditorGUILayout.LabelField("ID", unit.ID.ToString());
 		EditorGUILayout.LabelField("Side", unit.SideB.ToString());
+		EditorGUILayout.LabelField("Tier", unit.GetUnitTier().ToString());
 		EditorGUILayout.LabelField("Sight", unit.sightRange.ToString());
 		EditorGUILayout.LabelField("Movement", unit.movementRange.ToString());
 		EditorGUILayout.LabelField("Specialization", unit.specialization.ToString());
-		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")), EditorStyles.wordWrappedLabel);
+		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")), EditorStyles.wordWrappedLabel);
 	}
 }
 #endif

@@ -4,13 +4,12 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
 
-public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler {
+public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler, IMovable, IEquatable<Unit> {
 	#region Attribute Get/Setters
 
 	internal int ID;
-	internal bool SideB;
+	public bool SideB { get; set; }
 
 	/// <summary>
 	/// Setter for the unit name which changes the name label and Object name.
@@ -28,6 +27,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 
 	private UnitTier unitTier;
 	public UnitTier GetUnitTier() { return unitTier; }
+	public string GetUnitTierText() { return tierTextUI.text; }
 	/// <summary>
 	/// Setter for the unit tier which changes the tier label and tier.
 	/// </summary>
@@ -56,8 +56,8 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		}
 	}
 
-	internal List<Equipment> unitEquipment;
-	
+	internal List<Equipment> equipmentList;
+
 	/// <summary>
 	/// Changes unit affiliation textures based on user side and unit side.
 	/// </summary>
@@ -72,6 +72,11 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	}
 
 	internal abstract void ChangeSpecialization(int specialization);
+
+	internal virtual void RecalculateIcon() {
+		//Based on size, equipment types and everything...
+	}
+
 	#endregion
 
 	#region UnitVisuals
@@ -104,13 +109,13 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 
 		movementRange = 0.3f;
 		transform.position = newPosition;
-		startPosition = newPosition;
+		StartPosition = newPosition;
 
 		//Adds equipment only if there is some to add, otherwise creates a new Eq list.
 		if (newEquipment.Count > 0) {
 			AddEquipment(newEquipment);
 		} else {
-			unitEquipment = new List<Equipment>();
+			equipmentList = new List<Equipment>();
 		}
 
 		SetUnitTier(newTier);
@@ -122,23 +127,23 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	/// <summary>
 	/// Adds Equipment from the List to the Unit equipment and edits the equipment string label.
 	/// </summary>
-	/// <param name="equipmentList">List of Equipment to add.</param>
-	internal void AddEquipment(List<Equipment> equipmentList) {
-		if (equipmentList.Count > 0) {
-			unitEquipment = equipmentList.ToList();
-			equipmentTextUI.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
+	/// <param name="newEquipment">List of Equipment to add.</param>
+	internal void AddEquipment(List<Equipment> newEquipment) {
+		if (newEquipment.Count > 0) {
+			equipmentList = newEquipment.ToList();
+			equipmentTextUI.text = string.Join("\n", newEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
 
-			unitEquipment.ForEach(eq => Debug.Log($"[{ID}][{name}] Adding Equipment | {eq.amount} {eq.equipmentName}"));
+			equipmentList.ForEach(eq => Debug.Log($"[{ID}][{name}] Adding Equipment | {eq.amount} {eq.equipmentName}"));
 
-			movementRange = equipmentList.Min(e => e.movementRange);
-			sightRange = equipmentList.Max(e => e.sightRange);
-			weaponRange = equipmentList.Max(e => e.weaponRange);
+			movementRange = newEquipment.Min(e => e.movementRange);
+			sightRange = newEquipment.Max(e => e.sightRange);
+			weaponRange = newEquipment.Max(e => e.weaponRange);
 
 			sightRangeCircle.transform.localScale = new Vector3(212 * sightRange, 212 * sightRange, 0);
 			WeaponRangeCircle.transform.localScale = new Vector3(212 * weaponRange, 212 * weaponRange, 0);
 			ResizeMovementCircle();
 		} else {
-			unitEquipment = new List<Equipment>();
+			equipmentList = new List<Equipment>();
 			equipmentTextUI.text = "";
 		}
 	}
@@ -147,14 +152,14 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 
 	#region Movement
 	internal float movementRange;
-	internal Vector3 startPosition;
-
+	public Vector3 StartPosition { get { return startPosition; } set { startPosition = value; ResizeMovementCircle(); Debug.Log($"[{ID}][{name}] Soft reset at [{transform.position}]"); } }
+	private Vector3 startPosition;
 	public void OnDrag(PointerEventData eventData) {
 		if (!ApplicationController.admin && ApplicationController.sideB != SideB) {
 			return;
 		}
 		Vector3 newPosition = eventData.pointerCurrentRaycast.worldPosition;
-		newPosition = Vector3.ClampMagnitude(newPosition - startPosition, ApplicationController.admin ? 9999999f : movementRange) + startPosition;
+		newPosition = Vector3.ClampMagnitude(newPosition - StartPosition, ApplicationController.admin ? 9999999f : movementRange) + StartPosition;
 
 		transform.position = newPosition;
 		ResizeMovementCircle();
@@ -162,7 +167,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 
 	public void OnEndDrag(PointerEventData eventData) {
 		Debug.Log($"[{ID}][{name}] Moved to {transform.position}");
-		//transform.position = startPosition; //Returns unit to its original position.
+		//transform.position = StartPosition; //Returns unit to its original position.
 	}
 
 	/// <summary>
@@ -193,8 +198,18 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	/// </summary>
 	internal void ResizeMovementCircle() {
 		// Resize the range circle based on the distance between the starting position and the new position of the draggable object
-		float maxRange = movementRange - Vector3.Distance(startPosition, transform.position);
+		float maxRange = movementRange - Vector3.Distance(StartPosition, transform.position);
 		movementRangeCircle.transform.localScale = new Vector3(212 * maxRange, 212 * maxRange, 0);
 	}
 	#endregion
+
+	public bool Equals(Unit other) {
+		return !(other == null) &&
+			   base.Equals(other) &&
+			   ID == other.ID;
+	}
+
+	public override int GetHashCode() {
+		return ID;
+	}
 }

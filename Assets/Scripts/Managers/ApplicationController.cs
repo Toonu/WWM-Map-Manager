@@ -5,17 +5,18 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ApplicationController : MonoBehaviour {
-	public UIPopup generalPopup;
+	public static UIPopup generalPopup;
 	public SheetSync server;
 	public string Username { private get; set; }
 	public string Password { private get; set; }
 	internal bool loggedIn = false;
-	internal bool deletingMenus = false;
+	internal static bool deletingMenus = false;
 	internal static bool sideB = false;
 	internal static bool admin = false;
 	internal static string applicationVersion = "v0.0.7";
 
 	private void Awake() {
+		generalPopup = transform.Find("UI/GeneralPopup").GetComponent<UIPopup>();
 		mainCamera = Camera.main.GetComponent<CameraController>();
 		admin = false;
 		Debug.unityLogger.filterLogType = LogType.Log;
@@ -24,7 +25,6 @@ public class ApplicationController : MonoBehaviour {
 	}
 	private async void Start() {
 		//Loads basic UI elements and starts server syncing.
-		transform.Find("UI/BottomPanel/Points").GetComponent<TextMeshProUGUI>().text = $"A:{server.pointsA}pts B:{server.pointsB}pts";
 		await server.LoadSheet();
 		transform.Find("UI/Loading").gameObject.SetActive(false);
 	}
@@ -102,21 +102,21 @@ public class ApplicationController : MonoBehaviour {
 		//Sidechange swaps the unit icons if the side changes.
 		bool sideChange = false;
 		//Login logic based on three user approach
-		if (Username == "A" && Password == server.passwordA) {
+		if (Username == "A" && Password == SheetSync.passwordA) {
 			if (sideB) {
 				sideChange = true;
 			}
 			loggedIn = true;
 			sideB = false;
 			admin = false;
-		} else if (Username == "B" && Password == server.passwordB) {
+		} else if (Username == "B" && Password == SheetSync.passwordB) {
 			if (!sideB) {
 				sideChange = true;
 			}
 			loggedIn = true;
 			sideB = true;
 			admin = false;
-		} else if (Username == "Admin" && Password == server.passwordAdmin) {
+		} else if (Username == "Admin" && Password == SheetSync.passwordAdmin) {
 			if (sideB) {
 				sideChange = true;
 			}
@@ -143,10 +143,11 @@ public class ApplicationController : MonoBehaviour {
 	}
 
 	//Used by the UI calls. Exist the application and also play editor mode.
-	public void ExitApplication() {
+	public static void ExitApplication() {
+		Debug.Log("Exiting application.");
 		Application.Quit();
-		#if UNITY_EDITOR
+#if UNITY_EDITOR
 		EditorApplication.ExitPlaymode();
-		#endif
+#endif
 	}
 }

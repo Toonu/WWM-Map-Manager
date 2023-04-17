@@ -1,15 +1,9 @@
-﻿using UnityEngine;
-using System.IO;
+﻿using System.IO;
+using UnityEngine;
 
 public class Logging : MonoBehaviour {
-
-	// The name of the log file to write to
 	public string logFileName = "output.log";
-
-	// The list of log messages received
-	private System.Collections.Generic.List<string> logMessages = new System.Collections.Generic.List<string>();
-
-	// The stream writer used to write to the log file
+	private readonly System.Collections.Generic.List<string> logMessages = new System.Collections.Generic.List<string>();
 	private StreamWriter logFileWriter;
 
 	void Start() {
@@ -33,5 +27,21 @@ public class Logging : MonoBehaviour {
 
 	void FlushLogMessages() {
 		logFileWriter.Flush();
+	}
+
+	void OnEnable() {
+		Application.logMessageReceived += HandleException;
+	}
+
+	void OnDisable() {
+		Application.logMessageReceived -= HandleException;
+	}
+
+	void HandleException(string logString, string stackTrace, LogType type) {
+		if (type == LogType.Exception) {
+			ApplicationController.generalPopup.PopUp(logString + "\n" + stackTrace, 10);
+			Debug.LogError(logString + "\n" + stackTrace);
+			ApplicationController.ExitApplication();
+		}
 	}
 }

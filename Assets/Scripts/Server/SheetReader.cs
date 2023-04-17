@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using UnityEngine;
 using static Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource;
 
@@ -40,7 +39,7 @@ public class SheetReader : MonoBehaviour {
 			serviceAccountID = PasswordManager.Decrypt(data.client_email, "eafduhgrfsa86gr4g87aer4");
 			private_key = PasswordManager.Decrypt(data.private_key, "874rg9a8rg4r4hgae4aeht8");
 		} catch (Exception e) {
-			GameObject.FindWithTag("GameController").GetComponent<ApplicationController>().generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
+			ApplicationController.generalPopup.PopUp("Fatal Error! Could not connect to the server! " + e, 30);
 		}
 	}
 

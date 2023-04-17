@@ -7,7 +7,6 @@ using UnityEngine.UI;
 
 public class EquipmentManager : MonoBehaviour {
 	public List<Equipment> equipmentNames = new List<Equipment>();
-	internal List<Equipment> equipmentList = new List<Equipment>();
 	private TMP_InputField amountInput;
 	private TMP_Dropdown types;
 	private UITextFloatAppender costLabel;
@@ -16,25 +15,22 @@ public class EquipmentManager : MonoBehaviour {
 	private GameObject buttonPanel;
 	public GameObject buttonEquipment;
 	public GameObject equipmentTemplate;
-	private ApplicationController controller;
+	private Transform equipmentFolder;
 	private UnitConstructor constructor;
-	private GameObject finish;
-	private GameObject finishEdit;
-	private GameObject menu;
 
 	private int amount;
-	Equipment eq;
+	Equipment constructedEquipment;
 
 
 	private void Awake() {
-		amountInput = transform	.Find("Menu/Equipment/GameObject.1/EqAmount").GetComponent<TMP_InputField>();
-		costLabel = transform	.Find("Menu/Equipment/GameObject.1/EqCost").GetComponent<UITextFloatAppender>();
-		types = transform		.Find("Menu/Equipment/GameObject.2/EqType").GetComponent<TMP_Dropdown>();
-		sightLabel = transform	.Find("Menu/Equipment/GameObject.2/EqSight").GetComponent<UITextFloatAppender>();
-		rangeLabel = transform	.Find("Menu/Equipment/GameObject.3/EqRange").GetComponent<UITextFloatAppender>();
-		buttonPanel = transform.Find("Menu/Equipment/ButtonPanel").gameObject;
-		controller = GameObject.FindGameObjectWithTag("GameController").GetComponent<ApplicationController>();
+		amountInput = transform.GetChild(0).GetChild(3).Find("EqAmount").GetComponent<TMP_InputField>();
+		costLabel = transform.GetChild(0).GetChild(3).Find("EqCost").GetComponent<UITextFloatAppender>();
+		types = transform.GetChild(0).GetChild(3).Find("EqType").GetComponent<TMP_Dropdown>();
+		sightLabel = transform.GetChild(0).GetChild(3).Find("EqSight").GetComponent<UITextFloatAppender>();
+		rangeLabel = transform.GetChild(0).GetChild(3).Find("EqRange").GetComponent<UITextFloatAppender>();
+		buttonPanel = transform.GetChild(0).GetChild(4).gameObject;
 		constructor = transform.GetChild(0).GetComponent<UnitConstructor>();
+		equipmentFolder = GameObject.FindGameObjectWithTag("EquipmentFolder").transform;
 	}
 
 	internal static List<Equipment> eqNaval = new List<Equipment>();
@@ -75,104 +71,95 @@ public class EquipmentManager : MonoBehaviour {
 		SetType(0);
 	}
 
-	public void SetAmount(int amount) {
-		this.amount = amount;
-		amountInput.text = amount.ToString();
-		costLabel.UpdateText(eq.cost * amount);
+	public void SetAmount(int newAmount) {
+		amount = newAmount;
+		amountInput.text = newAmount.ToString();
+		costLabel.UpdateText(constructedEquipment.cost * newAmount);
 	}
 	public void SetAmount(string amount) {
 		SetAmount(Convert.ToInt16(amount));
 	}
-
 	public void SetType(int type) {
-		eq = equipmentNames[type];
+		constructedEquipment = equipmentNames[type];
 		SetAmount(1);
-		sightLabel.UpdateText(eq.sightRange);
-		rangeLabel.UpdateText(eq.movementRange);
+		sightLabel.UpdateText(constructedEquipment.sightRange);
+		rangeLabel.UpdateText(constructedEquipment.movementRange);
 	}
 
-	public void AddEquipment(UnitConstructor menu) {
-		constructor.unitEquipment = equipmentList.ToList();
-		menu.transform.Find("Eq").GetComponent<TextMeshProUGUI>().text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
-		CloseMenu();
-	}
-	public void AddEquipment() {
-		constructor.constructedUnit.AddEquipment(equipmentList);
-		menu.transform.Find("Eq").GetComponent<TextMeshProUGUI>().text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
-		CloseMenu();
-	}
-
-	public void CloseMenu() {
-		foreach (Transform item in buttonPanel.transform.Find("1")) {
+	public void Close() {
+		foreach (Transform item in buttonPanel.transform.GetChild(0)) {
 			Destroy(item.gameObject);
 		}
-		foreach (Transform item in buttonPanel.transform.Find("2")) {
+		foreach (Transform item in buttonPanel.transform.GetChild(1)) {
 			Destroy(item.gameObject);
 		}
-		equipmentList.Clear();
-		finish.SetActive(false);
-		finishEdit.SetActive(false);
-		menu = null;
 	}
 
-	public void CancelMenu() {
-		foreach (Equipment equipment in equipmentList) {
-			Destroy(equipment.gameObject);
+	public void Cancel() {
+		foreach (Equipment equipment in constructor.constructedUnit.equipmentList) {
+			RemoveEquipment(equipment);
 		}
-		CloseMenu();
+		Close();
 	}
 
-	public void RemoveEquipment(Equipment equipment) {
-		equipmentList.Remove(equipment);
+	public void RemoveEquipment(Equipment equipment, bool refund = false) {
+		if (refund) {
+			SheetSync.UpdatePoints(equipment.cost * equipment.amount);
+		}
+		constructor.constructedUnit.equipmentList.Remove(equipment);
 		Destroy(equipment.gameObject);
+		
 	}
 
-	public void UpdateEquipmentList() {
-		GameObject newEquipmentObject = Instantiate(equipmentTemplate, GameObject.FindWithTag("ServerSync").transform);
+	public void AddEquipment() {
+		GameObject newEquipmentObject = Instantiate(equipmentTemplate, equipmentFolder);
 		Equipment newEquipment = newEquipmentObject.AddComponent<Equipment>();
-		newEquipment.Initiate(eq.equipmentName, amount, eq.movementRange, eq.sightRange, eq.weaponRange, eq.cost, eq.side, eq.domain);
+		newEquipment.Initiate(constructedEquipment.equipmentName, amount, constructedEquipment.movementRange, constructedEquipment.sightRange, constructedEquipment.weaponRange, constructedEquipment.cost, constructedEquipment.side, constructedEquipment.domain);
 
-		UpdateEquipmentList(newEquipment);
-	}
-
-	public void UpdateEquipmentList(Equipment newEquipment) {
-		foreach (Equipment equp in equipmentList) {
-			if (equp.equipmentName == eq.equipmentName) {
-				controller.generalPopup.GetComponent<UIPopup>().PopUp("Equipment already added");
+		foreach (Equipment equp in constructor.constructedUnit.equipmentList) {
+			if (equp.equipmentName == constructedEquipment.equipmentName) {
+				ApplicationController.generalPopup.GetComponent<UIPopup>().PopUp("Equipment already added");
 				Destroy(newEquipment.gameObject);
 				return;
 			}
 		}
-		equipmentList.Add(newEquipment);
+		AddEquipment(newEquipment);
+	}
+
+	public void AddEquipment(Equipment newEquipment) {
+		constructor.constructedUnit.equipmentList.Add(newEquipment);
 		CreateEquipmentButtons(newEquipment);
+		SheetSync.UpdatePoints(-newEquipment.cost * newEquipment.amount);
+		//Add cost of all equipment to constructor of the unit
+		//Logic for updating eq from existing unit
+	}
+
+	public void AddEquipmentList(List<Equipment> newEquipmentList) {
+		foreach (Equipment equipment in newEquipmentList) {
+			AddEquipment(equipment);
+		}
 	}
 
 	private void CreateEquipmentButtons(Equipment newEquipment) {
-		// Loop through the button labels
-		GameObject equipmentLabel = Instantiate(buttonEquipment, buttonPanel.transform.Find("1").transform);
-		Button equipmentLabelButton = equipmentLabel.GetComponent<Button>();
-		equipmentLabel.GetComponentInChildren<TextMeshProUGUI>().text = $"{newEquipment.equipmentName}:{newEquipment.amount}";
+		GameObject equipmentLabel = Instantiate(buttonEquipment, buttonPanel.transform);
+		equipmentLabel.transform.GetChild(0).GetComponent<Button>().GetComponentInChildren<TextMeshProUGUI>().text = $"[{newEquipment.amount,-3}] {newEquipment.equipmentName}";
 
-		GameObject deleteButton = Instantiate(buttonEquipment, buttonPanel.transform.Find("2").transform);
-		Button deleteButtonButton = deleteButton.GetComponent<Button>();
-		deleteButton.GetComponentInChildren<TextMeshProUGUI>().text = $"DELETE";
+		
+		Button sellButton = equipmentLabel.transform.GetChild(1).GetComponent<Button>();
+		Button deleteButton = equipmentLabel.transform.GetChild(2).GetComponent<Button>();
 
-		deleteButton.GetComponent<EquipmentMenuButton>().mainButton = equipmentLabel;
-		deleteButton.GetComponent<EquipmentMenuButton>().removeButton = deleteButton;
-		deleteButtonButton.onClick.AddListener(() => {
-			RemoveEquipment(newEquipment);
-			EquipmentMenuButton b = deleteButton.GetComponent<EquipmentMenuButton>();
-			Destroy(b.mainButton);
-			Destroy(b.removeButton);
-		});
-	}
-
-	public void UpdateEquipmentList(UnitConstructor menu) {
-		foreach (Equipment item in constructor.unitEquipment) {
-			eq = item;
-			UpdateEquipmentList(item);
+		if (!ApplicationController.admin) {
+			Destroy(deleteButton.gameObject);
 		}
-		finish.SetActive(true);
-		this.menu = menu.gameObject;
+
+		deleteButton.onClick.AddListener(() => {
+			RemoveEquipment(newEquipment);
+			Destroy(equipmentLabel);
+		});
+
+		sellButton.onClick.AddListener(() => {
+			RemoveEquipment(newEquipment, true);
+			Destroy(equipmentLabel);
+		});
 	}
 }

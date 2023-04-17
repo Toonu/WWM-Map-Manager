@@ -17,54 +17,54 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	#region Textures
-	public List<Texture2D> movementType = new List<Texture2D>();
-	public List<Texture2D> transportType = new List<Texture2D>();
-	public List<Texture2D> movementTypeEnemy = new List<Texture2D>();
-	public List<Texture2D> transportTypeEnemy = new List<Texture2D>();
+	public List<Sprite> movementType = new List<Sprite>();
+	public List<Sprite> transportType = new List<Sprite>();
+	public List<Sprite> movementTypeEnemy = new List<Sprite>();
+	public List<Sprite> transportTypeEnemy = new List<Sprite>();
 
-	public List<Texture2D> groundSpecialization = new List<Texture2D>();
-	public List<Texture2D> aerialSpecialization = new List<Texture2D>();
-	public List<Texture2D> navalSpecialization = new List<Texture2D>();
-	public List<Texture2D> baseTypes = new List<Texture2D>();
+	public List<Sprite> groundSpecialization = new List<Sprite>();
+	public List<Sprite> aerialSpecialization = new List<Sprite>();
+	public List<Sprite> navalSpecialization = new List<Sprite>();
+	public List<Sprite> baseTypes = new List<Sprite>();
 
-	public List<Texture2D> groundSpecializationEnemy = new List<Texture2D>();
-	public List<Texture2D> aerialSpecializationEnemy = new List<Texture2D>();
-	public List<Texture2D> navalSpecializationEnemy = new List<Texture2D>();
+	public List<Sprite> groundSpecializationEnemy = new List<Sprite>();
+	public List<Sprite> aerialSpecializationEnemy = new List<Sprite>();
+	public List<Sprite> navalSpecializationEnemy = new List<Sprite>();
 	#endregion
 	#region TextureHandling
 
 	internal Texture2D GetSpecialisationTexture(GroundUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return groundSpecializationEnemy[Convert.ToInt16(unit.specialization)];
+			return groundSpecializationEnemy[Convert.ToInt16(unit.specialization)].texture;
 		}
-		return groundSpecialization[Convert.ToInt16(unit.specialization)];
+		return groundSpecialization[Convert.ToInt16(unit.specialization)].texture;
 	}
 	internal Texture2D GetSpecialisationTexture(AerialUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return aerialSpecializationEnemy[Convert.ToInt16(unit.specialization)];
+			return aerialSpecializationEnemy[Convert.ToInt16(unit.specialization)].texture;
 		}
-		return aerialSpecialization[Convert.ToInt16(unit.specialization)];
+		return aerialSpecialization[Convert.ToInt16(unit.specialization)].texture;
 	}
 	internal Texture2D GetSpecialisationTexture(NavalUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return navalSpecializationEnemy[Convert.ToInt16(unit.specialization)];
+			return navalSpecializationEnemy[Convert.ToInt16(unit.specialization)].texture;
 		}
-		return navalSpecialization[Convert.ToInt16(unit.specialization)];
+		return navalSpecialization[Convert.ToInt16(unit.specialization)].texture;
 	}
 	internal Texture2D GetMovementTexture(GroundUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return movementTypeEnemy[Convert.ToInt16(unit.movementModifier)];
+			return movementTypeEnemy[Convert.ToInt16(unit.movementModifier)].texture;
 		}
-		return movementType[Convert.ToInt16(unit.movementModifier)];
+		return movementType[Convert.ToInt16(unit.movementModifier)].texture;
 	}
 	internal Texture2D GetTransportTexture(GroundUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return transportTypeEnemy[Convert.ToInt16(unit.transportModifier)];
+			return transportTypeEnemy[Convert.ToInt16(unit.transportModifier)].texture;
 		}
-		return transportType[Convert.ToInt16(unit.transportModifier)];
+		return transportType[Convert.ToInt16(unit.transportModifier)].texture;
 	}
 	internal Texture2D GetBaseTexture(BaseType type) {
-		return baseTypes[Convert.ToInt16(type)];
+		return baseTypes[Convert.ToInt16(type)].texture;
 	}
 
 	#endregion
@@ -123,13 +123,13 @@ public class UnitManager : MonoBehaviour {
 			int index = gameObject.GetComponent<Unit>().ID;
 			groundUnits.RemoveAt(index);
 			if (gameObject.GetComponent<GroundUnit>() != null) {
-				gameObject.GetComponent<GroundUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
+				gameObject.GetComponent<GroundUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 				groundUnits.Insert(index, null);
 			} else if (gameObject.GetComponent<AerialUnit>() != null) {
-				gameObject.GetComponent<AerialUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
+				gameObject.GetComponent<AerialUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 				aerialUnits.Insert(index, null);
 			} else {
-				gameObject.GetComponent<NavalUnit>().unitEquipment.ForEach(e => Destroy(e.gameObject));
+				gameObject.GetComponent<NavalUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 				navalUnits.Insert(index, null);
 			}
 		} else {
@@ -137,18 +137,7 @@ public class UnitManager : MonoBehaviour {
 		}
 		Destroy(gameObject);
 	}
-
-	public int GetLast() {
-		int result = 1;
-		//Starts at 1 because Child 0 are bases
-		for (int child = 1; child < transform.childCount; child++) {
-			if (transform.GetChild(child).name == child.ToString()) {
-				Debug.Log(child.ToString() + transform.GetChild(child).name);
-			}
-		}
-		return result;
-	}
-	/*
+	
 	public int GetLast() {
 		int maxLength = Math.Max(groundUnits.Count, Math.Max(aerialUnits.Count, navalUnits.Count));
 		for (int i = 0; i < maxLength; i++) {
@@ -157,11 +146,11 @@ public class UnitManager : MonoBehaviour {
 			}
 		}
 		return maxLength;
-	}*/
+	}
 
 	private void AppendList<J, K, L>(J obj, int index, List<J> list, List<K> otherList, List<L> theOtherList) {
 		int count = list.Count;
-		
+
 		// If the index is greater than the current count, add null elements until the index is reached
 		while (index > count) {
 			list.Add(default);
@@ -195,9 +184,9 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	public void SwitchSide() {
-		groundUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation();}});
-		aerialUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation();}});
-		navalUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation(); }});
+		groundUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation(); } });
+		aerialUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation(); } });
+		navalUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation(); } });
 		bases.ForEach(b => { if (b != null) { b.ChangeAffiliation(); } });
 	}
 

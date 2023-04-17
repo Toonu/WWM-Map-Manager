@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 public class Equipment : MonoBehaviour {
@@ -26,3 +27,18 @@ public class Equipment : MonoBehaviour {
 		return $"{equipmentName}:{amount}";
 	}
 }
+
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(Equipment))]
+public class EquipmentEditor : Editor {
+	public override void OnInspectorGUI() {
+		DrawDefaultInspector();
+
+		Equipment eq = (Equipment)target;
+
+		EditorGUILayout.LabelField("Name  ", eq.equipmentName.ToString());
+		EditorGUILayout.LabelField("Amount", eq.amount.ToString());
+	}
+}
+#endif

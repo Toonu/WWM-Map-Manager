@@ -1,27 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using UnityEngine;
 using System.Linq;
-using UnityEditor;
 using System.Threading.Tasks;
+using TMPro;
+using UnityEngine;
 
 public class SheetSync : MonoBehaviour {
 	public UIPopup generalPopup;
-	private IList<IList<object>> sheetUnits = new List<IList<object>>();
-	private IList<IList<object>> sheetBases = new List<IList<object>>();
+	private readonly IList<IList<object>> sheetUnits = new List<IList<object>>();
+	private readonly IList<IList<object>> sheetBases = new List<IList<object>>();
 	private SheetReader ss;
-	internal string passwordA;
-	internal string passwordB;
-	internal string passwordAdmin;
-	internal int pointsA = 0;
-	internal int pointsB = 0;
+	internal static string passwordA;
+	internal static string passwordB;
+	internal static string passwordAdmin;
+	internal static float pointsA = 0;
+	internal static float pointsB = 0;
 	private UnitManager manager;
 	private EquipmentManager eqManager;
-	private ApplicationController controller; 
-	private int basesLength = 0;
-	private int unitsLength = 0;
+	private ApplicationController controller;
+	private static int basesLength = 0;
+	private static int unitsLength = 0;
 	public GameObject equipmentTemplate;
+	private static TextMeshProUGUI pointsLabel;
 
 	private void Awake() {
 		ss = GetComponent<SheetReader>();
@@ -40,10 +41,10 @@ public class SheetSync : MonoBehaviour {
 		}
 
 		foreach (Base b in manager.bases) {
-			sheetBases.Add(new List<object> {b.name, b.transform.position.x, b.transform.position.y, b.BaseType.ToString(), EnumUtil.ConvertBoolToInt(b.sideB)});
+			sheetBases.Add(new List<object> { b.name, b.transform.position.x, b.transform.position.y, b.BaseType.ToString(), EnumUtil.ConvertBoolToInt(b.SideB) });
 		}
 
-		ss.SetSheetRange(sheetBases, $"Bases!A2:E{basesLength+1}");
+		ss.SetSheetRange(sheetBases, $"Bases!A2:E{basesLength + 1}");
 
 
 		foreach (GroundUnit unit in manager.groundUnits) {
@@ -55,7 +56,7 @@ public class SheetSync : MonoBehaviour {
 				EnumUtil.ConvertBoolToInt(unit.SideB),
 				(int)unit.movementModifier,
 				(int)unit.transportModifier,
-				unit.unitEquipment.Count == 0 ? "" : string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
+				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
 			}
 		}
 		foreach (AerialUnit unit in manager.aerialUnits) {
@@ -66,7 +67,7 @@ public class SheetSync : MonoBehaviour {
 				unit.name,
 				(int)unit.GetUnitTier(),
 				EnumUtil.ConvertBoolToInt(unit.SideB), 0, 0,
-				string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
+				string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
 			}
 		}
 		foreach (NavalUnit unit in manager.navalUnits) {
@@ -77,7 +78,7 @@ public class SheetSync : MonoBehaviour {
 				unit.name,
 				(int) unit.GetUnitTier(),
 				EnumUtil.ConvertBoolToInt(unit.SideB), 0, 0,
-				string.Join("\n", unit.unitEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
+				string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")) });
 			}
 		}
 
@@ -107,7 +108,6 @@ public class SheetSync : MonoBehaviour {
 			}
 
 			/* TODO
-			 * Getters and setters instead of update methods
 			 * Swap unit constructor attributes to change them on the assigned unit directly instead. Removing intermediary.
 			 * Merge unit and equipment menu within the equipment-central logic
 			 * Move unit specialization to Unit
@@ -130,7 +130,7 @@ public class SheetSync : MonoBehaviour {
 			 * artillery and dice rolls
 			 * extend changeTier and changeIcon etc methods on Unit/Specialized Unit to work based on equipment
 			 * Remove unit option with no equipment. Always require equipment - overhaul the spawn menu 
-			 * to take equipment as the main thing and changing icon, size echelon and others based on that
+			 * to take equipment as the icon thing and changing icon, size echelon and others based on that
 			 * Equipment-centric unit creation
 			 * 
 			 * 
@@ -146,12 +146,15 @@ public class SheetSync : MonoBehaviour {
 			passwordA = PasswordManager.HashPassword(sheetConfiguration[0][0].ToString());
 			passwordB = PasswordManager.HashPassword(sheetConfiguration[1][0].ToString());
 			passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
-			pointsA = Convert.ToInt16(sheetConfiguration[3][0].ToString());
-			pointsB = Convert.ToInt16(sheetConfiguration[4][0].ToString());
+			pointsA = Convert.ToSingle(sheetConfiguration[3][0].ToString());
+			pointsB = Convert.ToSingle(sheetConfiguration[4][0].ToString());
 			if (ApplicationController.applicationVersion != sheetConfiguration[5][0].ToString()) {
 				throw new InvalidProgramException("Wrong game version! Please update your application");
 			}
 
+
+			pointsLabel = transform.parent.Find("UI/BottomPanel/Points").GetComponent<TextMeshProUGUI>();
+			UpdatePoints(0);
 
 			//Equipment
 
@@ -173,27 +176,26 @@ public class SheetSync : MonoBehaviour {
 				if (eq.side == 0) {
 					switch (eq.domain) {
 						case 0:
-							EquipmentManager.eqGround.Add(eq);
-							break;
+						EquipmentManager.eqGround.Add(eq);
+						break;
 						case 1:
-							EquipmentManager.eqAerial.Add(eq);
-							break;
+						EquipmentManager.eqAerial.Add(eq);
+						break;
 						case 2:
-							EquipmentManager.eqNaval.Add(eq);
-							break;
+						EquipmentManager.eqNaval.Add(eq);
+						break;
 					}
-				}
-				else {
+				} else {
 					switch (eq.domain) {
 						case 0:
-							EquipmentManager.eqGroundB.Add(eq);
-							break;
+						EquipmentManager.eqGroundB.Add(eq);
+						break;
 						case 1:
-							EquipmentManager.eqAerialB.Add(eq);
-							break;
+						EquipmentManager.eqAerialB.Add(eq);
+						break;
 						case 2:
-							EquipmentManager.eqNavalB.Add(eq);
-							break;
+						EquipmentManager.eqNavalB.Add(eq);
+						break;
 					}
 				}
 			}
@@ -217,6 +219,8 @@ public class SheetSync : MonoBehaviour {
 
 			//Units
 
+			Transform equipmentFolder = controller.transform.GetChild(3);
+
 			if (units != null) {
 				for (int i = 0; i < units.Count; i++) {
 					if (units[i].Count > 8) {
@@ -239,53 +243,53 @@ public class SheetSync : MonoBehaviour {
 								string[] word = lines[j].Split(':');
 								switch (Convert.ToInt16(units[i][2])) {
 									case 0:
-										foreach (Equipment equipment in EquipmentManager.eqGround) {
-											if (equipment.equipmentName == word[0]) {
-												Equipment newEquipment = CreateEquipment(word, equipment);
-												equip.Add(newEquipment);
-												break;
-											}
+									foreach (Equipment equipment in EquipmentManager.eqGround) {
+										if (equipment.equipmentName == word[0]) {
+											Equipment newEquipment = CreateEquipment(word, equipment);
+											equip.Add(newEquipment);
+											break;
 										}
-										foreach (Equipment equipment in EquipmentManager.eqGroundB) {
-											if (equipment.equipmentName == word[0]) {
-												Equipment newEquipment = CreateEquipment(word, equipment);
-												equip.Add(newEquipment);
-												break;
-											}
+									}
+									foreach (Equipment equipment in EquipmentManager.eqGroundB) {
+										if (equipment.equipmentName == word[0]) {
+											Equipment newEquipment = CreateEquipment(word, equipment);
+											equip.Add(newEquipment);
+											break;
 										}
-										break;
+									}
+									break;
 									case 1:
-										foreach (Equipment equipment in EquipmentManager.eqAerial) {
-											if (equipment.equipmentName == word[0]) {
-												Equipment newEquipment = CreateEquipment(word, equipment);
-												equip.Add(newEquipment);
-												break;
-											}
+									foreach (Equipment equipment in EquipmentManager.eqAerial) {
+										if (equipment.equipmentName == word[0]) {
+											Equipment newEquipment = CreateEquipment(word, equipment);
+											equip.Add(newEquipment);
+											break;
 										}
-										foreach (Equipment equipment in EquipmentManager.eqAerialB) {
-											if (equipment.equipmentName == word[0]) {
-												Equipment newEquipment = CreateEquipment(word, equipment);
-												equip.Add(newEquipment);
-												break;
-											}
+									}
+									foreach (Equipment equipment in EquipmentManager.eqAerialB) {
+										if (equipment.equipmentName == word[0]) {
+											Equipment newEquipment = CreateEquipment(word, equipment);
+											equip.Add(newEquipment);
+											break;
 										}
-										break;
+									}
+									break;
 									default:
-										foreach (Equipment equipment in EquipmentManager.eqNaval) {
-											if (equipment.equipmentName == word[0]) {
-												Equipment newEquipment = CreateEquipment(word, equipment);
-												equip.Add(newEquipment);
-												break;
-											}
+									foreach (Equipment equipment in EquipmentManager.eqNaval) {
+										if (equipment.equipmentName == word[0]) {
+											Equipment newEquipment = CreateEquipment(word, equipment);
+											equip.Add(newEquipment);
+											break;
 										}
-										foreach (Equipment equipment in EquipmentManager.eqNavalB) {
-											if (equipment.equipmentName == word[0]) {
-												Equipment newEquipment = CreateEquipment(word, equipment);
-												equip.Add(newEquipment);
-												break;
-											}
+									}
+									foreach (Equipment equipment in EquipmentManager.eqNavalB) {
+										if (equipment.equipmentName == word[0]) {
+											Equipment newEquipment = CreateEquipment(word, equipment);
+											equip.Add(newEquipment);
+											break;
 										}
-										break;
+									}
+									break;
 								}
 								newUnit.AddEquipment(equip);
 							}
@@ -296,19 +300,15 @@ public class SheetSync : MonoBehaviour {
 			}
 
 			Equipment CreateEquipment(string[] word, Equipment equipment) {
-				GameObject newEquipmentObject = Instantiate(equipmentTemplate, controller.transform.GetChild(2));
+				GameObject newEquipmentObject = Instantiate(equipmentTemplate, equipmentFolder);
 				Equipment newEquipment = newEquipmentObject.AddComponent<Equipment>();
 				newEquipment.Initiate(equipment.equipmentName, Convert.ToInt16(word[1]), equipment.movementRange, equipment.sightRange, equipment.weaponRange, equipment.cost, equipment.side, equipment.domain);
 				return newEquipment;
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			Debug.LogException(e);
-			await controller.generalPopup.PopUpAsync("Error! " + e.Message + e, 30);
-			Application.Quit();
-			#if UNITY_EDITOR
-			EditorApplication.ExitPlaymode();
-			#endif
+			await ApplicationController.generalPopup.PopUpAsync("Error! " + e.Message + e, 30);
+			ApplicationController.ExitApplication();
 		}
 
 
@@ -322,5 +322,16 @@ public class SheetSync : MonoBehaviour {
 
 	public void SetData(int x, int y, string data) {
 		sheetUnits[x][y] = data;
+	}
+
+	public static void UpdatePoints(float addition) {
+		if (ApplicationController.sideB) {
+			pointsB += addition;
+			pointsLabel.text = $"Pts:{pointsB}";
+		} else {
+			pointsA += addition;
+			pointsLabel.text = $"Pts:{pointsA}";
+		}
+		
 	}
 }

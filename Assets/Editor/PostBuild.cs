@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Codice.Client.BaseCommands;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -32,25 +31,25 @@ public class PostBuild : IPostprocessBuildWithReport {
 		switch (target) {
 			case BuildTarget.StandaloneWindows:
 			case BuildTarget.StandaloneWindows64:
-				Debug.Log("Target operating system: Windows");
-				MoveFiles();
-				break;
+			Debug.Log("Target operating system: Windows");
+			MoveFiles();
+			break;
 			case BuildTarget.StandaloneOSX:
-				//In case of macOS, it renames the built file to the official name and puts the data into its application contents
-				Debug.Log("Target operating system: macOS");
-				if (File.Exists(Application.dataPath + "/../Build/World War Mode Map Manager.app")) {
-					File.Delete(Application.dataPath + "/../Build/World War Mode Map Manager.app");
-				}
-				File.Move(Application.dataPath + "/../Build/Build.app", Application.dataPath + "/../Build/World War Mode Map Manager.app");
-				
-				MoveFiles("/Build/World War Mode Map Manager.app/Contents");
-				break;
+			//In case of macOS, it renames the built file to the official name and puts the data into its application contents
+			Debug.Log("Target operating system: macOS");
+			if (File.Exists(Application.dataPath + "/../Build/World War Mode Map Manager.app")) {
+				File.Delete(Application.dataPath + "/../Build/World War Mode Map Manager.app");
+			}
+			File.Move(Application.dataPath + "/../Build/Build.app", Application.dataPath + "/../Build/World War Mode Map Manager.app");
+
+			MoveFiles("/Build/World War Mode Map Manager.app/Contents");
+			break;
 			case BuildTarget.StandaloneLinux64:
-				Debug.Log("Target operating system: Linux");
-				break;
+			Debug.Log("Target operating system: Linux");
+			break;
 			default:
-				Debug.Log("Target operating system: Unknown");
-				break;
+			Debug.Log("Target operating system: Unknown");
+			break;
 		}
 	}
 }
