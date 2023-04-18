@@ -1,12 +1,14 @@
-﻿using System.Linq;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public class UITextFloatAppender : MonoBehaviour {
 	private TextMeshProUGUI text;
+	private string originalText = "";
+	public float Value = 0;
 	//Loads the text component on awake.
-	void Awake() {
-		text = GetComponent<TextMeshProUGUI>();
+	public void Initiate() {
+		text = gameObject.GetComponent<TextMeshProUGUI>();
+		originalText = text.text;
 	}
 
 	/// <summary>
@@ -14,8 +16,10 @@ public class UITextFloatAppender : MonoBehaviour {
 	/// </summary>
 	/// <param name="replacementNumber">float value</param>
 	public void UpdateText(float replacementNumber) {
-		try {
-			text.text = string.Join(" ", text.text.Split(' ').Take(text.text.Split(' ').Length - 1).ToArray()) + " " + replacementNumber;
-		} catch (System.NullReferenceException) { }
+		if (text == null) {
+			Initiate();
+		}
+		Value = replacementNumber;
+		text.text = originalText + Value;
 	}
 }

@@ -59,7 +59,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	internal List<Equipment> equipmentList;
 
 	/// <summary>
-	/// Changes unit affiliation textures based on user side and unit side.
+	/// Changes unit affiliation textures based on user sideB and unit sideB.
 	/// </summary>
 	internal abstract void ChangeAffiliation();
 	/// <summary>
@@ -74,7 +74,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	internal abstract void ChangeSpecialization(int specialization);
 
 	internal virtual void RecalculateIcon() {
-		//Based on size, equipment types and everything...
+		//Based on size, equipment equipmentTypeUI and everything...
 	}
 
 	#endregion
@@ -108,8 +108,8 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		ChangeSpecialization(newSpecialization);
 
 		movementRange = 0.3f;
-		transform.position = newPosition;
-		StartPosition = newPosition;
+		transform.position = new Vector3(newPosition.x, newPosition.y, -0.15f);
+		StartPosition = new Vector3(newPosition.x, newPosition.y, -0.15f);
 
 		//Adds equipment only if there is some to add, otherwise creates a new Eq list.
 		if (newEquipment.Count > 0) {
@@ -129,24 +129,42 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	/// </summary>
 	/// <param name="newEquipment">List of Equipment to add.</param>
 	internal void AddEquipment(List<Equipment> newEquipment) {
-		if (newEquipment.Count > 0) {
-			equipmentList = newEquipment.ToList();
-			equipmentTextUI.text = string.Join("\n", newEquipment.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}"));
-
-			equipmentList.ForEach(eq => Debug.Log($"[{ID}][{name}] Adding Equipment | {eq.amount} {eq.equipmentName}"));
-
-			movementRange = newEquipment.Min(e => e.movementRange);
-			sightRange = newEquipment.Max(e => e.sightRange);
-			weaponRange = newEquipment.Max(e => e.weaponRange);
-
-			sightRangeCircle.transform.localScale = new Vector3(212 * sightRange, 212 * sightRange, 0);
-			WeaponRangeCircle.transform.localScale = new Vector3(212 * weaponRange, 212 * weaponRange, 0);
-			ResizeMovementCircle();
-		} else {
-			equipmentList = new List<Equipment>();
-			equipmentTextUI.text = "";
-		}
+		equipmentList = newEquipment.ToList();
+		RecalculateAttributes();
 	}
+	internal void AddEquipment(Equipment newEquipment) {
+		equipmentList.Add(newEquipment);
+		RecalculateAttributes();
+	}
+	/// <summary>
+	/// Removes the equipment from the list.
+	/// </summary>
+	/// <param name="template"></param>
+	internal void RemoveEquipment(Equipment template) {
+		Equipment equipment = equipmentList.Find(e => template.equipmentName == e.equipmentName);
+		equipmentList.Remove(equipment);
+		Destroy(equipment.gameObject);
+		RecalculateAttributes();
+	}
+	internal void RecalculateAttributes() {
+
+		//Equipment UI label.
+		equipmentTextUI.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}"));
+		equipmentList.ForEach(eq => Debug.Log($"[{ID}][{name}] Adding Equipment | {eq.Amount} {eq.equipmentName}"));
+
+		//Unit ranges.
+		movementRange = equipmentList.Min(e => e.movementRange);
+		sightRange = equipmentList.Max(e => e.sightRange);
+		weaponRange = equipmentList.Max(e => e.weaponRange);
+
+		sightRangeCircle.transform.localScale = new Vector3(212 * sightRange, 212 * sightRange, 0);
+		WeaponRangeCircle.transform.localScale = new Vector3(212 * weaponRange, 212 * weaponRange, 0);
+		ResizeMovementCircle();
+
+		//Unit icon.
+		//TODO
+	}
+
 	internal float sightRange = 0.25f;
 	internal float weaponRange = 0.2f;
 
@@ -161,7 +179,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		Vector3 newPosition = eventData.pointerCurrentRaycast.worldPosition;
 		newPosition = Vector3.ClampMagnitude(newPosition - StartPosition, ApplicationController.admin ? 9999999f : movementRange) + StartPosition;
 
-		transform.position = newPosition;
+		transform.position = new Vector3(newPosition.x, newPosition.y, -0.15f);
 		ResizeMovementCircle();
 	}
 

@@ -74,7 +74,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 		if (GetComponent<Base>() != null) {
 			constructor.UpdateDomain((int)GetComponent<Base>().BaseType);
 		}
-		constructor.UpdatePosition(click.pointerPressRaycast.worldPosition);
+		constructor.UpdatePosition(new Vector3(click.pointerPressRaycast.worldPosition.x, click.pointerPressRaycast.worldPosition.y, -0.1f));
 		constructor.UpdateAffiliation(sideB);
 		UnitManager.Instance.unitMenu.SetActive(true);
 	}
@@ -83,7 +83,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 		Destroy(contextPanel.gameObject);
 		BaseConstructor constructor = UnitManager.Instance.baseMenu.GetComponent<BaseConstructor>();
 		constructor.UpdateBase();
-		constructor.UpdatePosition(click.pointerPressRaycast.worldPosition);
+		constructor.UpdatePosition(new Vector3(click.pointerPressRaycast.worldPosition.x, click.pointerPressRaycast.worldPosition.y, -0.15f));
 		constructor.UpdateAffiliation(sideB);
 		UnitManager.Instance.baseMenu.SetActive(true);
 	}

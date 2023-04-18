@@ -21,7 +21,7 @@ public class GroundUnit : Unit {
 
 	internal override void ChangeAffiliation() {
 		bool isEnemy = ApplicationController.sideB != SideB;
-		//True if the unit is on the same side as the user
+		//True if the unit is on the same sideB as the user
 		if (isEnemy) {
 			iconImage.transform.localScale = Vector3.one;
 			movementTexture.transform.localScale = Vector3.one;
@@ -69,7 +69,7 @@ public class GroundUnitEditor : Editor {
 		EditorGUILayout.LabelField("Specialization", unit.specialization.ToString());
 		EditorGUILayout.LabelField("Movement", unit.movementModifier.ToString());
 		EditorGUILayout.LabelField("Transport", unit.transportModifier.ToString());
-		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")), EditorStyles.wordWrappedLabel);
+		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")), EditorStyles.wordWrappedLabel);
 	}
 }
 #endif

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -10,23 +11,39 @@ public class ApplicationController : MonoBehaviour {
 	public string Username { private get; set; }
 	public string Password { private get; set; }
 	internal bool loggedIn = false;
+	#region Static methods and attributes.
 	internal static bool deletingMenus = false;
 	internal static bool sideB = false;
 	internal static bool admin = false;
 	internal static string applicationVersion = "v0.0.7";
+	internal static CultureInfo culture = new CultureInfo("en-GB");
+	internal static ApplicationController Instance { get { return _instance; } }
+	private static ApplicationController _instance;
+
+	//Used by the UI calls. Exist the application and also play editor mode.
+	public static void ExitApplication() {
+		Debug.Log("Exiting application.");
+		Application.Quit();
+		#if UNITY_EDITOR
+		EditorApplication.ExitPlaymode();
+		#endif
+	}
+	#endregion
 
 	private void Awake() {
+		_instance = GetComponent<ApplicationController>();
 		generalPopup = transform.Find("UI/GeneralPopup").GetComponent<UIPopup>();
 		mainCamera = Camera.main.GetComponent<CameraController>();
 		admin = false;
 		Debug.unityLogger.filterLogType = LogType.Log;
-		//Loads registry items for the settings.
 		LoadSettings();
+		Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.Windowed);
 	}
 	private async void Start() {
 		//Loads basic UI elements and starts server syncing.
 		await server.LoadSheet();
 		transform.Find("UI/Loading").gameObject.SetActive(false);
+		
 	}
 	private void Update() {
 		//Checks for context menus so they can be deleted when any is open.
@@ -43,7 +60,7 @@ public class ApplicationController : MonoBehaviour {
 
 	#region Settings
 	public Slider cameraSpeedSlider;
-	public TextMeshProUGUI cameraSpeedSliderText;
+	public UITextFloatAppender cameraSpeedSliderText;
 	private CameraController mainCamera;
 
 	/// <summary>
@@ -53,7 +70,6 @@ public class ApplicationController : MonoBehaviour {
 		if (PlayerPrefs.HasKey("CameraSpeed")) {
 			float newSpeed = PlayerPrefs.GetFloat("CameraSpeed");
 			cameraSpeedSlider.value = newSpeed;
-			cameraSpeedSliderText.text = $"Camera Speed: {newSpeed}";
 			mainCamera.speed = newSpeed;
 		}
 		if (PlayerPrefs.HasKey("KeepLogin") && PlayerPrefs.GetInt("KeepLogin") == 1) {
@@ -87,7 +103,7 @@ public class ApplicationController : MonoBehaviour {
 		mainCamera.speed = newSpeed;
 		PlayerPrefs.SetFloat("CameraSpeed", newSpeed);
 		PlayerPrefs.Save();
-		cameraSpeedSliderText.GetComponent<UITextFloatAppender>().UpdateText(newSpeed);
+		cameraSpeedSliderText.UpdateText(newSpeed);
 	}
 
 	#endregion
@@ -99,7 +115,7 @@ public class ApplicationController : MonoBehaviour {
 	/// Logs in the user based on input fields in the settings.
 	/// </summary>
 	public void Login() {
-		//Sidechange swaps the unit icons if the side changes.
+		//Sidechange swaps the unit icons if the sideB changes.
 		bool sideChange = false;
 		//Login logic based on three user approach
 		if (Username == "A" && Password == SheetSync.passwordA) {
@@ -140,14 +156,5 @@ public class ApplicationController : MonoBehaviour {
 		} else {
 			generalPopup.PopUp("Wrong credentials!", 3);
 		}
-	}
-
-	//Used by the UI calls. Exist the application and also play editor mode.
-	public static void ExitApplication() {
-		Debug.Log("Exiting application.");
-		Application.Quit();
-#if UNITY_EDITOR
-		EditorApplication.ExitPlaymode();
-#endif
 	}
 }

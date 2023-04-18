@@ -49,7 +49,7 @@ public class BaseConstructor : MonoBehaviour {
 	/// <summary>
 	/// Updates the constructed base affiliation attribute.
 	/// </summary>
-	/// <param name="sideB">New side</param>
+	/// <param name="sideB">New sideB</param>
 	public void UpdateAffiliation(bool sideB) {
 		constructedBase.ChangeAffiliation(sideB);
 	}
@@ -58,21 +58,25 @@ public class BaseConstructor : MonoBehaviour {
 	/// </summary>
 	/// <param name="b"></param>
 	public void UpdateBase(Base b) {
+		Debug.Log("Base editor opened.");
 		constructedBase = b;
 	}
 	/// <summary>
 	/// Creates a new empty base for construction.
 	/// </summary>
 	public void UpdateBase() {
-		constructedBase = GameObject.FindWithTag("Units").GetComponent<UnitManager>().SpawnBase("NewBase", Vector3.zero, BaseType.Base, false);
+		Debug.Log("Base editor opened.");
+		constructedBase = UnitManager.Instance.SpawnBase("NewBase", Vector3.zero, BaseType.Base, false);
 	}
 
 	public void Cancel() {
+		Debug.Log("Base editor canceled.");
 		Destroy(constructedBase.gameObject);
 		gameObject.SetActive(false);
 	}
 
 	public void Close() {
+		Debug.Log("Base editor closed.");
 		if (!ApplicationController.admin) {
 			SheetSync.UpdatePoints(-100);
 		}

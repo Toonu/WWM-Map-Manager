@@ -12,7 +12,7 @@ public class UnitManager : MonoBehaviour {
 	void Start() {
 		_instance = GetComponent<UnitManager>();
 
-		unitMenu = unitUIMenus.transform.Find("UnitMenu/Menu").gameObject;
+		unitMenu = unitUIMenus.transform.Find("UnitMenu").gameObject;
 		baseMenu = unitUIMenus.transform.Find("BaseMenu").gameObject;
 	}
 
@@ -72,7 +72,6 @@ public class UnitManager : MonoBehaviour {
 	#region UI
 	public GameObject groundTemplate;
 	public GameObject baseTemplate;
-	public GameObject equipmentTemplate;
 	public GameObject unitUIMenus;
 	internal GameObject unitMenu;
 	internal GameObject baseMenu;
@@ -121,14 +120,16 @@ public class UnitManager : MonoBehaviour {
 	internal void Despawn(GameObject gameObject) {
 		if (gameObject.GetComponent<Base>() == null) {
 			int index = gameObject.GetComponent<Unit>().ID;
-			groundUnits.RemoveAt(index);
 			if (gameObject.GetComponent<GroundUnit>() != null) {
+				groundUnits.RemoveAt(index);
 				gameObject.GetComponent<GroundUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 				groundUnits.Insert(index, null);
 			} else if (gameObject.GetComponent<AerialUnit>() != null) {
+				aerialUnits.RemoveAt(index);
 				gameObject.GetComponent<AerialUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 				aerialUnits.Insert(index, null);
 			} else {
+				navalUnits.RemoveAt(index);
 				gameObject.GetComponent<NavalUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 				navalUnits.Insert(index, null);
 			}
@@ -149,7 +150,7 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	private void AppendList<J, K, L>(J obj, int index, List<J> list, List<K> otherList, List<L> theOtherList) {
-		int count = list.Count;
+		int count = Math.Max(groundUnits.Count, Math.Max(aerialUnits.Count, navalUnits.Count));
 
 		// If the index is greater than the current count, add null elements until the index is reached
 		while (index > count) {
@@ -177,7 +178,7 @@ public class UnitManager : MonoBehaviour {
 
 	#endregion
 
-	#region Unit overall updates
+	#region Unit en-masse updates
 
 	public void ShowMissileRanges(bool show) {
 		groundUnits.ForEach(unit => { if (unit != null && unit.specialization == GroundSpecialization.SAM) { unit.WeaponRangeCircle.SetActive(show); } });

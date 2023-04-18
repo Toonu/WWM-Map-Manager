@@ -45,7 +45,7 @@ public class AerialUnitEditor : Editor {
 		EditorGUILayout.LabelField("Sight", unit.sightRange.ToString());
 		EditorGUILayout.LabelField("Movement", unit.movementRange.ToString());
 		EditorGUILayout.LabelField("Specialization", unit.specialization.ToString());
-		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.amount}")), EditorStyles.wordWrappedLabel);
+		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")), EditorStyles.wordWrappedLabel);
 	}
 }
 #endif

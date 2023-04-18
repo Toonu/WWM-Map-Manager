@@ -65,7 +65,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 		if (!ApplicationController.admin) {
 			return;
 		}
-		transform.position = eventData.pointerCurrentRaycast.worldPosition;
+		transform.position = new Vector3(eventData.pointerCurrentRaycast.worldPosition.x, eventData.pointerCurrentRaycast.worldPosition.y, -0.1f);
 	}
 
 	/// <summary>

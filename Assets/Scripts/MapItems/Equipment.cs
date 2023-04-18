@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 public class Equipment : MonoBehaviour {
@@ -7,24 +6,31 @@ public class Equipment : MonoBehaviour {
 	internal float movementRange;
 	internal float sightRange;
 	internal float weaponRange;
-	internal int amount;
+	private int amount;
+	internal int Amount { get { return amount; } set { amount = value; name = $"{equipmentName}:{amount}"; } }
 	internal int cost;
-	internal int side;
+	internal int sideB;
 	internal int domain;
+	internal int specialization;
+	internal int movement;
+	internal int transportation;
 
-	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, int cost, int side, int domain) {
+	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, int cost, int sideB, int domain, int specialization, int movement, int transportation) {
 		this.equipmentName = equipmentName;
-		this.amount = amount;
+		Amount = amount;
 		this.movementRange = movementRange;
 		this.weaponRange = weaponRange;
 		this.sightRange = sightRange;
 		this.cost = cost;
-		this.side = side;
+		this.sideB = sideB;
 		this.domain = domain;
+		this.specialization = specialization;
+		this.movement = movement;
+		this.transportation = transportation;
 	}
 
 	public override string ToString() {
-		return $"{equipmentName}:{amount}";
+		return $"{equipmentName}:{Amount}";
 	}
 }
 
@@ -38,7 +44,7 @@ public class EquipmentEditor : Editor {
 		Equipment eq = (Equipment)target;
 
 		EditorGUILayout.LabelField("Name  ", eq.equipmentName.ToString());
-		EditorGUILayout.LabelField("Amount", eq.amount.ToString());
+		EditorGUILayout.LabelField("amount", eq.Amount.ToString());
 	}
 }
 #endif
