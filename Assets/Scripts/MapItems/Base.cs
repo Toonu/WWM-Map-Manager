@@ -14,7 +14,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 		set {
 			baseType = value;
 			icon.material.mainTexture = UnitManager.Instance.GetBaseTexture(BaseType);
-			icon.material.color = SideB ? Color.red : Color.black;
+			icon.material.color = SideB == ApplicationController.sideB ? Color.black : Color.red;
 			icon.transform.localScale = BaseType == BaseType.Airfield ? new Vector3(1.5f, 1, 1) : Vector3.one;
 		}
 	}

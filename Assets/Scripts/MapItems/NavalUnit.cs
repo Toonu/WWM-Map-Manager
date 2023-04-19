@@ -23,6 +23,11 @@ public class NavalUnit : Unit {
 		specialization = (NavalSpecialization)newSpecialization;
 		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, SideB);
 		Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
+		SetUnitTier((int)specialization);
+	}
+
+	public override void SetUnitTier(int echelon) {
+		base.SetUnitTier(echelon+5);
 	}
 }
 

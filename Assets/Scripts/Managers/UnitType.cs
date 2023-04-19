@@ -133,11 +133,59 @@ public static class EnumUtil {
 
 
 	public static int GetUnitTier(int domain, int vehicles) {
-		return (vehicles) switch {
-			0 when (1 > vehicles && vehicles > 0) => 0,
-			1 when (2 > vehicles && vehicles > 4) => 0,
-			_ => 2,
-		};
+		switch (domain) {
+			case 1:
+			//Air Force
+			if (vehicles == 1) {
+				return 1;
+			} else if (vehicles == 2) {
+				return 2;
+			} else if (3 < vehicles && vehicles < 12) {
+				return 3;
+			} else if (11 < vehicles && vehicles < 24) {
+				return 4;
+			} else if (23 < vehicles && vehicles < 37) {
+				return 5;
+			} else if (36 < vehicles && vehicles < 49) {
+				return 6;
+			} else if (48 < vehicles && vehicles < 201) {
+				return 7;
+			} else {
+				return 8;
+			}
+			case 2:
+				//Navy
+			if (vehicles == 1) {
+				return 1;
+			} else if (1 < vehicles && vehicles < 4 ) {
+				return 2;
+			} else if (3 < vehicles && vehicles < 7) {
+				return 3;
+			} else if (6 < vehicles && vehicles < 13) {
+				return 4;
+			} else {
+				return 5;
+			}
+			default:
+				//Army
+			if (vehicles == 1) {
+				return 1;
+			} else if (vehicles == 2) {
+				return 2;
+			} else if (2 < vehicles && vehicles < 5) {
+				return 3;
+			} else if (4 < vehicles && vehicles < 14) {
+				return 4;
+			} else if (13 < vehicles && vehicles < 41) {
+				return 5;
+			} else if (40 < vehicles && vehicles < 84) {
+				return 6;
+			} else if (83 < vehicles && vehicles < 121) {
+				return 7;
+			} else {
+				return 8;
+			}
+		}
 	}
 
 	public static bool ConvertIntToBool(int value) {

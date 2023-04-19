@@ -37,7 +37,7 @@ public class ApplicationController : MonoBehaviour {
 		admin = false;
 		Debug.unityLogger.filterLogType = LogType.Log;
 		LoadSettings();
-		Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.Windowed);
+		Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.FullScreenWindow);
 	}
 	private async void Start() {
 		//Loads basic UI elements and starts server syncing.

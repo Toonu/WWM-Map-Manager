@@ -117,7 +117,7 @@ public class SheetSync : MonoBehaviour {
 		* Zooming out merging of units, 
 		* artillery and dice rolls
 		* 
-		* Terrain based movement
+		* Terrain based movement and base spawning
 		* if (Physics.Raycast(ray, out hit))
         {
             hit.collider.renderer.material.color = Color.red;

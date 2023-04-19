@@ -32,7 +32,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	/// Setter for the unit tier which changes the tier label and tier.
 	/// </summary>
 	/// <param name="echelon"></param>
-	public void SetUnitTier(int echelon) {
+	public virtual void SetUnitTier(int echelon) {
 		tierTextUI.text = EnumUtil.GetUnitTier(echelon);
 		unitTier = (UnitTier)echelon;
 		Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");

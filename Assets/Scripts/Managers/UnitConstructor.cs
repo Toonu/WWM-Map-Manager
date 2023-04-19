@@ -115,8 +115,6 @@ public class UnitConstructor : MonoBehaviour {
 		UpdateName(UnitManager.Instance.GetLast().ToString());
 		tierUI.text = constructedUnit.GetUnitTierText();
 
-
-		tierUI.gameObject.SetActive(ApplicationController.admin);
 		nameUI.gameObject.SetActive(ApplicationController.admin);
 		specializationUI.gameObject.SetActive(ApplicationController.admin);
 		movementUI.gameObject.SetActive(ApplicationController.admin);
@@ -153,7 +151,7 @@ public class UnitConstructor : MonoBehaviour {
 		}	
 	}
 
-	#region Eq
+	#region Equipment
 	public void UpdateEquipmentUI() {
 		equipmentTypeUI.ClearOptions();
 		List<string> eqNames = new List<string>();
@@ -178,32 +176,34 @@ public class UnitConstructor : MonoBehaviour {
 			float max = constructedUnit.equipmentList.Max(e => e.sightRange);
 			sightLabelUI.UpdateText(max < constructedEquipment.sightRange ? constructedEquipment.sightRange : max);
 			rangeLabelUI.UpdateText(min > constructedEquipment.movementRange ? constructedEquipment.movementRange : min);
-
-			if (unitDomain != 2) {
-				//Returns the most numerous unit type in the Unit
-				UpdateSpecialization(constructedUnit.equipmentList
-				.GroupBy(equipment => equipment.specialization)
-				.OrderByDescending(group => group.Count())
-				.FirstOrDefault()?.Key ?? 0);
-			}
-
-			//Returns the most numerous armour-traction type.
-			UpdateMovementModifier(constructedUnit.equipmentList
-			.GroupBy(equipment => equipment.movement)
-			.OrderByDescending(group => group.Count())
-			.FirstOrDefault()?.Key ?? 0);
-
-			int vehicles = constructedUnit.equipmentList.Count;
-
-			int echelon = EnumUtil.GetUnitTier(unitDomain, vehicles);
-
-			constructedUnit.SetUnitTier(echelon);
-
 		} else {
 			costLabelUI.UpdateText(constructedEquipment.cost * constructedEquipment.Amount);
 			sightLabelUI.UpdateText(constructedEquipment.sightRange);
 			rangeLabelUI.UpdateText(constructedEquipment.movementRange);
 		}
+	}
+
+	public void UpdateUnitIcon() {
+		//Returns the most numerous armour-traction type.
+		UpdateMovementModifier(constructedUnit.equipmentList
+		.GroupBy(equipment => equipment.movement)
+		.OrderByDescending(group => group.Count())
+		.FirstOrDefault()?.Key ?? 0);
+
+		int tier = EnumUtil.GetUnitTier(unitDomain, constructedUnit.equipmentList.Sum(vehicle => vehicle.Amount));
+
+		if (unitDomain != 2) {
+			//Returns the most numerous unit type in the Unit
+			UpdateSpecialization(constructedUnit.equipmentList
+			.GroupBy(equipment => equipment.specialization)
+			.OrderByDescending(group => group.Count())
+			.FirstOrDefault()?.Key ?? 0);
+			constructedUnit.SetUnitTier(tier);
+		} else {
+			UpdateSpecialization(tier);
+		}
+
+		tierUI.text = constructedUnit.GetUnitTierText();
 	}
 
 	public void SetEquipmentAmount(int newAmount) {
@@ -227,8 +227,8 @@ public class UnitConstructor : MonoBehaviour {
 	public void RemoveEquipment(Equipment equipment, bool refund = false) {
 		if (refund) SheetSync.UpdatePoints(equipment.cost * equipment.Amount);
 		constructedUnit.RemoveEquipment(equipment);
+		UpdateUnitIcon();
 	}
-
 	public void AddEquipment() {
 		foreach (Equipment equipment in constructedUnit.equipmentList) {
 			if (equipment.equipmentName == constructedEquipment.equipmentName) {
@@ -241,8 +241,8 @@ public class UnitConstructor : MonoBehaviour {
 		SheetSync.UpdatePoints(-newEquipment.cost * newEquipment.Amount);
 		constructedUnit.AddEquipment(newEquipment);
 		AddEquipmentUI(newEquipment);
+		UpdateUnitIcon();
 	}
-
 	private void AddEquipmentUI(Equipment equipment) {
 		GameObject equipmentLabel = Instantiate(equipmentPanel, equipmentPanelsUI.transform);
 		equipmentLabel.transform.GetChild(0).GetComponent<Button>().GetComponentInChildren<TextMeshProUGUI>().text = $"[{equipment.Amount,-3}] {equipment.equipmentName}";
@@ -275,20 +275,25 @@ public class UnitConstructor : MonoBehaviour {
 	}
 	#endregion
 
+	#region Unit
 	public void UpdateSpecialization(int i) {
+		specializationUI.SetValueWithoutNotify(i);
 		constructedUnit.ChangeSpecialization(i);
-		if (navalUnit != null) {
-			constructedUnit.SetUnitTier(i + 5);
-			tierUI.text = constructedUnit.GetUnitTierText();
-		}
+		tierUI.text = constructedUnit.GetUnitTierText();
 	}
 	public void UpdateMovementModifier(int i) {
+		movementUI.SetValueWithoutNotify(i);
 		GroundMovementType movementModifier = (GroundMovementType)i;
-		GetGroundUnit().ChangeSpecialization(movementModifier);
+		if (groundUnit != null) {
+			GetGroundUnit().ChangeSpecialization(movementModifier);
+		}
 	}
 	public void UpdateTransportModifier(int i) {
+		transportUI.SetValueWithoutNotify(i);
 		GroundTransportType transportModifier = (GroundTransportType)i;
-		GetGroundUnit().ChangeSpecialization(transportModifier);
+		if (groundUnit != null) {
+			GetGroundUnit().ChangeSpecialization(transportModifier);
+		}
 	}
 	public void UpdateName(string identification) {
 		if (identification != "") {
@@ -315,6 +320,9 @@ public class UnitConstructor : MonoBehaviour {
 	public void UpdateAffiliation(bool sideB) {
 		constructedUnit.ChangeAffiliation(sideB);
 	}
+	#endregion
+
+	#region Menu
 	public void Close() {
 		if (constructedUnit.equipmentList.Count == 0) {
 			ApplicationController.generalPopup.PopUp("You need at least one vehicle/equipment!");
@@ -373,4 +381,5 @@ public class UnitConstructor : MonoBehaviour {
 		}
 		Debug.Log("Unit editor opened.");
 	}
+	#endregion
 }
