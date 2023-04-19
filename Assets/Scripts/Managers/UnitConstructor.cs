@@ -110,34 +110,7 @@ public class UnitConstructor : MonoBehaviour {
 		specializationUI.ClearOptions();
 		specializationUI.AddOptions(options);
 
-		//Removal of non-domain attributes
-		switch (unitDomain) {
-			case 0:
-			if (ApplicationController.admin) {
-				movementUI.gameObject.SetActive(true);
-				enumNames = Enum.GetNames(typeof(GroundMovementType));
-				options = new List<TMP_Dropdown.OptionData>();
-				for (int i = 0; i < enumNames.Length; i++) {
-					options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.movementType[i]));
-				}
-				movementUI.ClearOptions();
-				movementUI.AddOptions(options);
-				transportUI.gameObject.SetActive(true);
-				enumNames = Enum.GetNames(typeof(GroundTransportType));
-				options = new List<TMP_Dropdown.OptionData>();
-				for (int i = 0; i < enumNames.Length; i++) {
-					options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.transportType[i]));
-				}
-				transportUI.ClearOptions();
-				transportUI.AddOptions(options);
-			}
-			break;
-			default:
-			movementUI.gameObject.SetActive(false);
-			transportUI.gameObject.SetActive(false);
-			imageUI.transform.GetChild(2).gameObject.SetActive(false);
-			break;
-		}
+		
 
 		UpdateName(UnitManager.Instance.GetLast().ToString());
 		tierUI.text = constructedUnit.GetUnitTierText();
@@ -149,6 +122,35 @@ public class UnitConstructor : MonoBehaviour {
 		movementUI.gameObject.SetActive(ApplicationController.admin);
 		transportUI.gameObject.SetActive(ApplicationController.admin);
 		domainUI.gameObject.SetActive(ApplicationController.admin);
+
+		//Removal of non-domain attributes
+		switch (unitDomain) {
+			case 0:
+				if (ApplicationController.admin) {
+					movementUI.gameObject.SetActive(true);
+					enumNames = Enum.GetNames(typeof(GroundMovementType));
+					options = new List<TMP_Dropdown.OptionData>();
+					for (int i = 0; i < enumNames.Length; i++) {
+						options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.movementType[i]));
+					}
+					movementUI.ClearOptions();
+					movementUI.AddOptions(options);
+					transportUI.gameObject.SetActive(true);
+					enumNames = Enum.GetNames(typeof(GroundTransportType));
+					options = new List<TMP_Dropdown.OptionData>();
+					for (int i = 0; i < enumNames.Length; i++) {
+						options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.transportType[i]));
+					}
+					transportUI.ClearOptions();
+					transportUI.AddOptions(options);
+				}
+				break;
+			default:
+				movementUI.gameObject.SetActive(false);
+				transportUI.gameObject.SetActive(false);
+				imageUI.transform.GetChild(2).gameObject.SetActive(false);
+				break;
+		}	
 	}
 
 	#region Eq
@@ -176,6 +178,27 @@ public class UnitConstructor : MonoBehaviour {
 			float max = constructedUnit.equipmentList.Max(e => e.sightRange);
 			sightLabelUI.UpdateText(max < constructedEquipment.sightRange ? constructedEquipment.sightRange : max);
 			rangeLabelUI.UpdateText(min > constructedEquipment.movementRange ? constructedEquipment.movementRange : min);
+
+			if (unitDomain != 2) {
+				//Returns the most numerous unit type in the Unit
+				UpdateSpecialization(constructedUnit.equipmentList
+				.GroupBy(equipment => equipment.specialization)
+				.OrderByDescending(group => group.Count())
+				.FirstOrDefault()?.Key ?? 0);
+			}
+
+			//Returns the most numerous armour-traction type.
+			UpdateMovementModifier(constructedUnit.equipmentList
+			.GroupBy(equipment => equipment.movement)
+			.OrderByDescending(group => group.Count())
+			.FirstOrDefault()?.Key ?? 0);
+
+			int vehicles = constructedUnit.equipmentList.Count;
+
+			int echelon = EnumUtil.GetUnitTier(unitDomain, vehicles);
+
+			constructedUnit.SetUnitTier(echelon);
+
 		} else {
 			costLabelUI.UpdateText(constructedEquipment.cost * constructedEquipment.Amount);
 			sightLabelUI.UpdateText(constructedEquipment.sightRange);

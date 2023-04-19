@@ -131,6 +131,15 @@ public static class EnumUtil {
 		};
 	}
 
+
+	public static int GetUnitTier(int domain, int vehicles) {
+		return (vehicles) switch {
+			0 when (1 > vehicles && vehicles > 0) => 0,
+			1 when (2 > vehicles && vehicles > 4) => 0,
+			_ => 2,
+		};
+	}
+
 	public static bool ConvertIntToBool(int value) {
 		if (value == 0) {
 			return false;
