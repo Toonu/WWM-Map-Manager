@@ -24,8 +24,8 @@
      inkscape:deskcolor="#505050"
      showgrid="false"
      inkscape:zoom="3.2695312"
-     inkscape:cx="128.15293"
-     inkscape:cy="128.15293"
+     inkscape:cx="128.45878"
+     inkscape:cy="128.45878"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="-8"
@@ -54,15 +54,15 @@
      stroke="black"
      fill="black"
      id="path193" />
-  <text
-     x="100"
-     y="150"
-     text-anchor="middle"
-     font-size="30"
-     font-family="Arial"
-     font-weight="bold"
-     stroke-width="4"
-     stroke="none"
-     fill="black"
-     id="text195">TE</text>
+  <g
+     aria-label="TE"
+     id="text195"
+     style="font-weight:bold;font-size:30px;font-family:Arial;text-anchor:middle;stroke-width:4">
+    <path
+       d="m 87.849121,150 v -17.8418 h -6.37207 v -3.63281 H 98.54248 v 3.63281 H 92.185059 V 150 Z"
+       id="path1228" />
+    <path
+       d="m 101.34033,150 v -21.47461 h 15.92285 v 3.63281 h -11.58691 v 4.76075 h 10.78125 v 3.61816 h -10.78125 v 5.84473 h 11.99707 V 150 Z"
+       id="path1230" />
+  </g>
 </svg>

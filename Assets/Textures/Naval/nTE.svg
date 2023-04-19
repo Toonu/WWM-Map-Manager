@@ -1,1 +1,65 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny" width="304" height="304" viewBox="24 24 152 152"><path d="M100,28 L172,100 100,172 28,100 100,28 Z" stroke-width="4" stroke="black" fill="rgb(255,128,128)" fill-opacity="1" ></path><path d="m 110,80 15,15 0,25 M 90,80 75,95 l 0,25" stroke-width="4" stroke="black" fill="none" ></path><path d="m 100,80 -15,15 0,25 30,0 0,-25 -15,-15" stroke-width="4" stroke="black" fill="black" ></path><text x="100" y="150" text-anchor="middle" font-size="30" font-family="Arial" font-weight="bold" stroke-width="4" stroke="none" fill="black" >TE</text></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.2"
+   width="304"
+   height="304"
+   viewBox="24 24 152 152"
+   id="svg10"
+   sodipodi:docname="nTE.svg"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     id="namedview12"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     showgrid="false"
+     inkscape:zoom="2.7532895"
+     inkscape:cx="151.8184"
+     inkscape:cy="152.1816"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg10" />
+  <path
+     d="M100,28 L172,100 100,172 28,100 100,28 Z"
+     stroke-width="4"
+     stroke="black"
+     fill="rgb(255,128,128)"
+     fill-opacity="1"
+     id="path2" />
+  <path
+     d="m 110,80 15,15 0,25 M 90,80 75,95 l 0,25"
+     stroke-width="4"
+     stroke="black"
+     fill="none"
+     id="path4" />
+  <path
+     d="m 100,80 -15,15 0,25 30,0 0,-25 -15,-15"
+     stroke-width="4"
+     stroke="black"
+     fill="black"
+     id="path6" />
+  <g
+     aria-label="TE"
+     id="text8"
+     style="font-weight:bold;font-size:30px;font-family:Arial;text-anchor:middle;stroke-width:4">
+    <path
+       d="m 87.849121,150 v -17.8418 h -6.37207 v -3.63281 H 98.54248 v 3.63281 H 92.185059 V 150 Z"
+       id="path1186" />
+    <path
+       d="m 101.34033,150 v -21.47461 h 15.92285 v 3.63281 h -11.58691 v 4.76075 h 10.78125 v 3.61816 h -10.78125 v 5.84473 h 11.99707 V 150 Z"
+       id="path1188" />
+  </g>
+</svg>

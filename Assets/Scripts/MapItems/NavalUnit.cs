@@ -27,7 +27,7 @@ public class NavalUnit : Unit {
 	}
 
 	public override void SetUnitTier(int echelon) {
-		base.SetUnitTier(echelon+5);
+		base.SetUnitTier(echelon+4);
 	}
 }
 

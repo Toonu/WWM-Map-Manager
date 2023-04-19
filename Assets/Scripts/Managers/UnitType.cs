@@ -135,56 +135,38 @@ public static class EnumUtil {
 	public static int GetUnitTier(int domain, int vehicles) {
 		switch (domain) {
 			case 1:
-			//Air Force
-			if (vehicles == 1) {
-				return 1;
-			} else if (vehicles == 2) {
-				return 2;
-			} else if (3 < vehicles && vehicles < 12) {
-				return 3;
-			} else if (11 < vehicles && vehicles < 24) {
-				return 4;
-			} else if (23 < vehicles && vehicles < 37) {
-				return 5;
-			} else if (36 < vehicles && vehicles < 49) {
-				return 6;
-			} else if (48 < vehicles && vehicles < 201) {
-				return 7;
-			} else {
-				return 8;
-			}
+				//Air Force
+				return vehicles switch {
+					1 => 1,
+					2 => 2,
+					> 2 and < 12 => 3,
+					> 11 and < 24 => 4,
+					> 23 and < 37 => 5,
+					> 36 and < 49 => 6,
+					> 48 and < 201 => 7,
+					_ => 8
+				};
 			case 2:
 				//Navy
-			if (vehicles == 1) {
-				return 1;
-			} else if (1 < vehicles && vehicles < 4 ) {
-				return 2;
-			} else if (3 < vehicles && vehicles < 7) {
-				return 3;
-			} else if (6 < vehicles && vehicles < 13) {
-				return 4;
-			} else {
-				return 5;
-			}
+				return vehicles switch {
+					1 => 0,
+					> 1 and < 4 => 1,
+					> 3 and < 7 => 2,
+					> 6 and < 13 => 3,
+					_ => 4
+				};
 			default:
 				//Army
-			if (vehicles == 1) {
-				return 1;
-			} else if (vehicles == 2) {
-				return 2;
-			} else if (2 < vehicles && vehicles < 5) {
-				return 3;
-			} else if (4 < vehicles && vehicles < 14) {
-				return 4;
-			} else if (13 < vehicles && vehicles < 41) {
-				return 5;
-			} else if (40 < vehicles && vehicles < 84) {
-				return 6;
-			} else if (83 < vehicles && vehicles < 121) {
-				return 7;
-			} else {
-				return 8;
-			}
+				return vehicles switch {
+					1 => 1,
+					2 => 2,
+					> 2 and < 5 => 3,
+					> 4 and < 14 => 4,
+					> 13 and < 41 => 5,
+					> 40 and < 84 => 6,
+					> 83 and < 121 => 7,
+					_ => 8
+				};
 		}
 	}
 

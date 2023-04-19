@@ -24,8 +24,8 @@
      inkscape:deskcolor="#505050"
      showgrid="false"
      inkscape:zoom="3.2695312"
-     inkscape:cx="128.15293"
-     inkscape:cy="128.15293"
+     inkscape:cx="128.45878"
+     inkscape:cy="128.45878"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="-8"
@@ -54,15 +54,15 @@
      stroke="black"
      fill="black"
      id="path324" />
-  <text
-     x="100"
-     y="150"
-     text-anchor="middle"
-     font-size="30"
-     font-family="Arial"
-     font-weight="bold"
-     stroke-width="4"
-     stroke="none"
-     fill="black"
-     id="text326">TF</text>
+  <g
+     aria-label="TF"
+     id="text326"
+     style="font-weight:bold;font-size:30px;font-family:Arial;text-anchor:middle;stroke-width:4">
+    <path
+       d="m 88.691406,150 v -17.8418 h -6.37207 v -3.63281 h 17.06543 v 3.63281 H 93.027344 V 150 Z"
+       id="path1242" />
+    <path
+       d="m 102.21191,150 v -21.47461 h 14.72168 v 3.63281 h -10.38574 v 5.08301 h 8.96485 v 3.63281 h -8.96485 V 150 Z"
+       id="path1244" />
+  </g>
 </svg>

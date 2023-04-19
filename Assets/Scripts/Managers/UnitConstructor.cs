@@ -194,10 +194,10 @@ public class UnitConstructor : MonoBehaviour {
 
 		if (unitDomain != 2) {
 			//Returns the most numerous unit type in the Unit
-			UpdateSpecialization(constructedUnit.equipmentList
-			.GroupBy(equipment => equipment.specialization)
-			.OrderByDescending(group => group.Count())
-			.FirstOrDefault()?.Key ?? 0);
+			UpdateSpecialization(constructedUnit.equipmentList.GroupBy(equipment => equipment.specialization)
+								.Select(group => new { Specialization = group.Key, Amount = group.Sum(equipment => equipment.Amount) })
+								.OrderByDescending(group => group.Amount)
+								.ToList().FirstOrDefault()?.Specialization ?? 0);
 			constructedUnit.SetUnitTier(tier);
 		} else {
 			UpdateSpecialization(tier);
