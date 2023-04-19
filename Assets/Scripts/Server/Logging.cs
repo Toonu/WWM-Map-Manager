@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Logging : MonoBehaviour {
 	public string logFileName = "output.log";
-	private readonly System.Collections.Generic.List<string> logMessages = new System.Collections.Generic.List<string>();
+	private readonly System.Collections.Generic.List<string> logMessages = new();
 	private StreamWriter logFileWriter;
 
 	void Start() {

@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.UI.CanvasScaler;
 
 public class UnitConstructor : MonoBehaviour {
 	internal int unitDomain;
@@ -17,13 +17,21 @@ public class UnitConstructor : MonoBehaviour {
 	private List<Equipment> equipmentTemplates = new List<Equipment>();
 
 	public GroundUnit GetGroundUnit() => groundUnit;
-	internal void SetGroundUnit(GroundUnit value) { groundUnit = value; constructedUnit = value; }
+	internal void SetGroundUnit(GroundUnit value) { 
+		groundUnit = value; 
+		constructedUnit = value; 
+		UpdateMovementModifier((int)value.movementModifier);
+		UpdateTransportModifier((int)value.transportModifier);
+		UpdateSpecialization((int)value.specialization);
+	}
 
 	public AerialUnit GetAerialUnit() => aerialUnit;
-	internal void SetAerialUnit(AerialUnit value) { aerialUnit = value; constructedUnit = value; }
+	internal void SetAerialUnit(AerialUnit value) { aerialUnit = value; constructedUnit = value; UpdateSpecialization((int)value.specialization); }
 
 	public NavalUnit GetNavalUnit() => navalUnit;
-	internal void SetNavalUnit(NavalUnit value) { navalUnit = value; constructedUnit = value; }
+	internal void SetNavalUnit(NavalUnit value) { navalUnit = value; constructedUnit = value; UpdateSpecialization((int)value.specialization); }
+
+	public static bool Editing = false;
 
 	//private int higherUnitIdentifierNumber = 0;
 
@@ -154,7 +162,7 @@ public class UnitConstructor : MonoBehaviour {
 	#region Equipment
 	public void UpdateEquipmentUI() {
 		equipmentTypeUI.ClearOptions();
-		List<string> eqNames = new List<string>();
+		List<string> eqNames = new();
 		if (constructedUnit.SideB) {
 			eqNames = EquipmentManager.equipmentHostile[unitDomain].Select(e => e.equipmentName).ToList();
 			equipmentTemplates = EquipmentManager.equipmentHostile[unitDomain];
@@ -343,7 +351,9 @@ public class UnitConstructor : MonoBehaviour {
 	}
 
 	public void DespawnUnit() {
-		UnitManager.Instance.Despawn(constructedUnit.gameObject);
+		if (!Editing) {
+			UnitManager.Instance.Despawn(constructedUnit.gameObject);
+		}
 		Debug.Log("Unit editor canceling.");
 		Clean();
 	}
@@ -365,6 +375,7 @@ public class UnitConstructor : MonoBehaviour {
 			AddEquipmentUI(equipment);
 		}
 		Debug.Log("Unit editor opened.");
+		UpdateName(unit.name);
 	}
 
 	public void UpdateUnit() {

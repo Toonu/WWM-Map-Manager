@@ -19,7 +19,7 @@ public class Circle : MonoBehaviour {
 		for (int i = 0; i < numSegments + 1; i++) {
 			float x = radius * Mathf.Cos(theta);
 			float y = radius * Mathf.Sin(theta);
-			Vector3 pos = new Vector3(x, y, 0);
+			Vector3 pos = new(x, y, 0);
 			lineRenderer.SetPosition(i, pos);
 			theta += deltaTheta;
 		}

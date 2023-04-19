@@ -16,7 +16,7 @@ public class ApplicationController : MonoBehaviour {
 	internal static bool sideB = false;
 	internal static bool admin = false;
 	internal static string applicationVersion = "v0.0.7";
-	internal static CultureInfo culture = new CultureInfo("en-GB");
+	internal static CultureInfo culture = new("en-GB");
 	internal static ApplicationController Instance { get { return _instance; } }
 	private static ApplicationController _instance;
 

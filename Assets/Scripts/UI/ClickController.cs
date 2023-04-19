@@ -68,13 +68,16 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 	void SpawnAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		UnitConstructor constructor = UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>();
+		UnitConstructor.Editing = false;
 		constructor.Awake();
 		
 
 		if (GetComponent<Base>() != null) {
 			constructor.UpdateDomain((int)GetComponent<Base>().BaseType);
+		} else {
+			constructor.UpdateDomain(0);
 		}
-		constructor.UpdatePosition(new Vector3(click.pointerPressRaycast.worldPosition.x, click.pointerPressRaycast.worldPosition.y, -0.1f));
+		constructor.UpdatePosition(new Vector3(click.pointerPressRaycast.worldPosition.x, click.pointerPressRaycast.worldPosition.y, -0.15f));
 		constructor.UpdateAffiliation(sideB);
 		UnitManager.Instance.unitMenu.SetActive(true);
 	}
@@ -83,7 +86,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 		Destroy(contextPanel.gameObject);
 		BaseConstructor constructor = UnitManager.Instance.baseMenu.GetComponent<BaseConstructor>();
 		constructor.UpdateBase();
-		constructor.UpdatePosition(new Vector3(click.pointerPressRaycast.worldPosition.x, click.pointerPressRaycast.worldPosition.y, -0.15f));
+		constructor.UpdatePosition(new Vector3(click.pointerPressRaycast.worldPosition.x, click.pointerPressRaycast.worldPosition.y, -0.10f));
 		constructor.UpdateAffiliation(sideB);
 		UnitManager.Instance.baseMenu.SetActive(true);
 	}
@@ -91,8 +94,10 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 	void EditAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		if (GetComponent<Base>() == null) {
-			UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>().UpdateUnit(GetComponent<Unit>());
+			UnitConstructor.Editing = true;
 			UnitManager.Instance.unitMenu.SetActive(true);
+			UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>().UpdateUnit(GetComponent<Unit>());
+
 		} else {
 			UnitManager.Instance.baseMenu.GetComponent<BaseConstructor>().UpdateBase(GetComponent<Base>());
 			UnitManager.Instance.baseMenu.SetActive(true);

@@ -12,7 +12,7 @@ public class BaseConstructor : MonoBehaviour {
 		baseName = transform.Find("BaseName").GetComponent<TMP_InputField>();
 		//Populates the UI with base options.
 		type.ClearOptions();
-		List<string> options = new List<string>() { "Base", "Airfield", "Port" };
+		List<string> options = new() { "Base", "Airfield", "Port" };
 		if (ApplicationController.admin) {
 			options.Add("Spawn");
 		}
@@ -45,6 +45,7 @@ public class BaseConstructor : MonoBehaviour {
 	/// <param name="position"></param>
 	public void UpdatePosition(Vector3 position) {
 		constructedBase.transform.position = position;
+		constructedBase.StartPosition = position;
 	}
 	/// <summary>
 	/// Updates the constructed base affiliation attribute.

@@ -17,19 +17,19 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	#region Textures
-	public List<Sprite> movementType = new List<Sprite>();
-	public List<Sprite> transportType = new List<Sprite>();
-	public List<Sprite> movementTypeEnemy = new List<Sprite>();
-	public List<Sprite> transportTypeEnemy = new List<Sprite>();
+	public List<Sprite> movementType = new();
+	public List<Sprite> transportType = new();
+	public List<Sprite> movementTypeEnemy = new();
+	public List<Sprite> transportTypeEnemy = new();
 
-	public List<Sprite> groundSpecialization = new List<Sprite>();
-	public List<Sprite> aerialSpecialization = new List<Sprite>();
-	public List<Sprite> navalSpecialization = new List<Sprite>();
-	public List<Sprite> baseTypes = new List<Sprite>();
+	public List<Sprite> groundSpecialization = new();
+	public List<Sprite> aerialSpecialization = new();
+	public List<Sprite> navalSpecialization = new();
+	public List<Sprite> baseTypes = new();
 
-	public List<Sprite> groundSpecializationEnemy = new List<Sprite>();
-	public List<Sprite> aerialSpecializationEnemy = new List<Sprite>();
-	public List<Sprite> navalSpecializationEnemy = new List<Sprite>();
+	public List<Sprite> groundSpecializationEnemy = new();
+	public List<Sprite> aerialSpecializationEnemy = new();
+	public List<Sprite> navalSpecializationEnemy = new();
 	#endregion
 	#region TextureHandling
 
@@ -78,10 +78,10 @@ public class UnitManager : MonoBehaviour {
 	#endregion
 
 	#region Units
-	public List<GroundUnit> groundUnits = new List<GroundUnit>();
-	public List<AerialUnit> aerialUnits = new List<AerialUnit>();
-	public List<NavalUnit> navalUnits = new List<NavalUnit>();
-	public List<Base> bases = new List<Base>();
+	public List<GroundUnit> groundUnits = new();
+	public List<AerialUnit> aerialUnits = new();
+	public List<NavalUnit> navalUnits = new();
+	public List<Base> bases = new();
 	#endregion
 
 	#region Spawning

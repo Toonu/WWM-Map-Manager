@@ -133,41 +133,35 @@ public static class EnumUtil {
 
 
 	public static int GetUnitTier(int domain, int vehicles) {
-		switch (domain) {
-			case 1:
-				//Air Force
-				return vehicles switch {
-					1 => 1,
-					2 => 2,
-					> 2 and < 12 => 3,
-					> 11 and < 24 => 4,
-					> 23 and < 37 => 5,
-					> 36 and < 49 => 6,
-					> 48 and < 201 => 7,
-					_ => 8
-				};
-			case 2:
-				//Navy
-				return vehicles switch {
-					1 => 0,
-					> 1 and < 4 => 1,
-					> 3 and < 7 => 2,
-					> 6 and < 13 => 3,
-					_ => 4
-				};
-			default:
-				//Army
-				return vehicles switch {
-					1 => 1,
-					2 => 2,
-					> 2 and < 5 => 3,
-					> 4 and < 14 => 4,
-					> 13 and < 41 => 5,
-					> 40 and < 84 => 6,
-					> 83 and < 121 => 7,
-					_ => 8
-				};
-		}
+		return domain switch {
+			1 => vehicles switch {
+				1 => 1,
+				2 => 2,
+				> 2 and < 12 => 3,
+				> 11 and < 24 => 4,
+				> 23 and < 37 => 5,
+				> 36 and < 49 => 6,
+				> 48 and < 201 => 7,
+				_ => 8
+			},//Air Force
+			2 => vehicles switch {
+				1 => 0,
+				> 1 and < 4 => 1,
+				> 3 and < 7 => 2,
+				> 6 and < 13 => 3,
+				_ => 4
+			},//Navy
+			_ => vehicles switch {
+				1 => 1,
+				2 => 2,
+				> 2 and < 5 => 3,
+				> 4 and < 14 => 4,
+				> 13 and < 41 => 5,
+				> 40 and < 84 => 6,
+				> 83 and < 121 => 7,
+				_ => 8
+			},//Army
+		};
 	}
 
 	public static bool ConvertIntToBool(int value) {

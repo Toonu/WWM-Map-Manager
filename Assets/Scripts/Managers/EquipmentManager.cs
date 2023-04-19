@@ -4,8 +4,8 @@ using System.Linq;
 using UnityEngine;
 
 public class EquipmentManager : MonoBehaviour {
-	internal static Dictionary<int, List<Equipment>> equipmentHostile = new Dictionary<int, List<Equipment>>();
-	internal static Dictionary<int, List<Equipment>> equipmentFriendly = new Dictionary<int, List<Equipment>>();
+	internal static Dictionary<int, List<Equipment>> equipmentHostile = new();
+	internal static Dictionary<int, List<Equipment>> equipmentFriendly = new();
 	public GameObject equipmentTemplate;
 	public static EquipmentManager Instance {
 		get { return _instance; }
