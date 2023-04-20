@@ -65,6 +65,7 @@ public class UnitConstructor : MonoBehaviour {
 	private UITextFloatAppender costLabelUI;
 	private UITextFloatAppender sightLabelUI;
 	private UITextFloatAppender rangeLabelUI;
+	private Button finishButton;
 	#endregion
 	#region EquipmentUI Attributes
 	private TMP_InputField equipmentAmountUI;
@@ -84,6 +85,7 @@ public class UnitConstructor : MonoBehaviour {
 		movementUI = transform.GetChild(1).Find("MovementType").GetComponent<TMP_Dropdown>();
 		transportUI = transform.GetChild(1).Find("TransportType").GetComponent<TMP_Dropdown>();
 		tierUI = transform.GetChild(2).GetChild(3).GetComponent<TextMeshProUGUI>();
+		finishButton = transform.GetChild(2).Find("Finish").GetComponent<Button>();
 		imageUI = transform.GetChild(2).GetChild(4).gameObject;
 		costLabelUI = transform.GetChild(2).Find("Cost").GetComponent<UITextFloatAppender>();
 		sightLabelUI = transform.GetChild(2).Find("Sight").GetComponent<UITextFloatAppender>();
@@ -130,6 +132,9 @@ public class UnitConstructor : MonoBehaviour {
 		if (!Editing) {
 			UnityEngine.Random.Range(0, 100);
             System.Random random = new();
+			finishButton.gameObject.SetActive(true);
+		} else {
+			finishButton.gameObject.SetActive(false);
 		}
 		nameUI.gameObject.SetActive(ApplicationController.isAdmin);
 		specializationUI.gameObject.SetActive(ApplicationController.isAdmin);
@@ -217,17 +222,17 @@ public class UnitConstructor : MonoBehaviour {
 	public void SetEquipmentAmount(int newAmount) {
 		constructedEquipment.Amount = newAmount;
 		equipmentAmountUI.text = newAmount.ToString();
-		Debug.Log("Set equipment amount to " + newAmount);
+		if (ApplicationController.isDebug) Debug.Log("Set equipment amount to " + newAmount);
 		UpdateStatLabels();
 	}
 	public void SetEquipmentType(int type) {
 		constructedEquipment = equipmentTemplates[type];
-		Debug.Log("Set equipment type to " + constructedEquipment.equipmentName);
+		if (ApplicationController.isDebug) Debug.Log("Set equipment type to " + constructedEquipment.equipmentName);
 	}
 
 	public void RemoveEquipment(Equipment equipment, bool refund = false) {
 		if (refund) SheetSync.UpdatePoints(equipment.cost * equipment.Amount);
-		Debug.Log("Removing equipment " + equipment);
+		if (ApplicationController.isDebug) Debug.Log("Removing equipment " + equipment);
 		constructedUnit.RemoveEquipment(equipment);
 		UpdateOptions();
 	}
@@ -238,7 +243,7 @@ public class UnitConstructor : MonoBehaviour {
 				return;
 			}
 		}
-		Debug.Log("Adding equipment " + constructedEquipment);
+		if (ApplicationController.isDebug) Debug.Log("Adding equipment " + constructedEquipment);
 		
 		Equipment newEquipment = EquipmentManager.CreateEquipment(constructedEquipment, Convert.ToInt16(equipmentAmountUI.text));
 		SheetSync.UpdatePoints(-newEquipment.cost * newEquipment.Amount);
@@ -283,14 +288,17 @@ public class UnitConstructor : MonoBehaviour {
 		constructedUnit.ChangeSpecialization(i);
 		specializationUI.SetValueWithoutNotify(i);
 		tierUI.text = constructedUnit.GetUnitTierText();
+		if (ApplicationController.isDebug) Debug.Log("Changed constructed unit specialization to " + i);
 	}
 	public void UpdateMovementModifier(int i) {
 		movementUI.SetValueWithoutNotify(i);
 		if (groundUnit != null) GetGroundUnit().ChangeSpecialization((GroundMovementType)i);
+		if (ApplicationController.isDebug) Debug.Log("Changed constructed unit movement to " + (GroundMovementType)i);
 	}
 	public void UpdateTransportModifier(int i) {
 		transportUI.SetValueWithoutNotify(i);
 		if (groundUnit != null) GetGroundUnit().ChangeSpecialization((GroundTransportType)i);
+		if (ApplicationController.isDebug) Debug.Log("Changed constructed unit transport to " + (GroundTransportType)i);
 	}
 	public void UpdateName(string identification) {
 		if (identification != "") {
@@ -302,9 +310,11 @@ public class UnitConstructor : MonoBehaviour {
 		position = new Vector3(position.x, position.y, -0.15f);
 		constructedUnit.transform.position = position;
 		constructedUnit.StartPosition = position;
+		if (ApplicationController.isDebug) Debug.Log("Changed constructed unit position to " + position);
 	}
 	public void UpdateAffiliation(bool sideB) {
 		constructedUnit.ChangeAffiliation(sideB);
+		if (ApplicationController.isDebug) Debug.Log("Changed constructed unit affiliation to B " + sideB);
 	}
 	#endregion
 
@@ -316,7 +326,7 @@ public class UnitConstructor : MonoBehaviour {
 	
 	public void DespawnUnit() {
 		if (!Editing && constructedUnit != null) UnitManager.Instance.Despawn(constructedUnit.gameObject);
-		Debug.Log("Unit editor canceling.");
+		if (ApplicationController.isDebug) Debug.Log("Unit editor canceling.");
 		Clean();
 	}
 
@@ -327,14 +337,14 @@ public class UnitConstructor : MonoBehaviour {
 		constructedUnit = null;
 		for (int i = 0; i < equipmentPanelsUI.transform.childCount; i++) Destroy(equipmentPanelsUI.transform.GetChild(i).gameObject);
 		gameObject.SetActive(false);
-		Debug.Log("Unit editor closed.");
+		if (ApplicationController.isDebug) Debug.Log("Unit editor closed.");
 	}
 
 	public void UpdateDomain(int domain) {
 		unitDomain = domain;
 		domainUI.SetValueWithoutNotify(domain);
 		LoadUIOptions();
-		Debug.Log("Unit editor domain changed to " + domain);
+		if (ApplicationController.isDebug) Debug.Log("Unit editor domain changed to " + domain);
 	}
 
 	public void UpdateUnit(Unit unit) {
@@ -343,7 +353,7 @@ public class UnitConstructor : MonoBehaviour {
 		else if (unit.GetType() == typeof(AerialUnit)) SetAerialUnit((AerialUnit)unit); 
 		else SetNavalUnit((NavalUnit)unit);
 		foreach (Equipment equipment in unit.equipmentList) AddEquipmentUI(equipment);
-		Debug.Log("Unit editor opened.");
+		if (ApplicationController.isDebug) Debug.Log("Unit editor opened.");
 	}
 
 	public void UpdateUnit(int domain) {
@@ -356,7 +366,7 @@ public class UnitConstructor : MonoBehaviour {
 		} else {
 			SetNavalUnit((NavalUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.StartPosition : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
 		}
-		Debug.Log("Unit editor spawner opened.");
+		if (ApplicationController.isDebug) Debug.Log("Unit editor spawner opened.");
 	}
 	#endregion
 }
