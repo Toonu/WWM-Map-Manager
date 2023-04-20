@@ -14611,9 +14611,9 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1075529761}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: 
+      - m_Target: {fileID: 1075529765}
+        m_TargetAssemblyTypeName: ApplicationController, Assembly-CSharp
+        m_MethodName: SetFullscreen
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -20128,9 +20128,9 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1075529761}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: 
+      - m_Target: {fileID: 1075529765}
+        m_TargetAssemblyTypeName: ApplicationController, Assembly-CSharp
+        m_MethodName: SetDebug
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

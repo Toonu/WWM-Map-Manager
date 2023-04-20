@@ -114,9 +114,17 @@ public class ApplicationController : MonoBehaviour {
 		if (fullscreen) {
 			Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.FullScreenWindow);
 		} else {
-			Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.MaximizedWindow);
+			Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.Windowed);
 		}
 		PlayerPrefs.SetInt("Fullscreen", fullscreen ? 1 : 0);
+		PlayerPrefs.Save();
+	}
+
+
+	public void SetDebug(bool debug) {
+		isDebug = debug;
+		Debug.Log("Debug set to " + debug + ".");
+		PlayerPrefs.SetInt("Debug", debug ? 1 : 0);
 		PlayerPrefs.Save();
 	}
 

@@ -21,6 +21,7 @@ public class UnitConstructor : MonoBehaviour {
 	internal void SetGroundUnit(GroundUnit newUnit) { 
 		if (constructedUnit != null) {
 			UnitManager.Instance.Despawn(constructedUnit.gameObject);
+			ClearEquipment();
 		}
 		UpdateDomain(0);
 		groundUnit = newUnit; 
@@ -32,6 +33,7 @@ public class UnitConstructor : MonoBehaviour {
 	internal void SetAerialUnit(AerialUnit newUnit) {
 		if (constructedUnit != null) {
 			UnitManager.Instance.Despawn(constructedUnit.gameObject);
+			ClearEquipment();
 		}
 		UpdateDomain(1);
 		aerialUnit = newUnit; 
@@ -43,6 +45,7 @@ public class UnitConstructor : MonoBehaviour {
 	internal void SetNavalUnit(NavalUnit newUnit) {
 		if (constructedUnit != null) {
 			UnitManager.Instance.Despawn(constructedUnit.gameObject);
+			ClearEquipment();
 		}
 		UpdateDomain(2);
 		navalUnit = newUnit;
@@ -335,9 +338,13 @@ public class UnitConstructor : MonoBehaviour {
 		navalUnit = null;
 		groundUnit = null;
 		constructedUnit = null;
-		for (int i = 0; i < equipmentPanelsUI.transform.childCount; i++) Destroy(equipmentPanelsUI.transform.GetChild(i).gameObject);
+		ClearEquipment();
 		gameObject.SetActive(false);
 		if (ApplicationController.isDebug) Debug.Log("Unit editor closed.");
+	}
+
+	private void ClearEquipment() {
+		for (int i = 0; i < equipmentPanelsUI.transform.childCount; i++) Destroy(equipmentPanelsUI.transform.GetChild(i).gameObject);
 	}
 
 	public void UpdateDomain(int domain) {
@@ -360,11 +367,11 @@ public class UnitConstructor : MonoBehaviour {
 		Editing = false;
 		string newIdentifier = UnitManager.GenerateName(domain);
 		if (domain == 0) {
-			SetGroundUnit((GroundUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.StartPosition : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
+			SetGroundUnit((GroundUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.transform.position : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
 		} else if (domain == 1) {
-			SetAerialUnit((AerialUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.StartPosition : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
+			SetAerialUnit((AerialUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.transform.position : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
 		} else {
-			SetNavalUnit((NavalUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.StartPosition : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
+			SetNavalUnit((NavalUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.transform.position : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
 		}
 		if (ApplicationController.isDebug) Debug.Log("Unit editor spawner opened.");
 	}
