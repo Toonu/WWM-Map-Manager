@@ -10,11 +10,12 @@ public class ApplicationController : MonoBehaviour {
 	public SheetSync server;
 	public string Username { private get; set; }
 	public string Password { private get; set; }
-	internal bool loggedIn = false;
 	#region Static methods and attributes.
-	internal static bool deletingMenus = false;
-	internal static bool sideB = false;
-	internal static bool admin = false;
+	internal static bool isLoggedIn = false;
+	internal static bool isDeletingMenus = false;
+	internal static bool isSideB = false;
+	internal static bool isAdmin = false;
+	internal static bool isDebug = true;
 	internal static string applicationVersion = "v0.0.7";
 	internal static CultureInfo culture = new("en-GB");
 	internal static ApplicationController Instance { get { return _instance; } }
@@ -34,10 +35,9 @@ public class ApplicationController : MonoBehaviour {
 		_instance = GetComponent<ApplicationController>();
 		generalPopup = transform.Find("UI/GeneralPopup").GetComponent<UIPopup>();
 		mainCamera = Camera.main.GetComponent<CameraController>();
-		admin = false;
+		isAdmin = false;
 		Debug.unityLogger.filterLogType = LogType.Log;
 		LoadSettings();
-		Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.FullScreenWindow);
 	}
 	private async void Start() {
 		//Loads basic UI elements and starts server syncing.
@@ -47,13 +47,13 @@ public class ApplicationController : MonoBehaviour {
 	}
 	private void Update() {
 		//Checks for context menus so they can be deleted when any is open.
-		if (deletingMenus && Input.GetKeyUp(KeyCode.Mouse0)) {
+		if (isDeletingMenus && Input.GetKeyUp(KeyCode.Mouse0)) {
 			foreach (GameObject child in GameObject.FindGameObjectsWithTag("ContextMenus")) {
 				if (child.name == "ContextMenu(Clone)") {
 					Destroy(child);
 				}
 			}
-			deletingMenus = false;
+			isDeletingMenus = false;
 		}
 	}
 
@@ -84,6 +84,21 @@ public class ApplicationController : MonoBehaviour {
 			transform.Find("UI/BottomPanel/Password/Text Area/Placeholder").GetComponent<TextMeshProUGUI>().text = "********";
 			transform.Find("UI/BottomPanel/Sticky").GetComponent<Toggle>().isOn = true;
 		}
+
+		if (PlayerPrefs.HasKey("Fullscreen")) {
+			bool fullscreen = EnumUtil.ConvertIntToBool(PlayerPrefs.GetInt("Fullscreen"));
+			if (fullscreen) {
+				Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.FullScreenWindow);
+			} else {
+				Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.MaximizedWindow);
+			}
+			transform.Find("UI/Settings/Fullscreen").GetComponent<Toggle>().SetIsOnWithoutNotify(fullscreen);
+		}
+
+		if (PlayerPrefs.HasKey("Debug")) {
+			isDebug = EnumUtil.ConvertIntToBool(PlayerPrefs.GetInt("Debug"));
+			transform.Find("UI/Settings/Debug").GetComponent<Toggle>().SetIsOnWithoutNotify(isDebug);
+		}
 	}
 
 	/// <summary>
@@ -92,6 +107,16 @@ public class ApplicationController : MonoBehaviour {
 	/// <param name="stick">If sticky</param>
 	public void SetStickyCredentials(bool stick) {
 		PlayerPrefs.SetInt("KeepLogin", Convert.ToInt16(stick));
+		PlayerPrefs.Save();
+	}
+
+	public void SetFullscreen(bool fullscreen) {
+		if (fullscreen) {
+			Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.FullScreenWindow);
+		} else {
+			Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.MaximizedWindow);
+		}
+		PlayerPrefs.SetInt("Fullscreen", fullscreen ? 1 : 0);
 		PlayerPrefs.Save();
 	}
 
@@ -115,39 +140,42 @@ public class ApplicationController : MonoBehaviour {
 	/// Logs in the user based on input fields in the settings.
 	/// </summary>
 	public void Login() {
-		//Sidechange swaps the unit icons if the sideB changes.
+		//Sidechange swaps the unit icons if the isSideB changes.
 		bool sideChange = false;
 		//Login logic based on three user approach
 		if (Username == "A" && Password == SheetSync.passwordA) {
-			if (sideB) {
+			if (isSideB) {
 				sideChange = true;
 			}
-			loggedIn = true;
-			sideB = false;
-			admin = false;
+			isLoggedIn = true;
+			isSideB = false;
+			isAdmin = false;
+			transform.Find("UI/Settings/Debug").gameObject.SetActive(false);
 		} else if (Username == "B" && Password == SheetSync.passwordB) {
-			if (!sideB) {
+			if (!isSideB) {
 				sideChange = true;
 			}
-			loggedIn = true;
-			sideB = true;
-			admin = false;
+			isLoggedIn = true;
+			isSideB = true;
+			isAdmin = false;
+			transform.Find("UI/Settings/Debug").gameObject.SetActive(false);
 		} else if (Username == "Admin" && Password == SheetSync.passwordAdmin) {
-			if (sideB) {
+			if (isSideB) {
 				sideChange = true;
 			}
-			loggedIn = true;
-			sideB = false;
-			admin = true;
+			isLoggedIn = true;
+			isSideB = false;
+			isAdmin = true;
+			transform.Find("UI/Settings/Debug").gameObject.SetActive(true);
 		}
 		//Saving credentials to registry
-		if (loggedIn && PlayerPrefs.GetInt("KeepLogin") == 1) {
+		if (isLoggedIn && PlayerPrefs.GetInt("KeepLogin") == 1) {
 			PlayerPrefs.SetString("username", Username);
 			PlayerPrefs.SetString("password", Password);
 			LoadSettings();
 		}
 		//Do when user logs in
-		if (loggedIn) {
+		if (isLoggedIn) {
 			generalPopup.PopUp("Logged In!");
 			transform.Find("UI/Login").gameObject.SetActive(false);
 			if (sideChange) {

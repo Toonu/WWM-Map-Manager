@@ -33,49 +33,45 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 		if (eventData.button == PointerEventData.InputButton.Right) {
 			click = eventData;
 			contextMenuItems.Clear();
-			if (eventData.pointerClick.GetComponent<Unit>() != null && eventData.pointerClick.GetComponent<Unit>().SideB == ApplicationController.sideB) {
+			if (eventData.pointerClick.GetComponent<Unit>() != null && (eventData.pointerClick.GetComponent<Unit>().SideB == ApplicationController.isSideB || ApplicationController.isAdmin)) {
 				sideB = eventData.pointerClick.GetComponent<Unit>().SideB;
 				position = eventData.pointerCurrentRaycast.screenPosition;
-				if (ApplicationController.admin) {
+				if (ApplicationController.isAdmin) {
 					contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
 					contextMenuItems.Add(new ContextMenuItem("Despawn", sampleButton, delete));
 					contextMenuItems.Add(new ContextMenuItem("Soft Reset", sampleButton, softReset));
 				}
 				contextMenuItems.Add(new ContextMenuItem("Reset", sampleButton, reset));
 
-			} else if (eventData.pointerClick.GetComponent<Base>() != null && eventData.pointerClick.GetComponent<Base>().SideB == ApplicationController.sideB) {
+			} else if (eventData.pointerClick.GetComponent<Base>() != null && (eventData.pointerClick.GetComponent<Base>().SideB == ApplicationController.isSideB || ApplicationController.isAdmin)) {
 				sideB = eventData.pointerClick.GetComponent<Base>().SideB;
 				position = eventData.pointerCurrentRaycast.screenPosition;
 				contextMenuItems.Add(new ContextMenuItem("Spawn", sampleButton, spawn));
-				if (ApplicationController.admin) {
+				if (ApplicationController.isAdmin) {
 					contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
 					contextMenuItems.Add(new ContextMenuItem("Despawn", sampleButton, delete));
 					contextMenuItems.Add(new ContextMenuItem("Reset", sampleButton, reset));
 				}
 			} else {
-				sideB = ApplicationController.sideB;
-				if (ApplicationController.admin) {
+				sideB = ApplicationController.isSideB;
+				if (ApplicationController.isAdmin) {
 					contextMenuItems.Add(new ContextMenuItem("Spawn", sampleButton, spawn));
 				}
 				contextMenuItems.Add(new ContextMenuItem("Spawn Base", sampleButton, spawnBase));
 				position = eventData.pointerCurrentRaycast.screenPosition;
 			}
 			ContextMenu.Instance.CreateContextMenu(contextMenuItems, position);
-			ApplicationController.deletingMenus = true;
+			ApplicationController.isDeletingMenus = true;
 		}
 	}
 
 	void SpawnAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		UnitConstructor constructor = UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>();
-		UnitConstructor.Editing = false;
-		constructor.Awake();
-		
-
-		if (GetComponent<Base>() != null) {
-			constructor.UpdateDomain((int)GetComponent<Base>().BaseType);
+		if (gameObject.GetComponent<Base>() != null) {
+			constructor.UpdateUnit((int)gameObject.GetComponent<Base>().BaseType);
 		} else {
-			constructor.UpdateDomain(0);
+			constructor.UpdateUnit(0);
 		}
 		constructor.UpdatePosition(new Vector3(click.pointerPressRaycast.worldPosition.x, click.pointerPressRaycast.worldPosition.y, -0.15f));
 		constructor.UpdateAffiliation(sideB);
@@ -94,10 +90,8 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 	void EditAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		if (GetComponent<Base>() == null) {
-			UnitConstructor.Editing = true;
-			UnitManager.Instance.unitMenu.SetActive(true);
 			UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>().UpdateUnit(GetComponent<Unit>());
-
+			UnitManager.Instance.unitMenu.SetActive(true);
 		} else {
 			UnitManager.Instance.baseMenu.GetComponent<BaseConstructor>().UpdateBase(GetComponent<Base>());
 			UnitManager.Instance.baseMenu.SetActive(true);

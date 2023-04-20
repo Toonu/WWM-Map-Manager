@@ -16,7 +16,7 @@ public class NavalUnit : Unit {
 	}
 
 	internal override void ChangeAffiliation() {
-		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, ApplicationController.sideB != SideB);
+		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, ApplicationController.isSideB != SideB);
 	}
 
 	internal override void ChangeSpecialization(int newSpecialization) {
@@ -28,6 +28,16 @@ public class NavalUnit : Unit {
 
 	public override void SetUnitTier(int echelon) {
 		base.SetUnitTier(echelon+4);
+	}
+
+	internal override void RecalculateAttributes() {
+		base.RecalculateAttributes();
+		//Returns the most numerous armour-traction type.
+		ChangeSpecialization(EnumUtil.GetUnitTier(2, equipmentList.Sum(vehicle => vehicle.Amount)));
+	}
+
+	internal override int GetSpecialization() {
+		return (int)specialization;
 	}
 }
 

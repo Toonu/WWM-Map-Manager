@@ -59,7 +59,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	internal List<Equipment> equipmentList;
 
 	/// <summary>
-	/// Changes unit affiliation textures based on user sideB and unit sideB.
+	/// Changes unit affiliation textures based on user isSideB and unit isSideB.
 	/// </summary>
 	internal abstract void ChangeAffiliation();
 	/// <summary>
@@ -129,10 +129,12 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	/// </summary>
 	/// <param name="newEquipment">List of Equipment to add.</param>
 	internal void AddEquipment(List<Equipment> newEquipment) {
+		Debug.Log($"[{ID}][{name}] Adding new equipment list.");
 		equipmentList = newEquipment.ToList();
 		RecalculateAttributes();
 	}
 	internal void AddEquipment(Equipment newEquipment) {
+		Debug.Log($"[{ID}][{name}] Adding {newEquipment.Amount} of equipment {newEquipment.name}.");
 		equipmentList.Add(newEquipment);
 		RecalculateAttributes();
 	}
@@ -146,8 +148,8 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		Destroy(equipment.gameObject);
 		RecalculateAttributes();
 	}
-	internal void RecalculateAttributes() {
-
+	internal virtual void RecalculateAttributes() {
+		Debug.Log($"[{ID}][{name}] Recalculating unit attributes.");
 		//Equipment UI label.
 		equipmentTextUI.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}"));
 		equipmentList.ForEach(eq => Debug.Log($"[{ID}][{name}] Adding Equipment | {eq.Amount} {eq.equipmentName}"));
@@ -161,8 +163,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		WeaponRangeCircle.transform.localScale = new Vector3(212 * weaponRange, 212 * weaponRange, 0);
 		ResizeMovementCircle();
 
-		//Unit icon.
-		//TODO
+		//Unit icon in separate Objects.
 	}
 
 	internal float sightRange = 0.25f;
@@ -173,11 +174,11 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	public Vector3 StartPosition { get { return startPosition; } set { startPosition = value; ResizeMovementCircle(); Debug.Log($"[{ID}][{name}] Soft reset at [{transform.position}]"); } }
 	private Vector3 startPosition;
 	public void OnDrag(PointerEventData eventData) {
-		if (!ApplicationController.admin && ApplicationController.sideB != SideB) {
+		if (!ApplicationController.isAdmin && ApplicationController.isSideB != SideB) {
 			return;
 		}
 		Vector3 newPosition = eventData.pointerCurrentRaycast.worldPosition;
-		newPosition = Vector3.ClampMagnitude(newPosition - StartPosition, ApplicationController.admin ? 9999999f : movementRange) + StartPosition;
+		newPosition = Vector3.ClampMagnitude(newPosition - StartPosition, ApplicationController.isAdmin ? 9999999f : movementRange) + StartPosition;
 
 		transform.position = new Vector3(newPosition.x, newPosition.y, -0.15f);
 		ResizeMovementCircle();
@@ -193,7 +194,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	/// </summary>
 	/// <param name="eventData"></param>
 	public void OnPointerEnter(PointerEventData eventData) {
-		if (!ApplicationController.admin && ApplicationController.sideB != SideB) {
+		if (!ApplicationController.isAdmin && ApplicationController.isSideB != SideB) {
 			return;
 		}
 		sightRangeCircle.SetActive(true);
@@ -230,4 +231,6 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	public override int GetHashCode() {
 		return ID;
 	}
+
+	internal abstract int GetSpecialization();
 }

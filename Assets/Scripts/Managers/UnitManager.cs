@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class UnitManager : MonoBehaviour {
@@ -14,6 +15,7 @@ public class UnitManager : MonoBehaviour {
 
 		unitMenu = unitUIMenus.transform.Find("UnitMenu").gameObject;
 		baseMenu = unitUIMenus.transform.Find("BaseMenu").gameObject;
+		unitMenu.GetComponent<UnitConstructor>().Awake();
 	}
 
 	#region Textures
@@ -174,6 +176,22 @@ public class UnitManager : MonoBehaviour {
 		} else {
 			list.Add(obj);
 		}
+	}
+
+	public static string GenerateName(int domain) {
+		System.Random random = new();
+		bool notFound = true;
+		while (notFound) {
+			// Generate a random name
+			string newIdentifier = random.Next(1, 100).ToString();
+			// Check if the name is already taken
+			foreach (Unit u in domain == 0 ? Instance.groundUnits.Cast<Unit>() : domain == 1 ? Instance.aerialUnits.Cast<Unit>() : Instance.navalUnits.Cast<Unit>()) {
+				if (u != null && u.name != newIdentifier) {
+					return newIdentifier;
+				}
+			}
+		}
+		return random.Next(1, 100).ToString();
 	}
 
 	#endregion

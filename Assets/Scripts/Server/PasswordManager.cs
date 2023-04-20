@@ -9,7 +9,7 @@ public static class PasswordManager {
 		using SHA256 sha256 = SHA256.Create();
 		byte[] hashedPassword = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
 
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new();
 		for (int i = 0; i < hashedPassword.Length; i++) {
 			sb.Append(hashedPassword[i].ToString("x2"));
 		}

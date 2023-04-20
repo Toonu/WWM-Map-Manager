@@ -6,6 +6,7 @@ public class BaseConstructor : MonoBehaviour {
 	private Base constructedBase;
 	private TMP_Dropdown type;
 	private TMP_InputField baseName;
+	public static bool Editing = false;
 
 	public void Awake() {
 		type = transform.Find("BaseType").GetComponent<TMP_Dropdown>();
@@ -13,7 +14,7 @@ public class BaseConstructor : MonoBehaviour {
 		//Populates the UI with base options.
 		type.ClearOptions();
 		List<string> options = new() { "Base", "Airfield", "Port" };
-		if (ApplicationController.admin) {
+		if (ApplicationController.isAdmin) {
 			options.Add("Spawn");
 		}
 
@@ -50,7 +51,7 @@ public class BaseConstructor : MonoBehaviour {
 	/// <summary>
 	/// Updates the constructed base affiliation attribute.
 	/// </summary>
-	/// <param name="sideB">New sideB</param>
+	/// <param name="sideB">New isSideB</param>
 	public void UpdateAffiliation(bool sideB) {
 		constructedBase.ChangeAffiliation(sideB);
 	}
@@ -59,6 +60,7 @@ public class BaseConstructor : MonoBehaviour {
 	/// </summary>
 	/// <param name="b"></param>
 	public void UpdateBase(Base b) {
+		Editing = true;
 		Debug.Log("Base editor opened.");
 		constructedBase = b;
 	}
@@ -66,19 +68,22 @@ public class BaseConstructor : MonoBehaviour {
 	/// Creates a new empty base for construction.
 	/// </summary>
 	public void UpdateBase() {
+		Editing = false;
 		Debug.Log("Base editor opened.");
 		constructedBase = UnitManager.Instance.SpawnBase("NewBase", Vector3.zero, BaseType.Base, false);
 	}
 
 	public void Cancel() {
 		Debug.Log("Base editor canceled.");
-		Destroy(constructedBase.gameObject);
+		if (!Editing) {
+			Destroy(constructedBase.gameObject);
+		}
 		gameObject.SetActive(false);
 	}
 
 	public void Close() {
 		Debug.Log("Base editor closed.");
-		if (!ApplicationController.admin) {
+		if (!ApplicationController.isAdmin) {
 			SheetSync.UpdatePoints(-100);
 		}
 		gameObject.SetActive(false);

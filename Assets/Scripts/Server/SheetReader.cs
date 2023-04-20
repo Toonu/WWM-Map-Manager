@@ -17,8 +17,8 @@ public class SheetReader : MonoBehaviour {
 
 	void Awake() {
 		Initiate();
-		ServiceAccountCredential.Initializer initializer = new ServiceAccountCredential.Initializer(serviceAccountID);
-		ServiceAccountCredential credential = new ServiceAccountCredential(
+		ServiceAccountCredential.Initializer initializer = new(serviceAccountID);
+		ServiceAccountCredential credential = new(
 			initializer.FromPrivateKey(private_key)
 		);
 
@@ -55,7 +55,7 @@ public class SheetReader : MonoBehaviour {
 	public void SetSheetRange(IList<IList<object>> dataArray, string range) {
 		service.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range).ExecuteAsync().ContinueWith(task => {
 			// Build the update request with the new data
-			ValueRange convertedData = new ValueRange {
+			ValueRange convertedData = new() {
 				Values = dataArray,
 				Range = range
 			};

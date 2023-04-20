@@ -14,7 +14,7 @@ public class AerialUnit : Unit {
 	}
 
 	internal override void ChangeAffiliation() {
-		bool isEnemy = ApplicationController.sideB != SideB;
+		bool isEnemy = ApplicationController.isSideB != SideB;
 		if (isEnemy) {
 			iconImage.transform.localScale = new Vector3(0.8f, 0.8f, 1);
 		} else {
@@ -28,6 +28,22 @@ public class AerialUnit : Unit {
 		specialization = (AerialSpecialization)newSpecialization;
 		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, SideB);
 		Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
+	}
+
+	internal override int GetSpecialization() {
+		return (int)specialization;
+	}
+
+	internal override void RecalculateAttributes() {
+		base.RecalculateAttributes();
+		//Returns the most numerous armour-traction type.
+		SetUnitTier(EnumUtil.GetUnitTier(1, equipmentList.Sum(vehicle => vehicle.Amount)));
+
+		//Returns the most numerous unit type in the Unit
+		ChangeSpecialization((int)equipmentList.GroupBy(equipment => equipment.specialization)
+							.Select(group => new { Specialization = group.Key, Amount = group.Sum(equipment => equipment.Amount) })
+							.OrderByDescending(group => group.Amount)
+							.ToList().FirstOrDefault()?.Specialization);
 	}
 }
 

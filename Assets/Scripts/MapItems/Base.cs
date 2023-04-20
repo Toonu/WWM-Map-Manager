@@ -14,7 +14,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 		set {
 			baseType = value;
 			icon.material.mainTexture = UnitManager.Instance.GetBaseTexture(BaseType);
-			icon.material.color = SideB == ApplicationController.sideB ? Color.black : Color.red;
+			icon.material.color = SideB == ApplicationController.isSideB ? Color.black : Color.red;
 			icon.transform.localScale = BaseType == BaseType.Airfield ? new Vector3(1.5f, 1, 1) : Vector3.one;
 		}
 	}
@@ -40,7 +40,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 	#region Attribute Get/Setters
 
 	internal void ChangeAffiliation() {
-		bool isEnemy = ApplicationController.sideB != SideB;
+		bool isEnemy = ApplicationController.isSideB != SideB;
 		icon.material.color = isEnemy ? Color.red : Color.black;
 	}
 
@@ -62,7 +62,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 	/// Drags the unit up to its maximal range based on range.
 	/// </summary>
 	public void OnDrag(PointerEventData eventData) {
-		if (!ApplicationController.admin) {
+		if (!ApplicationController.isAdmin) {
 			return;
 		}
 		transform.position = new Vector3(eventData.pointerCurrentRaycast.worldPosition.x, eventData.pointerCurrentRaycast.worldPosition.y, -0.1f);

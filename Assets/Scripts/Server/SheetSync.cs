@@ -104,17 +104,15 @@ public class SheetSync : MonoBehaviour {
 		}
 
 		/* TODO
-		 * Check admin menus, since in build I could see there were movement and transport icons present on naval unit and also other issues.
-		* Equipment-centric unit creation and modification.
+		 * Editing menu - editing domain of already existing unit will move its position!
 		* Add debug logs everywhere
 		* Turn system
-		* Airborne and marine units cost more points
 		* Keep movement range in sheet due to non finished turns
-		* Base spawning menu
-		* Team points - removal on spawning new units and so on
+		* Transport type of unit based on equipment
+		* Team points
 		* Fog of War
 		* Drawing things by user, lines eg
-		* Zooming out merging of units, 
+		* Zooming out generates HQ units centered on average of positions of small units with their equipment.
 		* artillery and dice rolls
 		* 
 		* Terrain based movement and base spawning
@@ -200,7 +198,7 @@ public class SheetSync : MonoBehaviour {
 	}
 
 	public static void UpdatePoints(float addition) {
-		if (ApplicationController.sideB) {
+		if (ApplicationController.isSideB) {
 			pointsB += addition;
 			pointsLabel.text = $"Pts:{pointsB}";
 		} else {

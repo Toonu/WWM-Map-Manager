@@ -8,14 +8,14 @@ public class Equipment : MonoBehaviour {
 	internal float weaponRange;
 	private int amount;
 	internal int Amount { get { return amount; } set { amount = value; name = $"{equipmentName}:{amount}"; } }
-	internal int cost;
+	internal float cost;
 	internal int sideB;
 	internal int domain;
 	internal int specialization;
 	internal int movement;
 	internal int transportation;
 
-	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, int cost, int sideB, int domain, int specialization, int movement, int transportation) {
+	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, float cost, int sideB, int domain, int specialization, int movement, int transportation) {
 		this.equipmentName = equipmentName;
 		Amount = amount;
 		this.movementRange = movementRange;

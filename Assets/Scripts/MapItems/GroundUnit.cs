@@ -20,8 +20,8 @@ public class GroundUnit : Unit {
 	}
 
 	internal override void ChangeAffiliation() {
-		bool isEnemy = ApplicationController.sideB != SideB;
-		//True if the unit is on the same sideB as the user
+		bool isEnemy = ApplicationController.isSideB != SideB;
+		//True if the unit is on the same isSideB as the user
 		if (isEnemy) {
 			iconImage.transform.localScale = Vector3.one;
 			movementTexture.transform.localScale = Vector3.one;
@@ -50,6 +50,30 @@ public class GroundUnit : Unit {
 		this.transportModifier = transportModifier;
 		transportTexture.material.mainTexture = UnitManager.Instance.GetTransportTexture(this, SideB);
 		Debug.Log($"[{ID}][{name}] Transport changed | {transportModifier}");
+	}
+
+	internal override int GetSpecialization() {
+		return (int)specialization;
+	}
+
+	internal override void RecalculateAttributes() {
+		base.RecalculateAttributes();
+		//Returns the most numerous armour/traction type.
+		ChangeSpecialization((GroundMovementType)equipmentList.GroupBy(equipment => equipment.movement).OrderByDescending(group => group.Count()).FirstOrDefault()?.Key);
+		//Transportation
+		GroundTransportType type = GroundTransportType.None;
+		if (equipmentList.Select(e => e.transportation).Distinct().Count() == 1) {
+			type = (GroundTransportType)equipmentList.First().transportation;
+		}
+		ChangeSpecialization(type);
+		//Tier
+		SetUnitTier(EnumUtil.GetUnitTier(0, equipmentList.Sum(vehicle => vehicle.Amount)));
+		//Returns the most numerous unit specialization in the Unit
+		ChangeSpecialization((int)equipmentList.GroupBy(equipment => equipment.specialization)
+							.Select(group => new { Specialization = group.Key, Amount = group.Sum(equipment => equipment.Amount) })
+							.OrderByDescending(group => group.Amount)
+							.ToList().FirstOrDefault()?.Specialization);
+		
 	}
 }
 

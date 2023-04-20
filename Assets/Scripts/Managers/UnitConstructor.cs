@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.UI.CanvasScaler;
 
 public class UnitConstructor : MonoBehaviour {
+	#region General Attributes
 	internal int unitDomain;
 	internal Unit constructedUnit;
 	internal Equipment constructedEquipment;
@@ -14,28 +15,46 @@ public class UnitConstructor : MonoBehaviour {
 	private GroundUnit groundUnit;
 	private AerialUnit aerialUnit;
 	private NavalUnit navalUnit;
-	private List<Equipment> equipmentTemplates = new List<Equipment>();
+	private List<Equipment> equipmentTemplates = new();
 
 	public GroundUnit GetGroundUnit() => groundUnit;
-	internal void SetGroundUnit(GroundUnit value) { 
-		groundUnit = value; 
-		constructedUnit = value; 
-		UpdateMovementModifier((int)value.movementModifier);
-		UpdateTransportModifier((int)value.transportModifier);
-		UpdateSpecialization((int)value.specialization);
+	internal void SetGroundUnit(GroundUnit newUnit) { 
+		if (constructedUnit != null) {
+			UnitManager.Instance.Despawn(constructedUnit.gameObject);
+		}
+		UpdateDomain(0);
+		groundUnit = newUnit; 
+		constructedUnit = newUnit;
+		UpdateOptions();
 	}
 
 	public AerialUnit GetAerialUnit() => aerialUnit;
-	internal void SetAerialUnit(AerialUnit value) { aerialUnit = value; constructedUnit = value; UpdateSpecialization((int)value.specialization); }
+	internal void SetAerialUnit(AerialUnit newUnit) {
+		if (constructedUnit != null) {
+			UnitManager.Instance.Despawn(constructedUnit.gameObject);
+		}
+		UpdateDomain(1);
+		aerialUnit = newUnit; 
+		constructedUnit = newUnit;
+		UpdateOptions();
+	}
 
 	public NavalUnit GetNavalUnit() => navalUnit;
-	internal void SetNavalUnit(NavalUnit value) { navalUnit = value; constructedUnit = value; UpdateSpecialization((int)value.specialization); }
+	internal void SetNavalUnit(NavalUnit newUnit) {
+		if (constructedUnit != null) {
+			UnitManager.Instance.Despawn(constructedUnit.gameObject);
+		}
+		UpdateDomain(2);
+		navalUnit = newUnit;
+		constructedUnit = newUnit;
+		UpdateOptions();
+	}
 
 	public static bool Editing = false;
 
 	//private int higherUnitIdentifierNumber = 0;
-
-	#region UI
+	#endregion
+	#region UI Attributes
 	private TextMeshProUGUI tierUI;
 	private TMP_Dropdown domainUI;
 	private TMP_Dropdown movementUI;
@@ -47,7 +66,7 @@ public class UnitConstructor : MonoBehaviour {
 	private UITextFloatAppender sightLabelUI;
 	private UITextFloatAppender rangeLabelUI;
 	#endregion
-	#region EquipmentUI
+	#region EquipmentUI Attributes
 	private TMP_InputField equipmentAmountUI;
 	private TMP_Dropdown equipmentTypeUI;
 	private UITextFloatAppender equipmentCostLabelUI;
@@ -57,6 +76,7 @@ public class UnitConstructor : MonoBehaviour {
 	public GameObject equipmentPanel;
 	#endregion
 
+	#region UI Updates
 	public void Awake() {
 		domainUI = transform.GetChild(1).Find("UnitDomain").GetComponent<TMP_Dropdown>();
 		specializationUI = transform.GetChild(1).Find("UnitSpecialization").GetComponent<TMP_Dropdown>();
@@ -75,17 +95,10 @@ public class UnitConstructor : MonoBehaviour {
 		equipmentSightLabelUI = transform.GetChild(3).Find("EqSight").GetComponent<UITextFloatAppender>();
 		equipmentRangeLabelUI = transform.GetChild(3).Find("EqRange").GetComponent<UITextFloatAppender>();
 		equipmentPanelsUI = transform.GetChild(4).gameObject;
-
 	}
-
-	private void OnEnable() {
-		UpdateUI();
-		UpdateEquipmentUI();
-	}
-
-	public void UpdateUI() {
+	private void LoadUIOptions() {
 		string[] enumNames;
-		List<TMP_Dropdown.OptionData> options = new List<TMP_Dropdown.OptionData>();
+		List<TMP_Dropdown.OptionData> options = new();
 
 		//Specialization domain switch
 		switch (unitDomain) {
@@ -94,86 +107,62 @@ public class UnitConstructor : MonoBehaviour {
 			for (int i = 0; i < enumNames.Length; i++) {
 				options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.aerialSpecialization[i]));
 			}
-			specializationUI.value = (int)GetAerialUnit().specialization;
 			break;
 			case 2:
 			enumNames = Enum.GetNames(typeof(NavalSpecialization));
 			for (int i = 0; i < enumNames.Length; i++) {
 				options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.navalSpecialization[i]));
 			}
-			specializationUI.value = (int)GetNavalUnit().specialization;
 			break;
 			default:
 			enumNames = Enum.GetNames(typeof(GroundSpecialization));
-			//HQ assignable only by admin
-			for (int i = 0; i < enumNames.Length - (ApplicationController.admin ? 1 : 0); i++) {
+			//HQ assignable only by isAdmin
+			for (int i = 0; i < enumNames.Length - (ApplicationController.isAdmin ? 1 : 0); i++) {
 				options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.groundSpecialization[i]));
 			}
-			movementUI.value = (int)GetGroundUnit().movementModifier;
-			transportUI.value = (int)GetGroundUnit().transportModifier;
-			specializationUI.value = (int)GetGroundUnit().specialization;
 			break;
 		}
 
 		specializationUI.ClearOptions();
 		specializationUI.AddOptions(options);
 
-		
-
-		UpdateName(UnitManager.Instance.GetLast().ToString());
-		tierUI.text = constructedUnit.GetUnitTierText();
-
-		nameUI.gameObject.SetActive(ApplicationController.admin);
-		specializationUI.gameObject.SetActive(ApplicationController.admin);
-		movementUI.gameObject.SetActive(ApplicationController.admin);
-		transportUI.gameObject.SetActive(ApplicationController.admin);
-		domainUI.gameObject.SetActive(ApplicationController.admin);
-
-		//Removal of non-domain attributes
-		switch (unitDomain) {
-			case 0:
-				if (ApplicationController.admin) {
-					movementUI.gameObject.SetActive(true);
-					enumNames = Enum.GetNames(typeof(GroundMovementType));
-					options = new List<TMP_Dropdown.OptionData>();
-					for (int i = 0; i < enumNames.Length; i++) {
-						options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.movementType[i]));
-					}
-					movementUI.ClearOptions();
-					movementUI.AddOptions(options);
-					transportUI.gameObject.SetActive(true);
-					enumNames = Enum.GetNames(typeof(GroundTransportType));
-					options = new List<TMP_Dropdown.OptionData>();
-					for (int i = 0; i < enumNames.Length; i++) {
-						options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.transportType[i]));
-					}
-					transportUI.ClearOptions();
-					transportUI.AddOptions(options);
-				}
-				break;
-			default:
-				movementUI.gameObject.SetActive(false);
-				transportUI.gameObject.SetActive(false);
-				imageUI.transform.GetChild(2).gameObject.SetActive(false);
-				break;
-		}	
-	}
-
-	#region Equipment
-	public void UpdateEquipmentUI() {
-		equipmentTypeUI.ClearOptions();
-		List<string> eqNames = new();
-		if (constructedUnit.SideB) {
-			eqNames = EquipmentManager.equipmentHostile[unitDomain].Select(e => e.equipmentName).ToList();
-			equipmentTemplates = EquipmentManager.equipmentHostile[unitDomain];
-		} else {
-			eqNames = EquipmentManager.equipmentFriendly[unitDomain].Select(e => e.equipmentName).ToList();
-			equipmentTemplates = EquipmentManager.equipmentFriendly[unitDomain];
+		//Generate new name if creating new unit
+		if (!Editing) {
+			UnityEngine.Random.Range(0, 100);
+            System.Random random = new();
 		}
-		equipmentTypeUI.AddOptions(eqNames);
-		SetEquipmentType(0);
+		nameUI.gameObject.SetActive(ApplicationController.isAdmin);
+		specializationUI.gameObject.SetActive(ApplicationController.isAdmin);
+		movementUI.gameObject.SetActive(ApplicationController.isAdmin);
+		transportUI.gameObject.SetActive(ApplicationController.isAdmin);
+		domainUI.gameObject.SetActive(ApplicationController.isAdmin);
+
+		//Removal of non-domain attributes and images
+		if (unitDomain == 0 && ApplicationController.isAdmin) {
+			movementUI.gameObject.SetActive(true);
+			enumNames = Enum.GetNames(typeof(GroundMovementType));
+			options = new List<TMP_Dropdown.OptionData>();
+			for (int i = 0; i < enumNames.Length; i++) {
+				options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.movementType[i]));
+			}
+			movementUI.ClearOptions();
+			movementUI.AddOptions(options);
+			transportUI.gameObject.SetActive(true);
+			enumNames = Enum.GetNames(typeof(GroundTransportType));
+			options = new List<TMP_Dropdown.OptionData>();
+			for (int i = 0; i < enumNames.Length; i++) {
+				options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.transportType[i]));
+			}
+			transportUI.ClearOptions();
+			transportUI.AddOptions(options);
+			imageUI.transform.GetChild(2).gameObject.SetActive(true);
+		} else {
+			movementUI.gameObject.SetActive(false);
+			transportUI.gameObject.SetActive(false);
+			imageUI.transform.GetChild(2).gameObject.SetActive(false);
+		}
 	}
-	private void UpdateEquipmentStatisticsUI() {
+	private void UpdateStatLabels() {
 		equipmentCostLabelUI.UpdateText(constructedEquipment.cost * constructedEquipment.Amount);
 		equipmentSightLabelUI.UpdateText(constructedEquipment.sightRange);
 		equipmentRangeLabelUI.UpdateText(constructedEquipment.movementRange);
@@ -190,52 +179,57 @@ public class UnitConstructor : MonoBehaviour {
 			rangeLabelUI.UpdateText(constructedEquipment.movementRange);
 		}
 	}
-
-	public void UpdateUnitIcon() {
+	private void UpdateOptions() {
 		//Returns the most numerous armour-traction type.
-		UpdateMovementModifier(constructedUnit.equipmentList
-		.GroupBy(equipment => equipment.movement)
-		.OrderByDescending(group => group.Count())
-		.FirstOrDefault()?.Key ?? 0);
-
-		int tier = EnumUtil.GetUnitTier(unitDomain, constructedUnit.equipmentList.Sum(vehicle => vehicle.Amount));
-
-		if (unitDomain != 2) {
-			//Returns the most numerous unit type in the Unit
-			UpdateSpecialization(constructedUnit.equipmentList.GroupBy(equipment => equipment.specialization)
-								.Select(group => new { Specialization = group.Key, Amount = group.Sum(equipment => equipment.Amount) })
-								.OrderByDescending(group => group.Amount)
-								.ToList().FirstOrDefault()?.Specialization ?? 0);
-			constructedUnit.SetUnitTier(tier);
-		} else {
-			UpdateSpecialization(tier);
+		if (groundUnit != null) {
+			movementUI.SetValueWithoutNotify((int)groundUnit.movementModifier);
+			transportUI.SetValueWithoutNotify((int)groundUnit.transportModifier);
 		}
 
+		nameUI.text = constructedUnit.name;
 		tierUI.text = constructedUnit.GetUnitTierText();
-	}
+		specializationUI.SetValueWithoutNotify(constructedUnit.GetSpecialization());
 
-	public void SetEquipmentAmount(int newAmount) {
-		constructedEquipment.Amount = newAmount;
-		equipmentAmountUI.text = newAmount.ToString();
-		UpdateEquipmentStatisticsUI();
+		//Equipment list and set to 0.
+		equipmentTypeUI.ClearOptions();
+		List<string> eqNames = new();
+		if (constructedUnit.SideB) {
+			eqNames = EquipmentManager.equipmentFriendly[unitDomain].Select(e => e.equipmentName).ToList();
+			equipmentTemplates = EquipmentManager.equipmentFriendly[unitDomain];
+		} else {
+			eqNames = EquipmentManager.equipmentHostile[unitDomain].Select(e => e.equipmentName).ToList();
+			equipmentTemplates = EquipmentManager.equipmentHostile[unitDomain];
+		}
+		equipmentTypeUI.AddOptions(eqNames);
+		SetEquipmentType(0);
 	}
+	#endregion
+
+	#region Modifying Unit Equipment
 	public void SetEquipmentAmount(string amount) {
 		if (string.IsNullOrEmpty(amount)) {
 			ApplicationController.generalPopup.PopUp("Amount must be greater than 0", 5);
-			SetEquipmentAmount(10);
-		} else { 
-			SetEquipmentAmount(Convert.ToInt16(amount)); 
+			SetEquipmentAmount(1);
+		} else {
+			SetEquipmentAmount(Convert.ToInt16(amount));
 		}
+	}
+	public void SetEquipmentAmount(int newAmount) {
+		constructedEquipment.Amount = newAmount;
+		equipmentAmountUI.text = newAmount.ToString();
+		Debug.Log("Set equipment amount to " + newAmount);
+		UpdateStatLabels();
 	}
 	public void SetEquipmentType(int type) {
 		constructedEquipment = equipmentTemplates[type];
-		SetEquipmentAmount(constructedEquipment.Amount); 
+		Debug.Log("Set equipment type to " + constructedEquipment.equipmentName);
 	}
 
 	public void RemoveEquipment(Equipment equipment, bool refund = false) {
 		if (refund) SheetSync.UpdatePoints(equipment.cost * equipment.Amount);
+		Debug.Log("Removing equipment " + equipment);
 		constructedUnit.RemoveEquipment(equipment);
-		UpdateUnitIcon();
+		UpdateOptions();
 	}
 	public void AddEquipment() {
 		foreach (Equipment equipment in constructedUnit.equipmentList) {
@@ -244,12 +238,13 @@ public class UnitConstructor : MonoBehaviour {
 				return;
 			}
 		}
+		Debug.Log("Adding equipment " + constructedEquipment);
 		
 		Equipment newEquipment = EquipmentManager.CreateEquipment(constructedEquipment, Convert.ToInt16(equipmentAmountUI.text));
 		SheetSync.UpdatePoints(-newEquipment.cost * newEquipment.Amount);
 		constructedUnit.AddEquipment(newEquipment);
 		AddEquipmentUI(newEquipment);
-		UpdateUnitIcon();
+		UpdateOptions();
 	}
 	private void AddEquipmentUI(Equipment equipment) {
 		GameObject equipmentLabel = Instantiate(equipmentPanel, equipmentPanelsUI.transform);
@@ -258,7 +253,7 @@ public class UnitConstructor : MonoBehaviour {
 		Button sellButton = equipmentLabel.transform.GetChild(1).GetComponent<Button>();
 		Button deleteButton = equipmentLabel.transform.GetChild(2).GetComponent<Button>();
 
-		if (!ApplicationController.admin) {
+		if (!ApplicationController.isAdmin) {
 			Destroy(deleteButton.gameObject);
 		}
 
@@ -283,25 +278,19 @@ public class UnitConstructor : MonoBehaviour {
 	}
 	#endregion
 
-	#region Unit
+	#region Modifying Unit
 	public void UpdateSpecialization(int i) {
-		specializationUI.SetValueWithoutNotify(i);
 		constructedUnit.ChangeSpecialization(i);
+		specializationUI.SetValueWithoutNotify(i);
 		tierUI.text = constructedUnit.GetUnitTierText();
 	}
 	public void UpdateMovementModifier(int i) {
 		movementUI.SetValueWithoutNotify(i);
-		GroundMovementType movementModifier = (GroundMovementType)i;
-		if (groundUnit != null) {
-			GetGroundUnit().ChangeSpecialization(movementModifier);
-		}
+		if (groundUnit != null) GetGroundUnit().ChangeSpecialization((GroundMovementType)i);
 	}
 	public void UpdateTransportModifier(int i) {
 		transportUI.SetValueWithoutNotify(i);
-		GroundTransportType transportModifier = (GroundTransportType)i;
-		if (groundUnit != null) {
-			GetGroundUnit().ChangeSpecialization(transportModifier);
-		}
+		if (groundUnit != null) GetGroundUnit().ChangeSpecialization((GroundTransportType)i);
 	}
 	public void UpdateName(string identification) {
 		if (identification != "") {
@@ -309,17 +298,6 @@ public class UnitConstructor : MonoBehaviour {
 			nameUI.text = identification;
 		}
 	}
-
-	public void UpdateDomain(int domain) {
-		unitDomain = domain;
-		domainUI.SetValueWithoutNotify(domain);
-		if (constructedUnit != null) {
-			DespawnUnit();
-		}
-		UpdateUnit();
-		OnEnable();
-	}
-
 	public void UpdatePosition(Vector3 position) {
 		position = new Vector3(position.x, position.y, -0.15f);
 		constructedUnit.transform.position = position;
@@ -330,67 +308,55 @@ public class UnitConstructor : MonoBehaviour {
 	}
 	#endregion
 
-	#region Menu
+	#region Menu loading and closing
 	public void Close() {
-		if (constructedUnit.equipmentList.Count == 0) {
-			ApplicationController.generalPopup.PopUp("You need at least one vehicle/equipment!");
-			return;
-		}
+		if (constructedUnit.equipmentList.Count == 0) ApplicationController.generalPopup.PopUp("You need at least one vehicle/equipment!");
+		else Clean();
+	}
+	
+	public void DespawnUnit() {
+		if (!Editing && constructedUnit != null) UnitManager.Instance.Despawn(constructedUnit.gameObject);
+		Debug.Log("Unit editor canceling.");
 		Clean();
 	}
+
 	private void Clean() {
 		aerialUnit = null;
 		navalUnit = null;
 		groundUnit = null;
 		constructedUnit = null;
-		for (int i = 0; i < equipmentPanelsUI.transform.childCount; i++) {
-			Destroy(equipmentPanelsUI.transform.GetChild(i).gameObject);
-		}
+		for (int i = 0; i < equipmentPanelsUI.transform.childCount; i++) Destroy(equipmentPanelsUI.transform.GetChild(i).gameObject);
 		gameObject.SetActive(false);
 		Debug.Log("Unit editor closed.");
 	}
 
-	public void DespawnUnit() {
-		if (!Editing) {
-			UnitManager.Instance.Despawn(constructedUnit.gameObject);
-		}
-		Debug.Log("Unit editor canceling.");
-		Clean();
+	public void UpdateDomain(int domain) {
+		unitDomain = domain;
+		domainUI.SetValueWithoutNotify(domain);
+		LoadUIOptions();
+		Debug.Log("Unit editor domain changed to " + domain);
 	}
-
 
 	public void UpdateUnit(Unit unit) {
-		constructedUnit = unit;
-		if (unit.GetType() == typeof(GroundUnit)) {
-			SetGroundUnit((GroundUnit)unit);
-			unitDomain = 0;
-		} else if (unit.GetType() == typeof(AerialUnit)) {
-			SetAerialUnit((AerialUnit)unit);
-			unitDomain = 1;
-		} else {
-			SetNavalUnit((NavalUnit)unit);
-			unitDomain = 2;
-		}
-		foreach (Equipment equipment in unit.equipmentList) {
-			AddEquipmentUI(equipment);
-		}
+		Editing = true;
+		if (unit.GetType() == typeof(GroundUnit)) SetGroundUnit((GroundUnit)unit); 
+		else if (unit.GetType() == typeof(AerialUnit)) SetAerialUnit((AerialUnit)unit); 
+		else SetNavalUnit((NavalUnit)unit);
+		foreach (Equipment equipment in unit.equipmentList) AddEquipmentUI(equipment);
 		Debug.Log("Unit editor opened.");
-		UpdateName(unit.name);
 	}
 
-	public void UpdateUnit() {
-		switch (unitDomain) {
-			case 1:
-			SetAerialUnit((AerialUnit)UnitManager.Instance.SpawnUnit(Vector3.zero, UnitTier.Company, "1", new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, unitDomain));
-			break;
-			case 2:
-			SetNavalUnit((NavalUnit)UnitManager.Instance.SpawnUnit(Vector3.zero, UnitTier.Company, "1", new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, unitDomain));
-			break;
-			default:
-			SetGroundUnit((GroundUnit)UnitManager.Instance.SpawnUnit(Vector3.zero, UnitTier.Company, "1", new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, unitDomain));
-			break;
+	public void UpdateUnit(int domain) {
+		Editing = false;
+		string newIdentifier = UnitManager.GenerateName(domain);
+		if (domain == 0) {
+			SetGroundUnit((GroundUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.StartPosition : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
+		} else if (domain == 1) {
+			SetAerialUnit((AerialUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.StartPosition : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
+		} else {
+			SetNavalUnit((NavalUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.StartPosition : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
 		}
-		Debug.Log("Unit editor opened.");
+		Debug.Log("Unit editor spawner opened.");
 	}
 	#endregion
 }

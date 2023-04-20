@@ -45,7 +45,7 @@ public class EquipmentManager : MonoBehaviour {
 				Convert.ToSingle(col[1], ApplicationController.culture),
 				Convert.ToSingle(col[2], ApplicationController.culture),
 				Convert.ToSingle(col[3], ApplicationController.culture),
-				Convert.ToInt16(col[4]),
+				Convert.ToSingle(col[4], ApplicationController.culture),
 				Convert.ToInt16(col[5]),
 				Convert.ToInt16(col[6]),
 				Convert.ToInt16(col[7]),
