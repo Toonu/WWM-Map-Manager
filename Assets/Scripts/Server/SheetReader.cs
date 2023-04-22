@@ -64,7 +64,7 @@ public class SheetReader : MonoBehaviour {
 
 			request.ValueInputOption = UpdateRequest.ValueInputOptionEnum.USERENTERED;
 			request.Execute();
-			Debug.Log("Saved");
+			if (ApplicationController.isDebug) Debug.Log("Saved");
 		});
 	}
 }

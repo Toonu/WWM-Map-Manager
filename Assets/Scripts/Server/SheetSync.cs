@@ -15,8 +15,8 @@ public class SheetSync : MonoBehaviour {
 	internal static string passwordAdmin;
 	internal static float pointsA = 0;
 	internal static float pointsB = 0;
-	private static int basesLength = 0;
-	private static int unitsLength = 0;
+	internal static int basesLength = 0;
+	internal static int unitsLength = 0;
 	private static TextMeshProUGUI pointsLabel;
 
 	private void Awake() {
@@ -26,6 +26,8 @@ public class SheetSync : MonoBehaviour {
 
 
 	public void SaveSheet() {
+		//TODO No saving for now
+		return;
 		if (UnitManager.Instance.bases.Count > basesLength) {
 			basesLength = UnitManager.Instance.bases.Count;
 		}
@@ -80,7 +82,14 @@ public class SheetSync : MonoBehaviour {
 		generalPopup.PopUp("Saved!");
 	}
 
-	public async Task LoadSheet() {
+	public async void LoadSheet() {
+		GameObject loading = ApplicationController.Instance.transform.Find("UI/Loading").gameObject;
+		loading.SetActive(true);
+		await LoadSheetAsync();
+		loading.SetActive(false);
+	}
+
+	public async Task<bool> LoadSheetAsync() {
 		IList<IList<object>> units = await ss.GetSheetRangeAsync("Units!A2:J");
 		IList<IList<object>> bases = await ss.GetSheetRangeAsync("Bases!A2:E");
 		IList<IList<object>> sheetConfiguration = await ss.GetSheetRangeAsync("Configuration!C2:C");
@@ -90,22 +99,29 @@ public class SheetSync : MonoBehaviour {
 			throw new ApplicationException("Sever connection failed!");
 		}
 
-		foreach (Unit item in UnitManager.Instance.groundUnits) {
-			UnitManager.Instance.Despawn(item.gameObject);
+		foreach (Unit item in UnitManager.Instance.groundUnits.ToList()) {
+			if (item != null) {
+				UnitManager.Instance.Despawn(item.gameObject);
+			}
 		}
-		foreach (Unit item in UnitManager.Instance.aerialUnits) {
-			UnitManager.Instance.Despawn(item.gameObject);
+		foreach (Unit item in UnitManager.Instance.aerialUnits.ToList()) {
+			if (item != null) {
+				UnitManager.Instance.Despawn(item.gameObject);
+			}
 		}
-		foreach (Unit item in UnitManager.Instance.navalUnits) {
-			UnitManager.Instance.Despawn(item.gameObject);
+		foreach (Unit item in UnitManager.Instance.navalUnits.ToList()) {
+			if (item != null) {
+				UnitManager.Instance.Despawn(item.gameObject);
+			}
 		}
-		foreach (Base b in UnitManager.Instance.bases) {
-			UnitManager.Instance.Despawn(b.gameObject);
+		foreach (Base b in UnitManager.Instance.bases.ToList()) {
+			if (b != null) {
+				UnitManager.Instance.Despawn(b.gameObject);
+			}
 		}
+		//TODO Handle equipment deletion
 
 		/* TODO
-		 * Editing menu - editing domain of already existing unit will move its position!
-		* Add debug logs everywhere
 		* Turn system
 		* Keep movement range in sheet due to non finished turns
 		* Transport type of unit based on equipment
@@ -114,15 +130,11 @@ public class SheetSync : MonoBehaviour {
 		* Drawing things by user, lines eg
 		* Zooming out generates HQ units centered on average of positions of small units with their equipment.
 		* artillery and dice rolls
-		* 
 		* Terrain based movement and base spawning
-		* if (Physics.Raycast(ray, out hit))
-        {
-            hit.collider.renderer.material.color = Color.red;
-            //Debug.Log(hit);
-        }
+		* Weather system
+		* When spot unit, cannot reset back to original position - spot only when right next to enemy, otherwise spot at the end of the turn
 		*/
-
+		//Administration
 		passwordA = PasswordManager.HashPassword(sheetConfiguration[0][0].ToString());
 		passwordB = PasswordManager.HashPassword(sheetConfiguration[1][0].ToString());
 		passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
@@ -133,60 +145,13 @@ public class SheetSync : MonoBehaviour {
 			throw new InvalidProgramException("Wrong game version! Please update your application");
 		}
 
-		//Equipment
+		//Movables
 		EquipmentManager.CreateTemplates(equipmentData);
-			
-		//Bases
-		for (int i = 0; i < bases.Count; i++) {
-			if (bases[i].Count == 5) {
-				UnitManager.Instance.SpawnBase(bases[i][0].ToString(), new Vector3(Convert.ToSingle(bases[i][1], ApplicationController.culture), Convert.ToSingle(bases[i][2], ApplicationController.culture), -0.1f),	(BaseType)Enum.Parse(typeof(BaseType), bases[i][3].ToString()),	EnumUtil.ConvertIntToBool(Convert.ToInt16(bases[i][4])));
-				basesLength++;
-			}
-		}
-
-		//Units
-		for (int i = 0; i < units.Count; i++) {
-			if (units[i].Count > 8) {
-				int domain = Convert.ToInt16(units[i][2]);
-				Unit newUnit = UnitManager.Instance.SpawnUnit(
-					new Vector3(Convert.ToSingle(units[i][0], ApplicationController.culture), Convert.ToSingle(units[i][1], ApplicationController.culture), -0.1f),
-					(UnitTier)Enum.Parse(typeof(UnitTier), units[i][5].ToString()), //Tier
-					units[i][4].ToString(), //Spec.
-					new List<Equipment>(), //Equipment blank list
-					EnumUtil.ConvertIntToBool(Convert.ToInt16(units[i][6])), //Side
-					Convert.ToInt16(units[i][3]), //Side
-					(GroundMovementType)Enum.Parse(typeof(GroundMovementType), units[i][7].ToString()), //Ground movement type
-					(GroundTransportType)Enum.Parse(typeof(GroundTransportType), units[i][8].ToString()), //Ground transport type
-					domain); //Domain
-				if (units[i].Count > 9) {
-					string[] lines = units[i][9].ToString().Split('\n');
-
-					for (int j = 0; j < lines.Length; j++) {
-						string[] word = lines[j].Split(':');
-
-						if (!newUnit.SideB) {
-							EquipmentManager.equipmentHostile[domain].ForEach(delegate (Equipment equipment) {
-								if (equipment.equipmentName == word[0]) {
-									newUnit.AddEquipment(EquipmentManager.CreateEquipment(equipment, Convert.ToInt16(word[1])));
-									return;
-								}
-							});
-						} else {
-							EquipmentManager.equipmentFriendly[domain].ForEach(delegate (Equipment equipment) {
-								if (equipment.equipmentName == word[0]) {
-									newUnit.AddEquipment(EquipmentManager.CreateEquipment(equipment, Convert.ToInt16(word[1])));
-									return;
-								}
-							});
-						}
-					}
-				}
-				unitsLength++;
-			}
-		}
+		UnitManager.Instance.SpawnBases(bases);
+		UnitManager.Instance.SpawnUnits(units);
 
 		Debug.Log("Server data loaded!");
-		return;
+		return true;
 	}
 
 	public string GetData(int x, int y) {
@@ -205,6 +170,6 @@ public class SheetSync : MonoBehaviour {
 			pointsA += addition;
 			pointsLabel.text = $"Pts:{pointsA}";
 		}
-		
+
 	}
 }

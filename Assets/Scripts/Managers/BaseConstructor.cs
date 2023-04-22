@@ -61,7 +61,7 @@ public class BaseConstructor : MonoBehaviour {
 	/// <param name="b"></param>
 	public void UpdateBase(Base b) {
 		Editing = true;
-		Debug.Log("Base editor opened.");
+		if (ApplicationController.isDebug) Debug.Log("Base editor opened.");
 		constructedBase = b;
 	}
 	/// <summary>
@@ -69,12 +69,12 @@ public class BaseConstructor : MonoBehaviour {
 	/// </summary>
 	public void UpdateBase() {
 		Editing = false;
-		Debug.Log("Base editor opened.");
+		if (ApplicationController.isDebug) Debug.Log("Base editor opened.");
 		constructedBase = UnitManager.Instance.SpawnBase("NewBase", Vector3.zero, BaseType.Base, false);
 	}
 
 	public void Cancel() {
-		Debug.Log("Base editor canceled.");
+		if (ApplicationController.isDebug) Debug.Log("Base editor canceled.");
 		if (!Editing) {
 			Destroy(constructedBase.gameObject);
 		}
@@ -82,7 +82,7 @@ public class BaseConstructor : MonoBehaviour {
 	}
 
 	public void Close() {
-		Debug.Log("Base editor closed.");
+		if (ApplicationController.isDebug) Debug.Log("Base editor closed.");
 		if (!ApplicationController.isAdmin) {
 			SheetSync.UpdatePoints(-100);
 		}

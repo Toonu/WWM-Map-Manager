@@ -140,7 +140,7 @@ public class UnitManager : MonoBehaviour {
 		}
 		Destroy(gameObject);
 	}
-	
+
 	public int GetLast() {
 		int maxLength = Math.Max(groundUnits.Count, Math.Max(aerialUnits.Count, navalUnits.Count));
 		for (int i = 0; i < maxLength; i++) {
@@ -209,6 +209,60 @@ public class UnitManager : MonoBehaviour {
 		bases.ForEach(b => { if (b != null) { b.ChangeAffiliation(); } });
 	}
 
+	#endregion
+
+	#region Initialization of sheet data
+	internal void SpawnBases(IList<IList<object>> bases) {
+		for (int i = 0; i < bases.Count; i++) {
+			if (bases[i].Count == 5) {
+				Instance.SpawnBase(bases[i][0].ToString(), new Vector3(Convert.ToSingle(bases[i][1], ApplicationController.culture), Convert.ToSingle(bases[i][2], ApplicationController.culture), -0.1f), (BaseType)Enum.Parse(typeof(BaseType), bases[i][3].ToString()), EnumUtil.ConvertIntToBool(Convert.ToInt16(bases[i][4])));
+				SheetSync.basesLength++;
+			}
+		}
+	}
+
+	internal void SpawnUnits(IList<IList<object>> units) {
+		for (int i = 0; i < units.Count; i++) {
+			if (units[i].Count > 8) {
+				int domain = Convert.ToInt16(units[i][2]);
+				Unit newUnit = Instance.SpawnUnit(
+					new Vector3(Convert.ToSingle(units[i][0], ApplicationController.culture), Convert.ToSingle(units[i][1], ApplicationController.culture), -0.1f),
+					(UnitTier)Enum.Parse(typeof(UnitTier), units[i][5].ToString()), //Tier
+					units[i][4].ToString(), //Spec.
+					new List<Equipment>(), //Equipment blank list
+					EnumUtil.ConvertIntToBool(Convert.ToInt16(units[i][6])), //Side
+					Convert.ToInt16(units[i][3]), //Side
+					(GroundMovementType)Enum.Parse(typeof(GroundMovementType), units[i][7].ToString()), //Ground movement type
+					(GroundTransportType)Enum.Parse(typeof(GroundTransportType), units[i][8].ToString()), //Ground transport type
+					domain); //Domain
+				if (units[i].Count > 9) {
+					//Equipment
+					string[] lines = units[i][9].ToString().Split('\n');
+
+					for (int j = 0; j < lines.Length; j++) {
+						string[] word = lines[j].Split(':');
+
+						if (!newUnit.SideB) {
+							EquipmentManager.equipmentHostile[domain].ForEach(delegate (Equipment equipment) {
+								if (equipment.equipmentName == word[0]) {
+									newUnit.AddEquipment(EquipmentManager.CreateEquipment(equipment, Convert.ToInt16(word[1])));
+									return;
+								}
+							});
+						} else {
+							EquipmentManager.equipmentFriendly[domain].ForEach(delegate (Equipment equipment) {
+								if (equipment.equipmentName == word[0]) {
+									newUnit.AddEquipment(EquipmentManager.CreateEquipment(equipment, Convert.ToInt16(word[1])));
+									return;
+								}
+							});
+						}
+					}
+				}
+				SheetSync.unitsLength++;
+			}
+		}
+	}
 	#endregion
 }
 

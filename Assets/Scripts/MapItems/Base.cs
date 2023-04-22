@@ -16,6 +16,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 			icon.material.mainTexture = UnitManager.Instance.GetBaseTexture(BaseType);
 			icon.material.color = SideB == ApplicationController.isSideB ? Color.black : Color.red;
 			icon.transform.localScale = BaseType == BaseType.Airfield ? new Vector3(1.5f, 1, 1) : Vector3.one;
+			if (ApplicationController.isDebug) Debug.Log($"[{name}] Base type changed | {BaseType}");
 		}
 	}
 	private BaseType baseType;
@@ -34,7 +35,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 		BaseType = newType;
 		ChangeIdentification(newName);
 
-		Debug.Log($"[{name}] Initiated");
+		if (ApplicationController.isDebug) Debug.Log($"[{name}] Initiated");
 	}
 
 	#region Attribute Get/Setters
@@ -47,6 +48,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 	internal void ChangeAffiliation(bool sideB) {
 		SideB = sideB;
 		ChangeAffiliation();
+		if (ApplicationController.isDebug) Debug.Log($"[{name}] Affiliation changed to SideB: {sideB}");
 	}
 
 	internal void ChangeIdentification(string identification) {
@@ -73,7 +75,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 	/// </summary>
 	/// <param name="eventData"></param>
 	public void OnEndDrag(PointerEventData eventData) {
-		Debug.Log($"[{name}] Moved to {transform.position}");
+		if (ApplicationController.isDebug) Debug.Log($"[{name}] Moved to {transform.position}");
 	}
 
 	#endregion

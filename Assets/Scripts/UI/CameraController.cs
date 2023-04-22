@@ -19,9 +19,10 @@ public class CameraController : MonoBehaviour {
 		Texture2D loadedMap = new(2, 2);
 		byte[] bytes = System.IO.File.ReadAllBytes(Application.dataPath + "/Map.png");
 		loadedMap.LoadImage(bytes);
-		map.GetComponent<Renderer>().material.mainTexture = loadedMap;
-		mapMin = map.GetComponent<Renderer>().bounds.min;
-		mapMax = map.GetComponent<Renderer>().bounds.max;
+		Sprite newSprite = Sprite.Create(loadedMap, new Rect(0, 0, loadedMap.width, loadedMap.height), new Vector2(0.5f, 0.5f));
+		map.GetComponent<SpriteRenderer>().sprite = newSprite;
+		mapMin = map.GetComponent<SpriteRenderer>().bounds.min;
+		mapMax = map.GetComponent<SpriteRenderer>().bounds.max;
 	}
 
 	void LateUpdate() {

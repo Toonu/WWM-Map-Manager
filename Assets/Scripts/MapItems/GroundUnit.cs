@@ -39,17 +39,17 @@ public class GroundUnit : Unit {
 	internal override void ChangeSpecialization(int newSpecialization) {
 		specialization = (GroundSpecialization)newSpecialization;
 		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, SideB);
-		Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
 	}
 	internal void ChangeSpecialization(GroundMovementType movementModifier) {
 		this.movementModifier = movementModifier;
 		movementTexture.material.mainTexture = UnitManager.Instance.GetMovementTexture(this, SideB);
-		Debug.Log($"[{ID}][{name}] Movement changed | {movementModifier}");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Movement changed | {movementModifier}");
 	}
 	internal void ChangeSpecialization(GroundTransportType transportModifier) {
 		this.transportModifier = transportModifier;
 		transportTexture.material.mainTexture = UnitManager.Instance.GetTransportTexture(this, SideB);
-		Debug.Log($"[{ID}][{name}] Transport changed | {transportModifier}");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Transport changed | {transportModifier}");
 	}
 
 	internal override int GetSpecialization() {
@@ -73,7 +73,7 @@ public class GroundUnit : Unit {
 							.Select(group => new { Specialization = group.Key, Amount = group.Sum(equipment => equipment.Amount) })
 							.OrderByDescending(group => group.Amount)
 							.ToList().FirstOrDefault()?.Specialization);
-		
+
 	}
 }
 

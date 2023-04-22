@@ -22,7 +22,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 			nameTextUI.text = EnumUtil.NumberWithSuffix(Convert.ToInt16(identification));
 		}
 		name = identification;
-		Debug.Log($"[{ID}][{name}] Name changed to {identification}");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Name changed to {identification}");
 	}
 
 	private UnitTier unitTier;
@@ -35,7 +35,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	public virtual void SetUnitTier(int echelon) {
 		tierTextUI.text = EnumUtil.GetUnitTier(echelon);
 		unitTier = (UnitTier)echelon;
-		Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
 	}
 	/// <summary>
 	/// Setter for the unit tier which changes the tier label and tier.
@@ -44,7 +44,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	public void SetUnitTier(UnitTier echelon) {
 		tierTextUI.text = EnumUtil.GetUnitTier((int)echelon);
 		unitTier = echelon;
-		Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
 	}
 
 	private Unit unitParent;
@@ -53,6 +53,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		set {
 			unitParent = value;
 			parentTextUI.text = value.name;
+			if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Parent unit changed to {value.name}");
 		}
 	}
 
@@ -69,13 +70,10 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	internal virtual void ChangeAffiliation(bool sideB) {
 		SideB = sideB;
 		ChangeAffiliation();
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Affiliation changed to side B: {sideB}");
 	}
 
 	internal abstract void ChangeSpecialization(int specialization);
-
-	internal virtual void RecalculateIcon() {
-		//Based on size, equipment equipmentTypeUI and everything...
-	}
 
 	#endregion
 
@@ -121,7 +119,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		SetUnitTier(newTier);
 		SetName(newIdentifier);
 
-		Debug.Log($"[{ID}][{name}] Initiated");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Initiated");
 	}
 
 	/// <summary>
@@ -129,12 +127,12 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	/// </summary>
 	/// <param name="newEquipment">List of Equipment to add.</param>
 	internal void AddEquipment(List<Equipment> newEquipment) {
-		Debug.Log($"[{ID}][{name}] Adding new equipment list.");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Adding new equipment list.");
 		equipmentList = newEquipment.ToList();
 		RecalculateAttributes();
 	}
 	internal void AddEquipment(Equipment newEquipment) {
-		Debug.Log($"[{ID}][{name}] Adding {newEquipment.Amount} of equipment {newEquipment.name}.");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Adding {newEquipment.Amount} of equipment {newEquipment.name}.");
 		equipmentList.Add(newEquipment);
 		RecalculateAttributes();
 	}
@@ -144,15 +142,16 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	/// <param name="template"></param>
 	internal void RemoveEquipment(Equipment template) {
 		Equipment equipment = equipmentList.Find(e => template.equipmentName == e.equipmentName);
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Equipment {equipment} removed.");
 		equipmentList.Remove(equipment);
 		Destroy(equipment.gameObject);
 		RecalculateAttributes();
 	}
 	internal virtual void RecalculateAttributes() {
-		Debug.Log($"[{ID}][{name}] Recalculating unit attributes.");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Recalculating unit attributes.");
 		//Equipment UI label.
 		equipmentTextUI.text = string.Join("\n", equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}"));
-		equipmentList.ForEach(eq => Debug.Log($"[{ID}][{name}] Adding Equipment | {eq.Amount} {eq.equipmentName}"));
+		equipmentList.ForEach(eq => { if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Adding Equipment | {eq.Amount} {eq.equipmentName}"); });
 
 		//Unit ranges.
 		movementRange = equipmentList.Min(e => e.movementRange);
@@ -171,7 +170,16 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 
 	#region Movement
 	internal float movementRange;
-	public Vector3 StartPosition { get { return startPosition; } set { startPosition = value; ResizeMovementCircle(); Debug.Log($"[{ID}][{name}] Soft reset at [{transform.position}]"); } }
+	public Vector3 StartPosition {
+		get {
+			return startPosition;
+		}
+		set {
+			startPosition = value;
+			ResizeMovementCircle();
+			if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Soft reset at [{transform.position}]");
+		}
+	}
 	private Vector3 startPosition;
 	public void OnDrag(PointerEventData eventData) {
 		if (!ApplicationController.isAdmin && ApplicationController.isSideB != SideB) {
@@ -185,7 +193,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	}
 
 	public void OnEndDrag(PointerEventData eventData) {
-		Debug.Log($"[{ID}][{name}] Moved to {transform.position}");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Moved to {transform.position}");
 		//transform.position = StartPosition; //Returns unit to its original position.
 	}
 

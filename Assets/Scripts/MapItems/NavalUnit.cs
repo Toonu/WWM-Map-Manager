@@ -22,12 +22,12 @@ public class NavalUnit : Unit {
 	internal override void ChangeSpecialization(int newSpecialization) {
 		specialization = (NavalSpecialization)newSpecialization;
 		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, SideB);
-		Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
 		SetUnitTier((int)specialization);
 	}
 
 	public override void SetUnitTier(int echelon) {
-		base.SetUnitTier(echelon+4);
+		base.SetUnitTier(echelon + 4);
 	}
 
 	internal override void RecalculateAttributes() {

@@ -21,13 +21,12 @@ public class AerialUnit : Unit {
 			iconImage.transform.localScale = Vector3.one;
 		}
 		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, isEnemy);
-		Debug.Log($"[{ID}][{name}] Affiliation changed");
 	}
 
 	internal override void ChangeSpecialization(int newSpecialization) {
 		specialization = (AerialSpecialization)newSpecialization;
 		iconImage.material.mainTexture = UnitManager.Instance.GetSpecialisationTexture(this, SideB);
-		Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
+		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Specialization changed | {specialization}");
 	}
 
 	internal override int GetSpecialization() {
@@ -44,6 +43,7 @@ public class AerialUnit : Unit {
 							.Select(group => new { Specialization = group.Key, Amount = group.Sum(equipment => equipment.Amount) })
 							.OrderByDescending(group => group.Amount)
 							.ToList().FirstOrDefault()?.Specialization);
+		
 	}
 }
 

@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 
-public class ClickController : MonoBehaviour, IPointerClickHandler {
+public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMoveHandler {
 	public Button sampleButton;
 	private List<ContextMenuItem> contextMenuItems;
 	private Vector3 position;
@@ -106,11 +106,29 @@ public class ClickController : MonoBehaviour, IPointerClickHandler {
 	void ResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		transform.position = GetComponent<IMovable>().StartPosition;
-		Debug.Log($"[{name}] Position reset to [{transform.position}]");
+		if (ApplicationController.isDebug) Debug.Log($"[{name}] Position reset to [{transform.position}]");
 	}
 
 	void SoftResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		GetComponent<Unit>().StartPosition = transform.position;
+	}
+
+	public static Color GetColour(RaycastResult pointerCurrentRaycast, Transform target) {
+		RaycastHit2D hit = Physics2D.Raycast(pointerCurrentRaycast.worldPosition, pointerCurrentRaycast.worldNormal);
+		SpriteRenderer spriteRenderer = target.GetComponent<SpriteRenderer>();
+		Texture2D texture = spriteRenderer.sprite.texture;
+		Vector2 localPoint = target.InverseTransformPoint(hit.point);
+
+		// Calculates the pixel position in the texture
+		float x = (localPoint.x / spriteRenderer.bounds.size.x + 0.5f) * texture.width;
+		float y = (localPoint.y / spriteRenderer.bounds.size.y + 0.5f) * texture.height;
+		return texture.GetPixel(Mathf.RoundToInt(x), Mathf.RoundToInt(y));
+		//string hex = ColorUtility.ToHtmlStringRGB(color);
+		//Debug.Log(hex);
+	}
+
+	public void OnPointerMove(PointerEventData eventData) {
+		//Debug.Log("<color=#" + ColorUtility.ToHtmlStringRGB(GetColour(eventData.pointerCurrentRaycast, transform.parent)) + ">PIXEL</color>");
 	}
 }

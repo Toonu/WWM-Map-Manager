@@ -40,7 +40,7 @@ public class Logging : MonoBehaviour {
 	void HandleException(string logString, string stackTrace, LogType type) {
 		if (type == LogType.Exception) {
 			ApplicationController.generalPopup.PopUp(logString + "\n" + stackTrace, 10);
-			Debug.LogError(logString + "\n" + stackTrace);
+			if (ApplicationController.isDebug) Debug.LogError(logString + "\n" + stackTrace);
 			ApplicationController.ExitApplication();
 		}
 	}

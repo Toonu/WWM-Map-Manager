@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,13 +17,13 @@ public class UnitConstructor : MonoBehaviour {
 	private List<Equipment> equipmentTemplates = new();
 
 	public GroundUnit GetGroundUnit() => groundUnit;
-	internal void SetGroundUnit(GroundUnit newUnit) { 
+	internal void SetGroundUnit(GroundUnit newUnit) {
 		if (constructedUnit != null) {
 			UnitManager.Instance.Despawn(constructedUnit.gameObject);
 			ClearEquipment();
 		}
 		UpdateDomain(0);
-		groundUnit = newUnit; 
+		groundUnit = newUnit;
 		constructedUnit = newUnit;
 		UpdateOptions();
 	}
@@ -36,7 +35,7 @@ public class UnitConstructor : MonoBehaviour {
 			ClearEquipment();
 		}
 		UpdateDomain(1);
-		aerialUnit = newUnit; 
+		aerialUnit = newUnit;
 		constructedUnit = newUnit;
 		UpdateOptions();
 	}
@@ -134,7 +133,7 @@ public class UnitConstructor : MonoBehaviour {
 		//Generate new name if creating new unit
 		if (!Editing) {
 			UnityEngine.Random.Range(0, 100);
-            System.Random random = new();
+			System.Random random = new();
 			finishButton.gameObject.SetActive(true);
 		} else {
 			finishButton.gameObject.SetActive(false);
@@ -247,7 +246,7 @@ public class UnitConstructor : MonoBehaviour {
 			}
 		}
 		if (ApplicationController.isDebug) Debug.Log("Adding equipment " + constructedEquipment);
-		
+
 		Equipment newEquipment = EquipmentManager.CreateEquipment(constructedEquipment, Convert.ToInt16(equipmentAmountUI.text));
 		SheetSync.UpdatePoints(-newEquipment.cost * newEquipment.Amount);
 		constructedUnit.AddEquipment(newEquipment);
@@ -326,7 +325,7 @@ public class UnitConstructor : MonoBehaviour {
 		if (constructedUnit.equipmentList.Count == 0) ApplicationController.generalPopup.PopUp("You need at least one vehicle/equipment!");
 		else Clean();
 	}
-	
+
 	public void DespawnUnit() {
 		if (!Editing && constructedUnit != null) UnitManager.Instance.Despawn(constructedUnit.gameObject);
 		if (ApplicationController.isDebug) Debug.Log("Unit editor canceling.");
@@ -356,8 +355,8 @@ public class UnitConstructor : MonoBehaviour {
 
 	public void UpdateUnit(Unit unit) {
 		Editing = true;
-		if (unit.GetType() == typeof(GroundUnit)) SetGroundUnit((GroundUnit)unit); 
-		else if (unit.GetType() == typeof(AerialUnit)) SetAerialUnit((AerialUnit)unit); 
+		if (unit.GetType() == typeof(GroundUnit)) SetGroundUnit((GroundUnit)unit);
+		else if (unit.GetType() == typeof(AerialUnit)) SetAerialUnit((AerialUnit)unit);
 		else SetNavalUnit((NavalUnit)unit);
 		foreach (Equipment equipment in unit.equipmentList) AddEquipmentUI(equipment);
 		if (ApplicationController.isDebug) Debug.Log("Unit editor opened.");

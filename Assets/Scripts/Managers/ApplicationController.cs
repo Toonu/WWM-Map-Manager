@@ -23,11 +23,11 @@ public class ApplicationController : MonoBehaviour {
 
 	//Used by the UI calls. Exist the application and also play editor mode.
 	public static void ExitApplication() {
-		Debug.Log("Exiting application.");
+		if (ApplicationController.isDebug) Debug.Log("Exiting application.");
 		Application.Quit();
-		#if UNITY_EDITOR
+#if UNITY_EDITOR
 		EditorApplication.ExitPlaymode();
-		#endif
+#endif
 	}
 	#endregion
 
@@ -41,9 +41,8 @@ public class ApplicationController : MonoBehaviour {
 	}
 	private async void Start() {
 		//Loads basic UI elements and starts server syncing.
-		await server.LoadSheet();
+		await server.LoadSheetAsync();
 		transform.Find("UI/Loading").gameObject.SetActive(false);
-		
 	}
 	private void Update() {
 		//Checks for context menus so they can be deleted when any is open.
@@ -123,7 +122,7 @@ public class ApplicationController : MonoBehaviour {
 
 	public void SetDebug(bool debug) {
 		isDebug = debug;
-		Debug.Log("Debug set to " + debug + ".");
+		if (ApplicationController.isDebug) Debug.Log("Debug set to " + debug + ".");
 		PlayerPrefs.SetInt("Debug", debug ? 1 : 0);
 		PlayerPrefs.Save();
 	}
