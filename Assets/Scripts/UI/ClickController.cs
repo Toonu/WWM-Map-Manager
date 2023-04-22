@@ -106,12 +106,11 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	void ResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		transform.position = GetComponent<IMovable>().StartPosition;
-		if (ApplicationController.isDebug) Debug.Log($"[{name}] Position reset to [{transform.position}]");
 	}
 
 	void SoftResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
-		GetComponent<Unit>().StartPosition = transform.position;
+		GetComponent<IMovable>().StartPosition = transform.position;
 	}
 
 	public static Color GetColour(RaycastResult pointerCurrentRaycast, Transform target) {

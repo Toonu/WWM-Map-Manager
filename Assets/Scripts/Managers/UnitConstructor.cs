@@ -147,10 +147,10 @@ public class UnitConstructor : MonoBehaviour {
 		//Removal of non-domain attributes and images
 		if (unitDomain == 0 && ApplicationController.isAdmin) {
 			movementUI.gameObject.SetActive(true);
-			enumNames = Enum.GetNames(typeof(GroundMovementType));
+			enumNames = Enum.GetNames(typeof(GroundProtectionType));
 			options = new List<TMP_Dropdown.OptionData>();
 			for (int i = 0; i < enumNames.Length; i++) {
-				options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.movementType[i]));
+				options.Add(new TMP_Dropdown.OptionData(enumNames[i], UnitManager.Instance.protectionType[i]));
 			}
 			movementUI.ClearOptions();
 			movementUI.AddOptions(options);
@@ -189,8 +189,8 @@ public class UnitConstructor : MonoBehaviour {
 	private void UpdateOptions() {
 		//Returns the most numerous armour-traction type.
 		if (groundUnit != null) {
-			movementUI.SetValueWithoutNotify((int)groundUnit.movementModifier);
-			transportUI.SetValueWithoutNotify((int)groundUnit.transportModifier);
+			movementUI.SetValueWithoutNotify((int)groundUnit.protectionType);
+			transportUI.SetValueWithoutNotify((int)groundUnit.transportType);
 		}
 
 		nameUI.text = constructedUnit.name;
@@ -292,12 +292,12 @@ public class UnitConstructor : MonoBehaviour {
 		tierUI.text = constructedUnit.GetUnitTierText();
 		if (ApplicationController.isDebug) Debug.Log("Changed constructed unit specialization to " + i);
 	}
-	public void UpdateMovementModifier(int i) {
+	public void UpdateProtection(int i) {
 		movementUI.SetValueWithoutNotify(i);
-		if (groundUnit != null) GetGroundUnit().ChangeSpecialization((GroundMovementType)i);
-		if (ApplicationController.isDebug) Debug.Log("Changed constructed unit movement to " + (GroundMovementType)i);
+		if (groundUnit != null) GetGroundUnit().ChangeSpecialization((GroundProtectionType)i);
+		if (ApplicationController.isDebug) Debug.Log("Changed constructed unit movement to " + (GroundProtectionType)i);
 	}
-	public void UpdateTransportModifier(int i) {
+	public void UpdateTransportation(int i) {
 		transportUI.SetValueWithoutNotify(i);
 		if (groundUnit != null) GetGroundUnit().ChangeSpecialization((GroundTransportType)i);
 		if (ApplicationController.isDebug) Debug.Log("Changed constructed unit transport to " + (GroundTransportType)i);
@@ -366,11 +366,11 @@ public class UnitConstructor : MonoBehaviour {
 		Editing = false;
 		string newIdentifier = UnitManager.GenerateName(domain);
 		if (domain == 0) {
-			SetGroundUnit((GroundUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.transform.position : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
+			SetGroundUnit((GroundUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.transform.position : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundProtectionType.Motorized, GroundTransportType.None, domain));
 		} else if (domain == 1) {
-			SetAerialUnit((AerialUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.transform.position : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
+			SetAerialUnit((AerialUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.transform.position : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundProtectionType.Motorized, GroundTransportType.None, domain));
 		} else {
-			SetNavalUnit((NavalUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.transform.position : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundMovementType.Motorized, GroundTransportType.None, domain));
+			SetNavalUnit((NavalUnit)UnitManager.Instance.SpawnUnit(constructedUnit != null ? constructedUnit.transform.position : Vector3.zero, UnitTier.Company, newIdentifier, new List<Equipment>(), false, 0, GroundProtectionType.Motorized, GroundTransportType.None, domain));
 		}
 		if (ApplicationController.isDebug) Debug.Log("Unit editor spawner opened.");
 	}

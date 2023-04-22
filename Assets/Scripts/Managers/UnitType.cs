@@ -35,7 +35,7 @@ public enum GroundSpecialization {
 	HQ = 9
 }
 
-public enum GroundMovementType {
+public enum GroundProtectionType {
 	Motorized = 0,
 	MotorizedWheeled = 1,
 	Mechanized = 2,

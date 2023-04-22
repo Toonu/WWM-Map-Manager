@@ -26,7 +26,7 @@ public class EquipmentManager : MonoBehaviour {
 	internal static Equipment CreateEquipment(Equipment template, int amount) {
 		GameObject newEquipmentObject = Instantiate(_instance.equipmentTemplate, _instance.transform);
 		Equipment newEquipment = newEquipmentObject.AddComponent<Equipment>();
-		newEquipment.Initiate(template.equipmentName, amount, template.movementRange, template.sightRange, template.weaponRange, template.cost, template.sideB, template.domain, template.specialization, template.movement, template.transportation);
+		newEquipment.Initiate(template.equipmentName, amount, template.movementRange, template.sightRange, template.weaponRange, template.cost, template.sideB, template.domain, template.specialization, template.protection, template.transportation);
 		return newEquipment;
 	}
 

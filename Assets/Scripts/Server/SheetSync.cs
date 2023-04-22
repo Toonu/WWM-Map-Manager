@@ -41,43 +41,52 @@ public class SheetSync : MonoBehaviour {
 
 		ss.SetSheetRange(sheetBases, $"Bases!A2:E{basesLength + 1}");
 
+		//0 Domain 12 Position 3 Tier 4 Name 5 SideB 6 Spec 7 Protection 8 Transport 9 10 Movement 11 Equipment	
 
 		foreach (GroundUnit unit in UnitManager.Instance.groundUnits) {
 			if (unit != null) {
-				sheetUnits.Add(new List<object> {
-				unit.transform.position.x, unit.transform.position.y, 0,
-				(int)unit.specialization, unit.name,
+				sheetUnits.Add(new List<object> {0,
+				unit.transform.position.x, unit.transform.position.y,
 				(int)unit.GetUnitTier(),
+				unit.name,
 				EnumUtil.ConvertBoolToInt(unit.SideB),
-				(int)unit.movementModifier,
-				(int)unit.transportModifier,
+				(int)unit.specialization, 
+				(int)unit.protectionType,
+				(int)unit.transportType,
+				unit.StartPosition.x, unit.StartPosition.y,
 				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")) });
 			}
 		}
 		foreach (AerialUnit unit in UnitManager.Instance.aerialUnits) {
 			if (unit != null) {
-				sheetUnits.Add(new List<object> {
-				unit.transform.position.x, unit.transform.position.y, 1,
-				(int)unit.specialization,
-				unit.name,
+				sheetUnits.Add(new List<object> {1,
+				unit.transform.position.x, unit.transform.position.y,
 				(int)unit.GetUnitTier(),
-				EnumUtil.ConvertBoolToInt(unit.SideB), 0, 0,
-				string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")) });
+				unit.name,
+				EnumUtil.ConvertBoolToInt(unit.SideB),
+				(int)unit.specialization,
+				0,
+				0,
+				unit.StartPosition.x, unit.StartPosition.y,
+				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")) });
 			}
 		}
 		foreach (NavalUnit unit in UnitManager.Instance.navalUnits) {
 			if (unit != null) {
-				sheetUnits.Add(new List<object> {
-				unit.transform.position.x, unit.transform.position.y, 2,
-				(int) unit.specialization,
+				sheetUnits.Add(new List<object> {2,
+				unit.transform.position.x, unit.transform.position.y,
+				(int)unit.GetUnitTier(),
 				unit.name,
-				(int) unit.GetUnitTier(),
-				EnumUtil.ConvertBoolToInt(unit.SideB), 0, 0,
-				string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")) });
+				EnumUtil.ConvertBoolToInt(unit.SideB),
+				(int)unit.specialization,
+				0,
+				0,
+				unit.StartPosition.x, unit.StartPosition.y,
+				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")) });
 			}
 		}
 
-		ss.SetSheetRange(sheetUnits, $"Units!A2:J{unitsLength + 1}");
+		ss.SetSheetRange(sheetUnits, $"Units!A2:L{unitsLength + 1}");
 
 		generalPopup.PopUp("Saved!");
 	}
@@ -90,7 +99,7 @@ public class SheetSync : MonoBehaviour {
 	}
 
 	public async Task<bool> LoadSheetAsync() {
-		IList<IList<object>> units = await ss.GetSheetRangeAsync("Units!A2:J");
+		IList<IList<object>> units = await ss.GetSheetRangeAsync("Units!A2:L");
 		IList<IList<object>> bases = await ss.GetSheetRangeAsync("Bases!A2:E");
 		IList<IList<object>> sheetConfiguration = await ss.GetSheetRangeAsync("Configuration!C2:C");
 		IList<IList<object>> equipmentData = await ss.GetSheetRangeAsync("Configuration!E2:N");
@@ -99,32 +108,40 @@ public class SheetSync : MonoBehaviour {
 			throw new ApplicationException("Sever connection failed!");
 		}
 
-		foreach (Unit item in UnitManager.Instance.groundUnits.ToList()) {
-			if (item != null) {
-				UnitManager.Instance.Despawn(item.gameObject);
-			}
-		}
-		foreach (Unit item in UnitManager.Instance.aerialUnits.ToList()) {
-			if (item != null) {
-				UnitManager.Instance.Despawn(item.gameObject);
-			}
-		}
-		foreach (Unit item in UnitManager.Instance.navalUnits.ToList()) {
-			if (item != null) {
-				UnitManager.Instance.Despawn(item.gameObject);
-			}
-		}
-		foreach (Base b in UnitManager.Instance.bases.ToList()) {
-			if (b != null) {
-				UnitManager.Instance.Despawn(b.gameObject);
-			}
-		}
-		//TODO Handle equipment deletion
 
+		UnitManager.Instance.groundUnits.Clear();
+		UnitManager.Instance.aerialUnits.Clear();
+		UnitManager.Instance.navalUnits.Clear();
+		UnitManager.Instance.bases.Clear();
+		EquipmentManager.equipmentFriendly[0].Clear();
+		EquipmentManager.equipmentFriendly[1].Clear();
+		EquipmentManager.equipmentFriendly[2].Clear();
+		EquipmentManager.equipmentHostile[0].Clear();
+		EquipmentManager.equipmentHostile[1].Clear();
+		EquipmentManager.equipmentHostile[2].Clear();
+
+		for (int i = 1; i < UnitManager.Instance.transform.childCount; i++) {
+			Destroy(UnitManager.Instance.transform.GetChild(i).gameObject);
+		}
+		Transform bas = UnitManager.Instance.transform.GetChild(0);
+
+		for (int i = 0; i < bas.childCount; i++) {
+			Destroy(bas.GetChild(i).gameObject);
+		}
+
+		for (int i = 0; i < EquipmentManager.Instance.transform.childCount; i++) {
+			Destroy(EquipmentManager.Instance.transform.GetChild(i).gameObject);
+		}
+
+		Transform templates = ApplicationController.Instance.transform.Find("Templates").transform;
+		for (int i = 0; i < templates.childCount; i++) {
+			Destroy(templates.GetChild(i).gameObject);
+		}
+
+		
 		/* TODO
 		* Turn system
 		* Keep movement range in sheet due to non finished turns
-		* Transport type of unit based on equipment
 		* Team points
 		* Fog of War
 		* Drawing things by user, lines eg

@@ -5626,7 +5626,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9548b25364563420395c303efc5fe349, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementType:
+  protectionType:
   - {fileID: 3286163911610860551, guid: 91d2183a49ac83e478da03dde5e75439, type: 3}
   - {fileID: 3286163911610860551, guid: 63703a82fe085bc4390cb48e06e030ce, type: 3}
   - {fileID: 3286163911610860551, guid: 14dea02bf3d596c4f901172f569a9ce3, type: 3}
@@ -5636,7 +5636,7 @@ MonoBehaviour:
   - {fileID: 3286163911610860551, guid: 6ba2fe40a36dc644b8023953b4d172b0, type: 3}
   - {fileID: 3286163911610860551, guid: 47dcf2e2b272a134fbee46c908d8af27, type: 3}
   - {fileID: 3286163911610860551, guid: 00708005b8a59c54ca3c482cad07dbcb, type: 3}
-  movementTypeEnemy:
+  protectionTypeEnemy:
   - {fileID: 3286163911610860551, guid: cecf8076423662f48aba4e9865ebedc9, type: 3}
   - {fileID: 3286163911610860551, guid: 476e612169d9ce74fb90b04f9d19006e, type: 3}
   - {fileID: 3286163911610860551, guid: f8e9815cc45919a44981fcc4d28386c2, type: 3}

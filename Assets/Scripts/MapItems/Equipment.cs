@@ -12,10 +12,10 @@ public class Equipment : MonoBehaviour {
 	internal int sideB;
 	internal int domain;
 	internal int specialization;
-	internal int movement;
+	internal int protection;
 	internal int transportation;
 
-	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, float cost, int sideB, int domain, int specialization, int movement, int transportation) {
+	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, float cost, int sideB, int domain, int specialization, int protection, int transportation) {
 		this.equipmentName = equipmentName;
 		Amount = amount;
 		this.movementRange = movementRange;
@@ -25,7 +25,7 @@ public class Equipment : MonoBehaviour {
 		this.sideB = sideB;
 		this.domain = domain;
 		this.specialization = specialization;
-		this.movement = movement;
+		this.protection = protection;
 		this.transportation = transportation;
 		Debug.Log(this + " initiated.");
 	}

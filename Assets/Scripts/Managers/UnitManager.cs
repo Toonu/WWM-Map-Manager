@@ -19,9 +19,9 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	#region Textures
-	public List<Sprite> movementType = new();
+	public List<Sprite> protectionType = new();
 	public List<Sprite> transportType = new();
-	public List<Sprite> movementTypeEnemy = new();
+	public List<Sprite> protectionTypeEnemy = new();
 	public List<Sprite> transportTypeEnemy = new();
 
 	public List<Sprite> groundSpecialization = new();
@@ -37,36 +37,36 @@ public class UnitManager : MonoBehaviour {
 
 	internal Texture2D GetSpecialisationTexture(GroundUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return groundSpecializationEnemy[Convert.ToInt16(unit.specialization)].texture;
+			return groundSpecializationEnemy[(int)(unit.specialization)].texture;
 		}
-		return groundSpecialization[Convert.ToInt16(unit.specialization)].texture;
+		return groundSpecialization[(int)(unit.specialization)].texture;
 	}
 	internal Texture2D GetSpecialisationTexture(AerialUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return aerialSpecializationEnemy[Convert.ToInt16(unit.specialization)].texture;
+			return aerialSpecializationEnemy[(int)(unit.specialization)].texture;
 		}
-		return aerialSpecialization[Convert.ToInt16(unit.specialization)].texture;
+		return aerialSpecialization[(int)(unit.specialization)].texture;
 	}
 	internal Texture2D GetSpecialisationTexture(NavalUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return navalSpecializationEnemy[Convert.ToInt16(unit.specialization)].texture;
+			return navalSpecializationEnemy[(int)(unit.specialization)].texture;
 		}
-		return navalSpecialization[Convert.ToInt16(unit.specialization)].texture;
+		return navalSpecialization[(int)(unit.specialization)].texture;
 	}
-	internal Texture2D GetMovementTexture(GroundUnit unit, bool isEnemy) {
+	internal Texture2D GetProtectionTexture(GroundUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return movementTypeEnemy[Convert.ToInt16(unit.movementModifier)].texture;
+			return protectionTypeEnemy[(int)(unit.protectionType)].texture;
 		}
-		return movementType[Convert.ToInt16(unit.movementModifier)].texture;
+		return protectionType[(int)(unit.protectionType)].texture;
 	}
 	internal Texture2D GetTransportTexture(GroundUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return transportTypeEnemy[Convert.ToInt16(unit.transportModifier)].texture;
+			return transportTypeEnemy[(int)(unit.transportType)].texture;
 		}
-		return transportType[Convert.ToInt16(unit.transportModifier)].texture;
+		return transportType[(int)(unit.transportType)].texture;
 	}
 	internal Texture2D GetBaseTexture(BaseType type) {
-		return baseTypes[Convert.ToInt16(type)].texture;
+		return baseTypes[(int)(type)].texture;
 	}
 
 	#endregion
@@ -97,13 +97,13 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	internal Unit SpawnUnit(Vector3 position, UnitTier tier, string identification,
-		List<Equipment> unitEquipment, bool sideB, int specialization, GroundMovementType movementModifier,
-		GroundTransportType transportModifier, int domain) {
+		List<Equipment> unitEquipment, bool sideB, int specialization, GroundProtectionType protectionType,
+		GroundTransportType transportType, int domain) {
 		GameObject newUnit = Instantiate(groundTemplate, transform);
 		int i = GetLast();
 		if (domain == 0) {
 			GroundUnit unit = newUnit.AddComponent<GroundUnit>();
-			unit.Initiate(i, position, tier, identification, unitEquipment, sideB, specialization, movementModifier, transportModifier);
+			unit.Initiate(i, position, tier, identification, unitEquipment, sideB, specialization, protectionType, transportType);
 			AppendList(unit, i, groundUnits, aerialUnits, navalUnits);
 			return unit;
 		} else if (domain == 1) {
@@ -120,25 +120,30 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	internal void Despawn(GameObject gameObject) {
-		if (gameObject.GetComponent<Base>() == null) {
-			int index = gameObject.GetComponent<Unit>().ID;
-			if (gameObject.GetComponent<GroundUnit>() != null) {
-				groundUnits.RemoveAt(index);
-				gameObject.GetComponent<GroundUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
-				groundUnits.Insert(index, null);
-			} else if (gameObject.GetComponent<AerialUnit>() != null) {
-				aerialUnits.RemoveAt(index);
-				gameObject.GetComponent<AerialUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
-				aerialUnits.Insert(index, null);
-			} else {
-				navalUnits.RemoveAt(index);
-				gameObject.GetComponent<NavalUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
-				navalUnits.Insert(index, null);
+		if (gameObject != null) {
+			if (gameObject.GetComponent<Base>() == null) {
+				int index = gameObject.GetComponent<Unit>().ID;
+				if (gameObject.GetComponent<GroundUnit>() != null) {
+					groundUnits.RemoveAt(index);
+					gameObject.GetComponent<GroundUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
+					groundUnits.Insert(index, null);
+				}
+				else if (gameObject.GetComponent<AerialUnit>() != null) {
+					aerialUnits.RemoveAt(index);
+					gameObject.GetComponent<AerialUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
+					aerialUnits.Insert(index, null);
+				}
+				else {
+					navalUnits.RemoveAt(index);
+					gameObject.GetComponent<NavalUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
+					navalUnits.Insert(index, null);
+				}
 			}
-		} else {
-			bases.Remove(gameObject.GetComponent<Base>());
+			else {
+				bases.Remove(gameObject.GetComponent<Base>());
+			}
+			Destroy(gameObject);
 		}
-		Destroy(gameObject);
 	}
 
 	public int GetLast() {
@@ -223,40 +228,41 @@ public class UnitManager : MonoBehaviour {
 
 	internal void SpawnUnits(IList<IList<object>> units) {
 		for (int i = 0; i < units.Count; i++) {
-			if (units[i].Count > 8) {
-				int domain = Convert.ToInt16(units[i][2]);
+			if (units[i].Count > 9) {
+				int domain = Convert.ToInt16(units[i][0]);
+				Vector3 startingFrom = new Vector3(Convert.ToSingle(units[i][9], ApplicationController.culture), Convert.ToSingle(units[i][10], ApplicationController.culture), -0.1f);
 				Unit newUnit = Instance.SpawnUnit(
-					new Vector3(Convert.ToSingle(units[i][0], ApplicationController.culture), Convert.ToSingle(units[i][1], ApplicationController.culture), -0.1f),
-					(UnitTier)Enum.Parse(typeof(UnitTier), units[i][5].ToString()), //Tier
-					units[i][4].ToString(), //Spec.
+					new Vector3(Convert.ToSingle(units[i][1], ApplicationController.culture), Convert.ToSingle(units[i][2], ApplicationController.culture), -0.1f),
+					(UnitTier)Convert.ToInt16(units[i][3].ToString()), //Tier
+					units[i][4].ToString(), //Identification
 					new List<Equipment>(), //Equipment blank list
-					EnumUtil.ConvertIntToBool(Convert.ToInt16(units[i][6])), //Side
-					Convert.ToInt16(units[i][3]), //Side
-					(GroundMovementType)Enum.Parse(typeof(GroundMovementType), units[i][7].ToString()), //Ground movement type
-					(GroundTransportType)Enum.Parse(typeof(GroundTransportType), units[i][8].ToString()), //Ground transport type
+					EnumUtil.ConvertIntToBool(Convert.ToInt16(units[i][5])), //Side
+					Convert.ToInt16(units[i][6]), //Spec
+					(GroundProtectionType)Convert.ToInt16(units[i][7]), //Ground protection
+					(GroundTransportType)Convert.ToInt16(units[i][8]), //Ground transport
 					domain); //Domain
-				if (units[i].Count > 9) {
-					//Equipment
-					string[] lines = units[i][9].ToString().Split('\n');
 
-					for (int j = 0; j < lines.Length; j++) {
-						string[] word = lines[j].Split(':');
+				newUnit.StartPosition = startingFrom;
+				
+				string[] lines = units[i][11].ToString().Split('\n'); //Equipment
 
-						if (!newUnit.SideB) {
-							EquipmentManager.equipmentHostile[domain].ForEach(delegate (Equipment equipment) {
-								if (equipment.equipmentName == word[0]) {
-									newUnit.AddEquipment(EquipmentManager.CreateEquipment(equipment, Convert.ToInt16(word[1])));
-									return;
-								}
-							});
-						} else {
-							EquipmentManager.equipmentFriendly[domain].ForEach(delegate (Equipment equipment) {
-								if (equipment.equipmentName == word[0]) {
-									newUnit.AddEquipment(EquipmentManager.CreateEquipment(equipment, Convert.ToInt16(word[1])));
-									return;
-								}
-							});
-						}
+				for (int j = 0; j < lines.Length; j++) {
+					string[] word = lines[j].Split(':');
+
+					if (!newUnit.SideB) {
+						EquipmentManager.equipmentHostile[domain].ForEach(delegate (Equipment equipment) {
+							if (equipment.equipmentName == word[0]) {
+								newUnit.AddEquipment(EquipmentManager.CreateEquipment(equipment, Convert.ToInt16(word[1])));
+								return;
+							}
+						});
+					} else {
+						EquipmentManager.equipmentFriendly[domain].ForEach(delegate (Equipment equipment) {
+							if (equipment.equipmentName == word[0]) {
+								newUnit.AddEquipment(EquipmentManager.CreateEquipment(equipment, Convert.ToInt16(word[1])));
+								return;
+							}
+						});
 					}
 				}
 				SheetSync.unitsLength++;
