@@ -27,7 +27,7 @@ public class Equipment : MonoBehaviour {
 		this.specialization = specialization;
 		this.protection = protection;
 		this.transportation = transportation;
-		Debug.Log(this + " initiated.");
+		if(ApplicationController.isDebug) Debug.Log(this + " initiated.");
 	}
 
 	public override string ToString() {

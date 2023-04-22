@@ -214,6 +214,10 @@ public class UnitManager : MonoBehaviour {
 		bases.ForEach(b => { if (b != null) { b.ChangeAffiliation(); } });
 	}
 
+	public void CalculateSpotting() {
+		//TODO
+	}
+
 	#endregion
 
 	#region Initialization of sheet data
@@ -230,7 +234,7 @@ public class UnitManager : MonoBehaviour {
 		for (int i = 0; i < units.Count; i++) {
 			if (units[i].Count > 9) {
 				int domain = Convert.ToInt16(units[i][0]);
-				Vector3 startingFrom = new Vector3(Convert.ToSingle(units[i][9], ApplicationController.culture), Convert.ToSingle(units[i][10], ApplicationController.culture), -0.1f);
+				Vector3 startingFrom = new(Convert.ToSingle(units[i][9], ApplicationController.culture), Convert.ToSingle(units[i][10], ApplicationController.culture), -0.1f);
 				Unit newUnit = Instance.SpawnUnit(
 					new Vector3(Convert.ToSingle(units[i][1], ApplicationController.culture), Convert.ToSingle(units[i][2], ApplicationController.culture), -0.1f),
 					(UnitTier)Convert.ToInt16(units[i][3].ToString()), //Tier

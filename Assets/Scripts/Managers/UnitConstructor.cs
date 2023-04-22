@@ -133,7 +133,7 @@ public class UnitConstructor : MonoBehaviour {
 		//Generate new name if creating new unit
 		if (!Editing) {
 			UnityEngine.Random.Range(0, 100);
-			System.Random random = new();
+			_ = new System.Random();
 			finishButton.gameObject.SetActive(true);
 		} else {
 			finishButton.gameObject.SetActive(false);

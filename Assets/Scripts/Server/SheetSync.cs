@@ -7,8 +7,6 @@ using UnityEngine;
 
 public class SheetSync : MonoBehaviour {
 	public UIPopup generalPopup;
-	private readonly IList<IList<object>> sheetUnits = new List<IList<object>>();
-	private readonly IList<IList<object>> sheetBases = new List<IList<object>>();
 	private SheetReader ss;
 	internal static string passwordA;
 	internal static string passwordB;
@@ -17,32 +15,57 @@ public class SheetSync : MonoBehaviour {
 	internal static float pointsB = 0;
 	internal static int basesLength = 0;
 	internal static int unitsLength = 0;
+	internal static int Turn {get { return turn; } set {
+			turn = value;
+			turnLabelUI.UpdateText(turn);
+		} }
+	private static int turn = 0;
+	private static string turnPwd;
 	private static TextMeshProUGUI pointsLabel;
+	private static UITextFloatAppender turnLabelUI;
 
 	private void Awake() {
 		ss = GetComponent<SheetReader>();
 		pointsLabel = transform.parent.Find("UI/BottomPanel/Points").GetComponent<TextMeshProUGUI>();
+		turnLabelUI = transform.parent.Find("UI/BottomPanel/Turn").GetComponent<UITextFloatAppender>();
 	}
 
-
 	public void SaveSheet() {
-		//TODO No saving for now
-		return;
+		SaveBases();
+		SaveUnits();
+		SaveConfiguration();
+		generalPopup.PopUp("Saved!");
+	}
+
+	private void SaveConfiguration() {
+		IList<IList<object>> teamPoints = new List<IList<object>> {
+			new List<object> { turnPwd },
+			new List<object> { pointsA },
+			new List<object> { pointsB },
+			new List<object> { turn }
+		};
+
+		ss.SetSheetRange(teamPoints, $"Configuration!C6:C9");
+	}
+	private void SaveTurnPassword() {
+		ss.SetSheetRange(new List<IList<object>> { new List<object> { turnPwd } }, $"Configuration!C6:C6");
+	}
+	private void SaveBases() {
+		IList<IList<object>> sheetBases = new List<IList<object>>();
 		if (UnitManager.Instance.bases.Count > basesLength) {
 			basesLength = UnitManager.Instance.bases.Count;
 		}
-		if (UnitManager.Instance.aerialUnits.Count + UnitManager.Instance.groundUnits.Count + UnitManager.Instance.navalUnits.Count > unitsLength) {
-			unitsLength = UnitManager.Instance.aerialUnits.Count + UnitManager.Instance.groundUnits.Count + UnitManager.Instance.navalUnits.Count;
-		}
-
 		foreach (Base b in UnitManager.Instance.bases) {
 			sheetBases.Add(new List<object> { b.name, b.transform.position.x, b.transform.position.y, b.BaseType.ToString(), EnumUtil.ConvertBoolToInt(b.SideB) });
 		}
-
 		ss.SetSheetRange(sheetBases, $"Bases!A2:E{basesLength + 1}");
-
-		//0 Domain 12 Position 3 Tier 4 Name 5 SideB 6 Spec 7 Protection 8 Transport 9 10 Movement 11 Equipment	
-
+	}
+	private void SaveUnits() {
+		IList<IList<object>> sheetUnits = new List<IList<object>>();
+		
+		if (UnitManager.Instance.aerialUnits.Count + UnitManager.Instance.groundUnits.Count + UnitManager.Instance.navalUnits.Count > unitsLength) {
+			unitsLength = UnitManager.Instance.aerialUnits.Count + UnitManager.Instance.groundUnits.Count + UnitManager.Instance.navalUnits.Count;
+		}
 		foreach (GroundUnit unit in UnitManager.Instance.groundUnits) {
 			if (unit != null) {
 				sheetUnits.Add(new List<object> {0,
@@ -50,7 +73,7 @@ public class SheetSync : MonoBehaviour {
 				(int)unit.GetUnitTier(),
 				unit.name,
 				EnumUtil.ConvertBoolToInt(unit.SideB),
-				(int)unit.specialization, 
+				(int)unit.specialization,
 				(int)unit.protectionType,
 				(int)unit.transportType,
 				unit.StartPosition.x, unit.StartPosition.y,
@@ -87,8 +110,6 @@ public class SheetSync : MonoBehaviour {
 		}
 
 		ss.SetSheetRange(sheetUnits, $"Units!A2:L{unitsLength + 1}");
-
-		generalPopup.PopUp("Saved!");
 	}
 
 	public async void LoadSheet() {
@@ -138,29 +159,26 @@ public class SheetSync : MonoBehaviour {
 			Destroy(templates.GetChild(i).gameObject);
 		}
 
-		
+
 		/* TODO
-		* Turn system
-		* Keep movement range in sheet due to non finished turns
-		* Team points
-		* Fog of War
-		* Drawing things by user, lines eg
-		* Zooming out generates HQ units centered on average of positions of small units with their equipment.
-		* artillery and dice rolls
-		* Terrain based movement and base spawning
-		* Weather system
-		* When spot unit, cannot reset back to original position - spot only when right next to enemy, otherwise spot at the end of the turn
+		  Fog of War - when moving and unit is close, spot it and disable reseting the unit, otherwise spotting at the end of the turn
+		  User drawings using LineRenderer system or sprites for better symbols?
+		  Weather system using area box or circle around transform affecting range of moveables
+		  Terrain based spawning and movement - bases now spawning in the sea and units movable only on land or sea or both for air.
+		  Generating higher echelons on zoom out on centered position between smaller unit with sum of their equipment.
 		*/
 		//Administration
-		passwordA = PasswordManager.HashPassword(sheetConfiguration[0][0].ToString());
-		passwordB = PasswordManager.HashPassword(sheetConfiguration[1][0].ToString());
-		passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
-		pointsA = Convert.ToSingle(sheetConfiguration[3][0].ToString());
-		pointsB = Convert.ToSingle(sheetConfiguration[4][0].ToString());
+		passwordA = PasswordManager.HashPassword(sheetConfiguration[1][0].ToString());
+		passwordB = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
+		passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
+		pointsA = Convert.ToSingle(sheetConfiguration[5][0]);
+		pointsB = Convert.ToSingle(sheetConfiguration[6][0]);
 		UpdatePoints(0);
-		if (ApplicationController.applicationVersion != sheetConfiguration[5][0].ToString()) {
+		if (ApplicationController.applicationVersion != sheetConfiguration[0][0].ToString()) {
 			throw new InvalidProgramException("Wrong game version! Please update your application");
 		}
+		turn = Convert.ToInt16(sheetConfiguration[7][0]);
+		turnPwd = sheetConfiguration[4][0].ToString();
 
 		//Movables
 		EquipmentManager.CreateTemplates(equipmentData);
@@ -171,14 +189,6 @@ public class SheetSync : MonoBehaviour {
 		return true;
 	}
 
-	public string GetData(int x, int y) {
-		return sheetUnits[x][y].ToString();
-	}
-
-	public void SetData(int x, int y, string data) {
-		sheetUnits[x][y] = data;
-	}
-
 	public static void UpdatePoints(float addition) {
 		if (ApplicationController.isSideB) {
 			pointsB += addition;
@@ -187,6 +197,17 @@ public class SheetSync : MonoBehaviour {
 			pointsA += addition;
 			pointsLabel.text = $"Pts:{pointsA}";
 		}
+	}
 
+	public void FinishTurn() {
+		string pass = ApplicationController.Instance.transform.Find("UI/PopupWarningTurn/Password").GetComponent<TMP_InputField>().text;
+		if (turnPwd == pass) {
+			turnPwd = PasswordManager.HashPassword(pass);
+			SaveTurnPassword();
+			Turn++;
+			UnitManager.Instance.CalculateSpotting();
+		} else {
+			ApplicationController.generalPopup.PopUp("Wrong password! Ask the GM for the current one!");
+		}
 	}
 }

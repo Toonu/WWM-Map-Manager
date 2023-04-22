@@ -15,7 +15,7 @@ public class ApplicationController : MonoBehaviour {
 	internal static bool isDeletingMenus = false;
 	internal static bool isSideB = false;
 	internal static bool isAdmin = false;
-	internal static bool isDebug = true;
+	internal static bool isDebug = false;
 	internal static string applicationVersion = "v0.0.7";
 	internal static CultureInfo culture = new("en-GB");
 	internal static ApplicationController Instance { get { return _instance; } }
@@ -23,7 +23,7 @@ public class ApplicationController : MonoBehaviour {
 
 	//Used by the UI calls. Exist the application and also play editor mode.
 	public static void ExitApplication() {
-		if (ApplicationController.isDebug) Debug.Log("Exiting application.");
+		if (isDebug) Debug.Log("Exiting application.");
 		Application.Quit();
 #if UNITY_EDITOR
 		EditorApplication.ExitPlaymode();
@@ -122,7 +122,7 @@ public class ApplicationController : MonoBehaviour {
 
 	public void SetDebug(bool debug) {
 		isDebug = debug;
-		if (ApplicationController.isDebug) Debug.Log("Debug set to " + debug + ".");
+		Debug.Log("Debug set to " + debug + ".");
 		PlayerPrefs.SetInt("Debug", debug ? 1 : 0);
 		PlayerPrefs.Save();
 	}
