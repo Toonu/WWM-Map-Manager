@@ -159,9 +159,7 @@ public class SheetSync : MonoBehaviour {
 			Destroy(templates.GetChild(i).gameObject);
 		}
 
-
 		/* TODO
-		  Fog of War - when moving and unit is close, spot it and disable reseting the unit, otherwise spotting at the end of the turn
 		  User drawings using LineRenderer system or sprites for better symbols?
 		  Weather system using area box or circle around transform affecting range of moveables
 		  Terrain based spawning and movement - bases now spawning in the sea and units movable only on land or sea or both for air.
@@ -205,6 +203,7 @@ public class SheetSync : MonoBehaviour {
 			turnPwd = PasswordManager.HashPassword(pass);
 			SaveTurnPassword();
 			Turn++;
+			UnitManager.Instance.CalculatePositions();
 			UnitManager.Instance.CalculateSpotting();
 		} else {
 			ApplicationController.generalPopup.PopUp("Wrong password! Ask the GM for the current one!");

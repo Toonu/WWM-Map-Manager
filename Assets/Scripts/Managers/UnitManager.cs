@@ -215,7 +215,24 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	public void CalculateSpotting() {
-		//TODO
+		/*
+		foreach (Unit unit in groundUnits) {
+			if (unit != null) {
+				foreach (Unit other in groundUnits) {
+					if (other.SideB != ApplicationController.isSideB) {
+
+					}
+				}
+			}
+		}*/
+		//TODO Fog of War - when moving and unit is close, spot it and disable reseting the unit, otherwise spotting at the end of the turn
+	}
+
+	public void CalculatePositions() {
+		groundUnits.ForEach(unit => { if (unit != null) { unit.StartPosition = unit.transform.position; } });
+		aerialUnits.ForEach(unit => { if (unit != null) { unit.StartPosition = unit.transform.position; } });
+		navalUnits.ForEach(unit => { if (unit != null) { unit.StartPosition = unit.transform.position; } });
+		bases.ForEach(b => { if (b != null) { b.StartPosition = b.transform.position; } });
 	}
 
 	#endregion
