@@ -215,7 +215,7 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	public void CalculateSpotting() {
-		//TODO
+		//TODO - Need to duplicate units so theyre seen on old position for the enemy even when they already moved, maybe as an object under the unit at StartPosition from last turn. also add a method soft reseting everything at the end of the turn so their movement is fixed
 	}
 
 	#endregion
