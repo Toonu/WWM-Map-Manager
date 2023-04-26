@@ -37,36 +37,36 @@ public class UnitManager : MonoBehaviour {
 
 	internal Texture2D GetSpecialisationTexture(GroundUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return groundSpecializationEnemy[(int)(unit.specialization)].texture;
+			return groundSpecializationEnemy[(int)unit.specialization].texture;
 		}
-		return groundSpecialization[(int)(unit.specialization)].texture;
+		return groundSpecialization[(int)unit.specialization].texture;
 	}
 	internal Texture2D GetSpecialisationTexture(AerialUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return aerialSpecializationEnemy[(int)(unit.specialization)].texture;
+			return aerialSpecializationEnemy[(int)unit.specialization].texture;
 		}
-		return aerialSpecialization[(int)(unit.specialization)].texture;
+		return aerialSpecialization[(int)unit.specialization].texture;
 	}
 	internal Texture2D GetSpecialisationTexture(NavalUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return navalSpecializationEnemy[(int)(unit.specialization)].texture;
+			return navalSpecializationEnemy[(int)unit.specialization].texture;
 		}
-		return navalSpecialization[(int)(unit.specialization)].texture;
+		return navalSpecialization[(int)unit.specialization].texture;
 	}
 	internal Texture2D GetProtectionTexture(GroundUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return protectionTypeEnemy[(int)(unit.protectionType)].texture;
+			return protectionTypeEnemy[(int)unit.protectionType].texture;
 		}
-		return protectionType[(int)(unit.protectionType)].texture;
+		return protectionType[(int)unit.protectionType].texture;
 	}
 	internal Texture2D GetTransportTexture(GroundUnit unit, bool isEnemy) {
 		if (isEnemy) {
-			return transportTypeEnemy[(int)(unit.transportType)].texture;
+			return transportTypeEnemy[(int)unit.transportType].texture;
 		}
-		return transportType[(int)(unit.transportType)].texture;
+		return transportType[(int)unit.transportType].texture;
 	}
 	internal Texture2D GetBaseTexture(BaseType type) {
-		return baseTypes[(int)(type)].texture;
+		return baseTypes[(int)type].texture;
 	}
 
 	#endregion
@@ -84,6 +84,7 @@ public class UnitManager : MonoBehaviour {
 	public List<AerialUnit> aerialUnits = new();
 	public List<NavalUnit> navalUnits = new();
 	public List<Base> bases = new();
+	internal List<HigherUnit> higherEchelons = new();
 	#endregion
 
 	#region Spawning
@@ -94,6 +95,16 @@ public class UnitManager : MonoBehaviour {
 		b.Initiate(identification, position, baseType, sideB);
 		bases.Add(b);
 		return b;
+	}
+
+	internal HigherUnit SpawnHigherEchelonUnit(Vector3 position, List<Unit> lowerUnits, int identification = 0) {
+		GameObject newUnit = Instantiate(groundTemplate, transform.GetChild(1));
+		HigherUnit unit = newUnit.AddComponent<HigherUnit>();
+		higherEchelons.Add(unit);
+		int i = identification == 0 ? higherEchelons.IndexOf(unit) : identification;
+		unit.Initiate(i, position, lowerUnits);
+		unit.UnitParent = higherEchelons[0];
+		return unit;
 	}
 
 	internal Unit SpawnUnit(Vector3 position, UnitTier tier, string identification,
@@ -123,9 +134,9 @@ public class UnitManager : MonoBehaviour {
 		if (gameObject != null) {
 			if (gameObject.GetComponent<Base>() == null) {
 				int index = gameObject.GetComponent<Unit>().ID;
-				if (gameObject.GetComponent<GroundUnit>() != null) {
+				if (gameObject.GetComponent<HigherUnit>() != null) {
 					groundUnits.RemoveAt(index);
-					gameObject.GetComponent<GroundUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
+					gameObject.GetComponent<HigherUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 					groundUnits.Insert(index, null);
 				}
 				else if (gameObject.GetComponent<AerialUnit>() != null) {
@@ -212,7 +223,111 @@ public class UnitManager : MonoBehaviour {
 		aerialUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation(); } });
 		navalUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation(); } });
 		bases.ForEach(b => { if (b != null) { b.ChangeAffiliation(); } });
+		higherEchelons.ForEach(e => { if (e != null) { e.ChangeAffiliation(); } });
 	}
+
+	private class DistancePair {
+		public Unit unit;
+		public Unit distantUnit;
+		public float distance;
+		public DistancePair(Unit unit, Unit distantUnit, float distance) {
+			this.unit = unit;
+			this.distantUnit = distantUnit;
+			this.distance = distance;
+		}
+		public override string ToString() => unit.name + " -> " + distantUnit.name + " : " + distance;
+	}
+
+	public static Dictionary<Unit, List<Unit>> GroupUnits() {
+		List<Unit> units = new();
+
+		units.AddRange(Instance.aerialUnits.Where(unit => unit != null).Cast<Unit>());
+		units.AddRange(Instance.groundUnits.Where(unit => unit != null).Cast<Unit>());
+		units.AddRange(Instance.navalUnits.Where(unit => unit != null).Cast<Unit>());
+
+		Dictionary<Unit, List<Unit>> objectGroups = new();
+
+		// Calculate distances between all units
+		Dictionary<Unit, List<DistancePair>> objectDistances = new();
+		foreach (Unit obj in units) {
+			if (obj == null) continue;
+			List<DistancePair> closeObjects = new();
+			foreach (Unit otherObj in units) {
+				if (otherObj == null || obj == otherObj || obj.SideB != otherObj.SideB) continue;
+				closeObjects.Add(new DistancePair(obj, otherObj, Vector3.Distance(obj.transform.position, otherObj.transform.position)));
+			}
+			closeObjects.OrderBy(obj => obj.distance).ToList();
+			objectDistances[obj] = closeObjects;
+		}
+
+		HashSet<Unit> usedUnits = new();
+
+		// Group objects based on their distance from each other
+		foreach (KeyValuePair<Unit, List<DistancePair>> keyPair in objectDistances) {
+			if (keyPair.Value.Count == 0) continue;
+			//Getting average distance
+			float distance = 0.75f * keyPair.Value.Average(unit => unit.distance);
+			//Sort through the distances and add the closest groups
+			List<Unit> closeGroups = new();
+			foreach (DistancePair distancePair in keyPair.Value) {
+				//Add only units that aren't already grouped within the distance.
+				if (distancePair.distance < distance && !usedUnits.Contains(distancePair.distantUnit)) {
+					closeGroups.Add(distancePair.distantUnit);
+					usedUnits.Add(distancePair.unit);
+					usedUnits.Add(distancePair.distantUnit);
+				}
+			}
+			if (closeGroups.Count > 0) {
+				objectGroups[keyPair.Key] = closeGroups;
+			}
+		}
+
+		//Add units that had no groups to fit inside
+		foreach (Unit unit in units) {
+			if (unit != null && !usedUnits.Contains(unit)) {
+				objectGroups[unit] = new List<Unit>();
+			}
+		}
+
+		//Creating higher echelons
+		foreach (KeyValuePair<Unit, List<Unit>> keyPair in objectGroups) {
+			keyPair.Value.Add(keyPair.Key);
+			Unit higherUnit = Instance.SpawnHigherEchelonUnit(keyPair.Key.StartPosition, keyPair.Value);
+		}
+
+		//Hiding small units
+		foreach (Unit unit in units) {
+			if (unit != null) {
+				unit.gameObject.SetActive(false);
+			}
+		}
+		return objectGroups;
+	}
+
+
+	internal void UnGroupUnits() {
+		foreach (Unit unit in groundUnits) {
+			if (unit != null) {
+				unit.gameObject.SetActive(true);
+			}
+		}
+		foreach (Unit unit in aerialUnits) {
+			if (unit != null) {
+				unit.gameObject.SetActive(true);
+			}
+		}
+		foreach (Unit unit in navalUnits) {
+			if (unit != null) {
+				unit.gameObject.SetActive(true);
+			}
+		}
+		higherEchelons.Clear();
+		for (int i = 0; i < transform.GetChild(1).childCount; i++) {
+			Destroy(transform.GetChild(1).GetChild(i).gameObject);
+		}
+	}
+
+
 
 	public void CalculateSpotting() {
 		/*
@@ -265,6 +380,7 @@ public class UnitManager : MonoBehaviour {
 					domain); //Domain
 
 				newUnit.StartPosition = startingFrom;
+				newUnit.parentTextUI.text = EnumUtil.GetCorps(Convert.ToInt16(units[i][12]));
 				
 				string[] lines = units[i][11].ToString().Split('\n'); //Equipment
 

@@ -64,6 +64,11 @@ public class CameraController : MonoBehaviour {
 	private void ZoomCamera(float scrollDeltaY) {
 		float newSize = cam.orthographicSize - scrollDeltaY * sensitivity;
 		newSize = Mathf.Clamp(newSize, minZoom, maxZoom);
+		if (newSize == 1.5 && cam.orthographicSize == 1.25) {
+			UnitManager.GroupUnits();
+		} else if (newSize == 1.5 && cam.orthographicSize == 1.75) {
+			UnitManager.Instance.UnGroupUnits();
+		}
 		cam.orthographicSize = newSize;
 	}
 }

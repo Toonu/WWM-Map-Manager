@@ -77,7 +77,8 @@ public class SheetSync : MonoBehaviour {
 				(int)unit.protectionType,
 				(int)unit.transportType,
 				unit.StartPosition.x, unit.StartPosition.y,
-				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")) });
+				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")),
+				EnumUtil.GetCorpsInt(unit.parentTextUI.text) });
 			}
 		}
 		foreach (AerialUnit unit in UnitManager.Instance.aerialUnits) {
@@ -91,7 +92,8 @@ public class SheetSync : MonoBehaviour {
 				0,
 				0,
 				unit.StartPosition.x, unit.StartPosition.y,
-				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")) });
+				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")),
+				EnumUtil.GetCorpsInt(unit.parentTextUI.text)});
 			}
 		}
 		foreach (NavalUnit unit in UnitManager.Instance.navalUnits) {
@@ -105,11 +107,12 @@ public class SheetSync : MonoBehaviour {
 				0,
 				0,
 				unit.StartPosition.x, unit.StartPosition.y,
-				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")) });
+				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")),
+				EnumUtil.GetCorpsInt(unit.parentTextUI.text)});
 			}
 		}
 
-		ss.SetSheetRange(sheetUnits, $"Units!A2:L{unitsLength + 1}");
+		ss.SetSheetRange(sheetUnits, $"Units!A2:M{unitsLength + 1}");
 	}
 
 	public async void LoadSheet() {
@@ -120,7 +123,7 @@ public class SheetSync : MonoBehaviour {
 	}
 
 	public async Task<bool> LoadSheetAsync() {
-		IList<IList<object>> units = await ss.GetSheetRangeAsync("Units!A2:L");
+		IList<IList<object>> units = await ss.GetSheetRangeAsync("Units!A2:M");
 		IList<IList<object>> bases = await ss.GetSheetRangeAsync("Bases!A2:E");
 		IList<IList<object>> sheetConfiguration = await ss.GetSheetRangeAsync("Configuration!C2:C");
 		IList<IList<object>> equipmentData = await ss.GetSheetRangeAsync("Configuration!E2:N");
@@ -141,7 +144,7 @@ public class SheetSync : MonoBehaviour {
 		EquipmentManager.equipmentHostile[1].Clear();
 		EquipmentManager.equipmentHostile[2].Clear();
 
-		for (int i = 1; i < UnitManager.Instance.transform.childCount; i++) {
+		for (int i = 2; i < UnitManager.Instance.transform.childCount; i++) {
 			Destroy(UnitManager.Instance.transform.GetChild(i).gameObject);
 		}
 		Transform bas = UnitManager.Instance.transform.GetChild(0);
@@ -169,8 +172,8 @@ public class SheetSync : MonoBehaviour {
 		passwordA = PasswordManager.HashPassword(sheetConfiguration[1][0].ToString());
 		passwordB = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
 		passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
-		pointsA = Convert.ToSingle(sheetConfiguration[5][0]);
-		pointsB = Convert.ToSingle(sheetConfiguration[6][0]);
+		pointsA = Convert.ToSingle(sheetConfiguration[5][0], ApplicationController.culture);
+		pointsB = Convert.ToSingle(sheetConfiguration[6][0], ApplicationController.culture);
 		UpdatePoints(0);
 		if (ApplicationController.applicationVersion != sheetConfiguration[0][0].ToString()) {
 			throw new InvalidProgramException("Wrong game version! Please update your application");

@@ -52,7 +52,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		get => unitParent;
 		set {
 			unitParent = value;
-			parentTextUI.text = value.name;
+			parentTextUI.text = EnumUtil.GetCorps(value.name);
 			if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Parent unit changed to {value.name}");
 		}
 	}
@@ -85,8 +85,8 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 
 	private TextMeshProUGUI nameTextUI;
 	private TextMeshProUGUI tierTextUI;
-	private TextMeshProUGUI parentTextUI;
-	private TextMeshProUGUI equipmentTextUI;
+	internal TextMeshProUGUI parentTextUI;
+	protected TextMeshProUGUI equipmentTextUI;
 	#endregion
 
 	public virtual void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newIdentifier, List<Equipment> newEquipment, bool newSideB, int newSpecialization) {
@@ -102,7 +102,6 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		//For affecting units by their ID
 		ID = newID;
 		ChangeAffiliation(newSideB);
-		ChangeAffiliation();
 		ChangeSpecialization(newSpecialization);
 
 		movementRange = 0.3f;
@@ -134,6 +133,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	internal void AddEquipment(Equipment newEquipment) {
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Adding {newEquipment.Amount} of equipment {newEquipment.name}.");
 		equipmentList.Add(newEquipment);
+		
 		RecalculateAttributes();
 	}
 	/// <summary>
@@ -181,7 +181,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		}
 	}
 	private Vector3 startPosition;
-	public void OnDrag(PointerEventData eventData) {
+	public virtual void OnDrag(PointerEventData eventData) {
 		if (!ApplicationController.isAdmin && ApplicationController.isSideB != SideB) {
 			return;
 		}
@@ -192,7 +192,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		ResizeMovementCircle();
 	}
 
-	public void OnEndDrag(PointerEventData eventData) {
+	public virtual void OnEndDrag(PointerEventData eventData) {
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Moved to {transform.position}");
 		//transform.position = StartPosition; //Returns unit to its original position.
 	}
@@ -201,7 +201,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	/// Shows unit data.
 	/// </summary>
 	/// <param name="eventData"></param>
-	public void OnPointerEnter(PointerEventData eventData) {
+	public virtual void OnPointerEnter(PointerEventData eventData) {
 		if (!ApplicationController.isAdmin && ApplicationController.isSideB != SideB) {
 			return;
 		}
@@ -214,7 +214,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	/// Hides unit data.
 	/// </summary>
 	/// <param name="eventData"></param>
-	public void OnPointerExit(PointerEventData eventData) {
+	public virtual void OnPointerExit(PointerEventData eventData) {
 		sightRangeCircle.SetActive(false);
 		movementRangeCircle.SetActive(false);
 		equipmentTextUI.gameObject.SetActive(false);
