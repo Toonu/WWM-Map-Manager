@@ -208,6 +208,7 @@ public class ApplicationController : MonoBehaviour {
 		if (isLoggedIn) {
 			transform.Find("UI/Login").gameObject.SetActive(false);
 			server.CheckController();
+			server.StartUpdateLoop();
 			if (isController) {
 				generalPopup.PopUp("Logged in! You are your teams controller!", 3);
 			} else {

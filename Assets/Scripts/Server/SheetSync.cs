@@ -44,13 +44,20 @@ public class SheetSync : MonoBehaviour {
 	/// <summary>
 	/// Update the team points and turn every time period continuously.
 	/// </summary>
-	private async void Start() {
+	public async void StartUpdateLoop() {
+		
 		while (true) {
-			await LoadSheetConfigurationData();
+			//Non controller pulls, controller pushes updates.
+			if (!ApplicationController.isController) {
+				await LoadSheetConfigurationData();
 
-			await Task.Delay(30000);
-			if (ApplicationController.isDebug) {
-				Debug.Log("Updating sheet data.");
+				await Task.Delay(30000);
+				if (ApplicationController.isDebug) {
+					Debug.Log("Updating sheet data.");
+				}
+			} else {
+				SaveConfiguration();
+				//Save when unit drag stops, base drag stops or context menu is clicked?
 			}
 		}
 	}
@@ -217,14 +224,24 @@ public class SheetSync : MonoBehaviour {
 		} else if (!ApplicationController.isSideB && !controllerA) {
 			ApplicationController.isController = true;
 			SaveConfiguration();
+		} else {
+			ApplicationController.isController = false;
 		}
+	}
+
+	public void ReleaseController() {
+		ApplicationController.isController = false;
+		SaveConfiguration();
 	}
 
 	/*
 	TODO User drawings using LineRenderer system or sprites for better symbols?
 	TODO Weather system using area box or circle around transform affecting range of moveables
 	TODO Terrain based spawning and movement - bases now spawning in the sea and units movable only on land or sea or both for air.
-	TODO When updating turn or team points, it should be updated for other users as well somehow.
+
+	TODO Remove Load button options and popups. Instead do controller which will periodically upload changes and others who would pull it to them.
+	TODO Add button to release controller
+	TODO Have Save button only for controller 
 	*/
 
 	/// <summary>
