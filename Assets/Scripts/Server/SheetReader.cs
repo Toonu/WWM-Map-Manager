@@ -69,7 +69,7 @@ public class SheetReader : MonoBehaviour {
 	}
 }
 
-[System.Serializable]
+[Serializable]
 public class SheetData {
 	public string private_key;
 	public string client_email;

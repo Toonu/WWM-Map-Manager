@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-internal class HigherUnit : Unit {
+public class HigherUnit : Unit {
 	internal List<Unit> lowerUnits = new();
 	private readonly Dictionary<string, int> equipment = new();
 

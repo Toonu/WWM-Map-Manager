@@ -2,10 +2,15 @@
 using UnityEngine;
 
 public class UITextFloatAppender : MonoBehaviour {
+	[Tooltip("UI element containing the changeable text")]
 	private TextMeshProUGUI text;
+	[Tooltip("Original text of the element")]
 	private string originalText = "";
+	[Tooltip("Current float value")]
 	public float Value = 0;
-	//Loads the text component on awake.
+	/// <summary>
+	/// Loads the text component on awake.
+	/// </summary>
 	public void Initiate() {
 		text = gameObject.GetComponent<TextMeshProUGUI>();
 		originalText = text.text;

@@ -8,7 +8,9 @@ public class Circle : MonoBehaviour {
 	[Range(3, 256)]
 	public int numSegments = 128;
 
-	public void Update() {
+	/// <summary>
+	/// Method keeps redrawing the circle based on its radius and segment attributes.
+	public void FixedUpdate() {
 		LineRenderer lineRenderer = gameObject.GetComponent<LineRenderer>();
 		lineRenderer.positionCount = numSegments + 1;
 		lineRenderer.useWorldSpace = false;
@@ -25,6 +27,10 @@ public class Circle : MonoBehaviour {
 		}
 	}
 
+
+	/// <summary>
+	/// Method clears the circle lines.
+	/// </summary>
 	public void Clear() {
 		gameObject.GetComponent<LineRenderer>().positionCount = 0;
 	}

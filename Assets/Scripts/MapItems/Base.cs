@@ -9,6 +9,8 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 	[HideInInspector]
 	public bool SideB { get; set; }
 	[HideInInspector]
+	public bool IsGhost { get; set; }
+	[HideInInspector]
 	public BaseType BaseType {
 		get { return baseType; }
 		set {
@@ -31,6 +33,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 		StartPosition = transform.position;
 		BaseType = newType;
 		SideB = newSideB;
+		IsGhost = false;
 
 		BaseType = newType;
 		ChangeIdentification(newName);

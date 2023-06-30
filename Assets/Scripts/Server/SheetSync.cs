@@ -162,11 +162,10 @@ public class SheetSync : MonoBehaviour {
 			Destroy(templates.GetChild(i).gameObject);
 		}
 
-		/* TODO
-		  User drawings using LineRenderer system or sprites for better symbols?
-		  Weather system using area box or circle around transform affecting range of moveables
-		  Terrain based spawning and movement - bases now spawning in the sea and units movable only on land or sea or both for air.
-		  Generating higher echelons on zoom out on centered position between smaller unit with sum of their equipment.
+		/*
+		  TODO User drawings using LineRenderer system or sprites for better symbols?
+		  TODO Weather system using area box or circle around transform affecting range of moveables
+		  TODO Terrain based spawning and movement - bases now spawning in the sea and units movable only on land or sea or both for air.
 		*/
 		//Administration
 		passwordA = PasswordManager.HashPassword(sheetConfiguration[1][0].ToString());
@@ -206,7 +205,7 @@ public class SheetSync : MonoBehaviour {
 			turnPwd = PasswordManager.HashPassword(pass);
 			SaveTurnPassword();
 			Turn++;
-			UnitManager.Instance.CalculatePositions();
+			UnitManager.Instance.ResetStartPositions();
 			UnitManager.Instance.CalculateSpotting();
 		} else {
 			ApplicationController.generalPopup.PopUp("Wrong password! Ask the GM for the current one!");

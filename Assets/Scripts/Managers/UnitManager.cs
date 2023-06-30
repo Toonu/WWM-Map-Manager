@@ -214,18 +214,6 @@ public class UnitManager : MonoBehaviour {
 
 	#region Unit en-masse updates
 
-	public void ShowMissileRanges(bool show) {
-		groundUnits.ForEach(unit => { if (unit != null && unit.specialization == GroundSpecialization.SAM) { unit.WeaponRangeCircle.SetActive(show); } });
-	}
-
-	public void SwitchSide() {
-		groundUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation(); } });
-		aerialUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation(); } });
-		navalUnits.ForEach(unit => { if (unit != null) { unit.ChangeAffiliation(); } });
-		bases.ForEach(b => { if (b != null) { b.ChangeAffiliation(); } });
-		higherEchelons.ForEach(e => { if (e != null) { e.ChangeAffiliation(); } });
-	}
-
 	private class DistancePair {
 		public Unit unit;
 		public Unit distantUnit;
@@ -238,13 +226,33 @@ public class UnitManager : MonoBehaviour {
 		public override string ToString() => unit.name + " -> " + distantUnit.name + " : " + distance;
 	}
 
-	public static Dictionary<Unit, List<Unit>> GroupUnits() {
+	/// <summary>
+	/// Merges units of all three types into a single Unit type list.
+	/// </summary>
+	/// <returns>List<Unit> containing all three unit types.</Unit></returns>
+	public static List<Unit> MergeUnitLists() {
 		List<Unit> units = new();
-
 		units.AddRange(Instance.aerialUnits.Where(unit => unit != null).Cast<Unit>());
 		units.AddRange(Instance.groundUnits.Where(unit => unit != null).Cast<Unit>());
 		units.AddRange(Instance.navalUnits.Where(unit => unit != null).Cast<Unit>());
+		return units;
+	}
 
+	public void ShowMissileRanges(bool show) {
+		groundUnits.ForEach(unit => { if (unit != null && unit.specialization == GroundSpecialization.SAM) { unit.WeaponRangeCircle.SetActive(show); } });
+	}
+
+	public void SwitchSide() {
+		MergeUnitLists().ForEach(unit => unit.ChangeAffiliation());
+		bases.ForEach(b => { if (b != null) { b.ChangeAffiliation(); } });
+		higherEchelons.ForEach(e => { if (e != null) { e.ChangeAffiliation(); } });
+	}
+
+	public static Dictionary<Unit, List<Unit>> GroupUnits() {
+		//Merge unit lists into one
+		List<Unit> units = MergeUnitLists();
+
+		//Dictionary of distances to singular unit.
 		Dictionary<Unit, List<Unit>> objectGroups = new();
 
 		// Calculate distances between all units
@@ -306,27 +314,12 @@ public class UnitManager : MonoBehaviour {
 
 
 	internal void UnGroupUnits() {
-		foreach (Unit unit in groundUnits) {
-			if (unit != null) {
-				unit.gameObject.SetActive(true);
-			}
-		}
-		foreach (Unit unit in aerialUnits) {
-			if (unit != null) {
-				unit.gameObject.SetActive(true);
-			}
-		}
-		foreach (Unit unit in navalUnits) {
-			if (unit != null) {
-				unit.gameObject.SetActive(true);
-			}
-		}
+		MergeUnitLists().ForEach(unit => unit.gameObject.SetActive(true));
 		higherEchelons.Clear();
 		for (int i = 0; i < transform.GetChild(1).childCount; i++) {
 			Destroy(transform.GetChild(1).GetChild(i).gameObject);
 		}
 	}
-
 
 
 	public void CalculateSpotting() {
@@ -343,12 +336,20 @@ public class UnitManager : MonoBehaviour {
 		//TODO Fog of War - when moving and unit is close, spot it and disable reseting the unit, otherwise spotting at the end of the turn
 	}
 
-	public void CalculatePositions() {
-		groundUnits.ForEach(unit => { if (unit != null) { unit.StartPosition = unit.transform.position; } });
-		aerialUnits.ForEach(unit => { if (unit != null) { unit.StartPosition = unit.transform.position; } });
-		navalUnits.ForEach(unit => { if (unit != null) { unit.StartPosition = unit.transform.position; } });
+
+	public void ResetStartPositions() {
+		MergeUnitLists().ForEach(unit => unit.StartPosition = unit.transform.position);
 		bases.ForEach(b => { if (b != null) { b.StartPosition = b.transform.position; } });
-		//TODO - Need to duplicate units so theyre seen on old position for the enemy even when they already moved, maybe as an object under the unit at StartPosition from last turn. also add a method soft reseting everything at the end of the turn so their movement is fixed
+		//TODO - Need to duplicate units using the isGhost attribute in Unit and its StartPosition from last turn. also add a method soft reseting everything at the end of the turn so their movement is fixed
+	}
+
+
+	/// <summary>
+	/// Removes units flagged as ghost, eg. spotted units.
+	/// </summary>
+	public void DeleteGhostUnits() {
+		MergeUnitLists().RemoveAll(unit => unit.IsGhost);
+		bases.RemoveAll(b => b.IsGhost == true);
 	}
 
 	#endregion

@@ -15,6 +15,9 @@ public class CameraController : MonoBehaviour {
 		cam = GetComponent<Camera>();
 	}
 
+	/// <summary>
+	/// Method loads map from files and sets the program boundaries resolution.
+	/// </summary>
 	private void Start() {
 		Texture2D loadedMap = new(2, 2);
 		byte[] bytes = System.IO.File.ReadAllBytes(Application.dataPath + "/Map.png");
@@ -41,17 +44,24 @@ public class CameraController : MonoBehaviour {
 			Input.GetKey(KeyCode.DownArrow) ||
 			Input.GetKey(KeyCode.LeftArrow) ||
 			Input.GetKey(KeyCode.RightArrow))
-			MoveCameraBykey();
+			MoveCamera();
 	}
 
+	/// <summary>
+	/// Moving camera and clamping it to bounds.
+	/// </summary>
+	/// <param name="newPosition">New position.</param>
 	private void MoveCamera(Vector3 newPosition) {
+		//Moving camera
 		newPosition.x = Mathf.Clamp(newPosition.x, mapMin.x, mapMax.x);
 		newPosition.y = Mathf.Clamp(newPosition.y, mapMin.y, mapMax.y);
 		transform.position = newPosition;
 	}
 
-
-	private void MoveCameraBykey() {
+	/// <summary>
+	/// Moving camera by key
+	/// </summary>
+	private void MoveCamera() {
 		float specificSpeed = speed * Time.deltaTime * cam.orthographicSize / 30;
 		Vector3 newPosition = transform.position +
 			new Vector3((Convert.ToInt32(Input.GetKey(KeyCode.RightArrow))
@@ -61,6 +71,11 @@ public class CameraController : MonoBehaviour {
 		MoveCamera(newPosition);
 	}
 
+
+	/// <summary>
+	/// Zoom camera
+	/// </summary>
+	/// <param name="scrollDeltaY">Amount of scrolling.</param>
 	private void ZoomCamera(float scrollDeltaY) {
 		float newSize = cam.orthographicSize - scrollDeltaY * sensitivity;
 		newSize = Mathf.Clamp(newSize, minZoom, maxZoom);

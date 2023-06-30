@@ -1,12 +1,13 @@
-﻿
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Class for mouse click Context menus.
+/// </summary>
 [Serializable]
 public class ContextMenuItem {
 	public string text;             // text to display on button
@@ -40,6 +41,11 @@ public class ContextMenu : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Method creates the context menu at specified position with a list of Buttonns or UI elements in it.
+	/// </summary>
+	/// <param name="items">List<ContextMenuItemL> of UI elements</param>
+	/// <param name="position">Vector3 position of the context menu</param>
 	public void CreateContextMenu(List<ContextMenuItem> items, Vector3 position) {
 		Image panel = Instantiate(contentPanel, position, Quaternion.identity);
 		panel.transform.SetParent(canvas.transform);

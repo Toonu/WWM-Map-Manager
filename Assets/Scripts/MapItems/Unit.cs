@@ -10,6 +10,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 
 	internal int ID;
 	public bool SideB { get; set; }
+	public bool IsGhost { get; set; }
 
 	/// <summary>
 	/// Setter for the unit name which changes the name label and Object name.
@@ -103,6 +104,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		ID = newID;
 		ChangeAffiliation(newSideB);
 		ChangeSpecialization(newSpecialization);
+		IsGhost = false;
 
 		movementRange = 0.3f;
 		transform.position = new Vector3(newPosition.x, newPosition.y, -0.15f);

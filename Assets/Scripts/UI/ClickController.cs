@@ -29,10 +29,15 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		softReset = new Action<Image>(SoftResetAction);
 	}
 
+	/// <summary>
+	/// Function handles screen click
+	/// </summary>
+	/// <param name="eventData">Click PointeEventData</param>
 	public void OnPointerClick(PointerEventData eventData) {
 		if (eventData.button == PointerEventData.InputButton.Right) {
 			click = eventData;
 			contextMenuItems.Clear();
+			//Checks if click is above Unit, Base or the Map and shows contextual menu depending on those and User permission level.
 			if (eventData.pointerClick.GetComponent<Unit>() != null && (eventData.pointerClick.GetComponent<Unit>().SideB == ApplicationController.isSideB || ApplicationController.isAdmin)) {
 				sideB = eventData.pointerClick.GetComponent<Unit>().SideB;
 				position = eventData.pointerCurrentRaycast.screenPosition;
@@ -42,7 +47,6 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 					contextMenuItems.Add(new ContextMenuItem("Soft Reset", sampleButton, softReset));
 				}
 				contextMenuItems.Add(new ContextMenuItem("Reset", sampleButton, reset));
-
 			} else if (eventData.pointerClick.GetComponent<Base>() != null && (eventData.pointerClick.GetComponent<Base>().SideB == ApplicationController.isSideB || ApplicationController.isAdmin)) {
 				sideB = eventData.pointerClick.GetComponent<Base>().SideB;
 				position = eventData.pointerCurrentRaycast.screenPosition;
@@ -60,11 +64,16 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 				contextMenuItems.Add(new ContextMenuItem("Spawn Base", sampleButton, spawnBase));
 				position = eventData.pointerCurrentRaycast.screenPosition;
 			}
+			//Deletes the context menu after clicking any option or sets the isDeletingMenus flag in program so its closed when clicked anywhere else.
 			ContextMenu.Instance.CreateContextMenu(contextMenuItems, position);
 			ApplicationController.isDeletingMenus = true;
 		}
 	}
 
+	/// <summary>
+	/// Method opens Unit spawning menu.
+	/// </summary>
+	/// <param name="contextPanel"></param>
 	void SpawnAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		UnitConstructor constructor = UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>();
@@ -78,6 +87,10 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		UnitManager.Instance.unitMenu.SetActive(true);
 	}
 
+	/// <summary>
+	/// Method opens Base spawning menu.
+	/// </summary>
+	/// <param name="contextPanel"></param>
 	void SpawnBaseAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		BaseConstructor constructor = UnitManager.Instance.baseMenu.GetComponent<BaseConstructor>();
@@ -87,8 +100,13 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		UnitManager.Instance.baseMenu.SetActive(true);
 	}
 
+	/// <summary>
+	/// Method opens Unit or Base editing menu.
+	/// </summary>
+	/// <param name="contextPanel"></param>
 	void EditAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
+		//Checks if Base or Unit.
 		if (GetComponent<Base>() == null) {
 			UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>().UpdateUnit(GetComponent<Unit>());
 			UnitManager.Instance.unitMenu.SetActive(true);
@@ -98,21 +116,39 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		}
 	}
 
+	/// <summary>
+	/// Deletes Unit or Base.
+	/// </summary>
+	/// <param name="contextPanel"></param>
 	void DeleteAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		UnitManager.Instance.Despawn(gameObject);
 	}
 
+	/// <summary>
+	/// Method resets the Unit or Base to its Startposition.
+	/// </summary>
+	/// <param name="contextPanel"></param>
 	void ResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		transform.position = GetComponent<IMovable>().StartPosition;
 	}
 
+	/// <summary>
+	/// Method sets the Unit or Base Start position to its current position.
+	/// </summary>
+	/// <param name="contextPanel"></param>
 	void SoftResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		GetComponent<IMovable>().StartPosition = transform.position;
 	}
 
+	/// <summary>
+	/// Method returns Color under the cursor.
+	/// </summary>
+	/// <param name="pointerCurrentRaycast"></param>
+	/// <param name="target"></param>
+	/// <returns></returns>
 	public static Color GetColour(RaycastResult pointerCurrentRaycast, Transform target) {
 		RaycastHit2D hit = Physics2D.Raycast(pointerCurrentRaycast.worldPosition, pointerCurrentRaycast.worldNormal);
 		SpriteRenderer spriteRenderer = target.GetComponent<SpriteRenderer>();
@@ -127,6 +163,10 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		//Debug.Log(hex);
 	}
 
+	/// <summary>
+	/// Method updates Color under the cursor every time a cursor moves.
+	/// </summary>
+	/// <param name="eventData"></param>
 	public void OnPointerMove(PointerEventData eventData) {
 		//Debug.Log("<color=#" + ColorUtility.ToHtmlStringRGB(GetColour(eventData.pointerCurrentRaycast, transform.parent)) + ">PIXEL</color>");
 	}
