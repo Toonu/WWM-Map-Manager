@@ -17,6 +17,8 @@ public class SheetSync : MonoBehaviour {
 	internal static string passwordAdmin;		//Admin password
 	internal static float pointsA = 0;			//Team A points
 	internal static float pointsB = 0;			//Team B points
+	internal static bool controllerA = false;	//Team A controller
+	internal static bool controllerB = false;	//Team B controller
 	internal static int basesLength = 0;		//Amount of bases in the sheet
 	internal static int unitsLength = 0;        //Amount of bases in the sheet
 	internal static int Turn {get { return turn; } set {
@@ -45,6 +47,7 @@ public class SheetSync : MonoBehaviour {
 	private async void Start() {
 		while (true) {
 			await LoadSheetConfigurationData();
+
 			await Task.Delay(30000);
 			if (ApplicationController.isDebug) {
 				Debug.Log("Updating sheet data.");
@@ -65,20 +68,31 @@ public class SheetSync : MonoBehaviour {
 	/// <summary>
 	/// Method for saving the configuration to the sheet.
 	/// </summary>
-	private void SaveConfiguration() {
-		IList<IList<object>> teamPoints = new List<IList<object>> {
-			new List<object> { turnPwd },
-			new List<object> { pointsA },
-			new List<object> { pointsB },
-			new List<object> { turn }
-		};
+	public void SaveConfiguration() {
 		//Take all configuration data from the application and save it to the sheet.
-		ss.SetSheetRange(teamPoints, $"Configuration!C6:C9");
+		IList<IList<object>> teamPoints;
+		if (ApplicationController.isSideB) {
+			teamPoints = new List<IList<object>> {
+			new List<object> { turn },
+			new List<object> { turnPwd },
+			new List<object> { pointsB },
+			new List<object> { EnumUtil.ConvertBoolToInt(ApplicationController.isController) }
+			};
+			ss.SetSheetRange(teamPoints, $"Configuration!C8:C11");
+		} else {
+			teamPoints = new List<IList<object>> {
+			new List<object> { pointsA },
+			new List<object> { EnumUtil.ConvertBoolToInt(ApplicationController.isController) },
+			new List<object> { turn },
+			new List<object> { turnPwd }
+			};
+			ss.SetSheetRange(teamPoints, $"Configuration!C6:C9");
+		}
 	}
 	/// <summary>
 	/// Method for saving bases to the sheet.
 	/// </summary>
-	private void SaveBases() {
+	public void SaveBases() {
 		IList<IList<object>> sheetBases = new List<IList<object>>();
 		//Ensure that all bases in the sheet are removed and therefore duplicates averted. If move bases in app than sheet, rewrites the amount.
 		if (UnitManager.Instance.bases.Count > basesLength) {
@@ -92,7 +106,7 @@ public class SheetSync : MonoBehaviour {
 	/// <summary>
 	/// Method for saving units to the sheet.
 	/// </summary>
-	private void SaveUnits() {
+	public void SaveUnits() {
 		IList<IList<object>> sheetUnits = new List<IList<object>>();
 		//Avert duplicates by comparing amount of units in the sheet to the amount of units in the application and using the larger number.
 		if (UnitManager.Instance.aerialUnits.Count + UnitManager.Instance.groundUnits.Count + UnitManager.Instance.navalUnits.Count > unitsLength) {
@@ -178,14 +192,32 @@ public class SheetSync : MonoBehaviour {
 		passwordA = PasswordManager.HashPassword(sheetConfiguration[1][0].ToString());
 		passwordB = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
 		passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
-		pointsA = Convert.ToSingle(sheetConfiguration[5][0], ApplicationController.culture);
-		pointsB = Convert.ToSingle(sheetConfiguration[6][0], ApplicationController.culture);
-		turn = Convert.ToInt16(sheetConfiguration[7][0]);
-		turnPwd = sheetConfiguration[4][0].ToString();
+
+		
+		
+		pointsA = Convert.ToSingle(sheetConfiguration[4][0], ApplicationController.culture);
+		controllerA = EnumUtil.ConvertIntToBool(Convert.ToInt16(sheetConfiguration[5][0].ToString()));
+
+		turn = Convert.ToInt16(sheetConfiguration[6][0]);
+		turnPwd = sheetConfiguration[7][0].ToString();
+
+		pointsB = Convert.ToSingle(sheetConfiguration[8][0], ApplicationController.culture);
+		controllerB = EnumUtil.ConvertIntToBool(Convert.ToInt16(sheetConfiguration[9][0].ToString()));
+
 		//Update labels on the bottom panel of UI.
 		UpdateConfigurationLabels();
 
 		return true;
+	}
+
+	public void CheckController() {
+		if (ApplicationController.isSideB && !controllerB) {
+			ApplicationController.isController = true;
+			SaveConfiguration();
+		} else if (!ApplicationController.isSideB && !controllerA) {
+			ApplicationController.isController = true;
+			SaveConfiguration();
+		}
 	}
 
 	/*

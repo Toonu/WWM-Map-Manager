@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.UI.CanvasScaler;
 
 public class UnitManager : MonoBehaviour {
 	public static UnitManager Instance {
@@ -397,8 +398,13 @@ public class UnitManager : MonoBehaviour {
 
 
 	public void ResetStartPositions() {
-		MergeUnitLists().ForEach(unit => unit.StartPosition = unit.transform.position);
-		bases.ForEach(b => { if (b != null) { b.StartPosition = b.transform.position; } });
+		//Check if the Unit or Base is on the right side and if so, reset its position.
+		MergeUnitLists().ForEach(unit => {
+			if (unit.SideB == ApplicationController.isSideB) {
+				unit.StartPosition = unit.transform.position;
+			}
+		});
+		bases.ForEach(b => { if (b != null && b.SideB == ApplicationController.isSideB) { b.StartPosition = b.transform.position; } });
 		//TODO - Need to duplicate units using the isGhost attribute in Unit and its StartPosition from last turn. also add a method soft reseting everything at the end of the turn so their movement is fixed
 	}
 

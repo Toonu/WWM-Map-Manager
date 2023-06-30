@@ -10,13 +10,14 @@ public class ApplicationController : MonoBehaviour {
 	public SheetSync server;
 	public string Username { private get; set; }
 	public string Password { private get; set; }
+	public static bool isController = false;
 	#region Static methods and attributes.
 	internal static bool isLoggedIn = false;
 	internal static bool isDeletingMenus = false;
 	internal static bool isSideB = false;
 	internal static bool isAdmin = false;
 	internal static bool isDebug = false;
-	internal static string applicationVersion = "v0.0.8";
+	internal static string applicationVersion = "v0.0.9";
 	internal static CultureInfo culture = new("en-GB");
 	internal static ApplicationController Instance { get { return _instance; } }
 	private static ApplicationController _instance;
@@ -27,6 +28,10 @@ public class ApplicationController : MonoBehaviour {
 	/// </summary>
 	public static void ExitApplication() {
 		if (isDebug) Debug.Log("Exiting application.");
+		if (isController) {
+			isController = false;
+			Instance.server.SaveConfiguration();
+		}
 		Application.Quit();
 		#if UNITY_EDITOR
 		EditorApplication.ExitPlaymode();
@@ -201,11 +206,17 @@ public class ApplicationController : MonoBehaviour {
 		}
 		//Do when user logs in
 		if (isLoggedIn) {
-			generalPopup.PopUp("Logged In!");
 			transform.Find("UI/Login").gameObject.SetActive(false);
+			server.CheckController();
+			if (isController) {
+				generalPopup.PopUp("Logged in! You are your teams controller!", 3);
+			} else {
+				generalPopup.PopUp("Logged In!");
+			}
 			if (sideChange) {
 				UnitManager.Instance.SwitchSide();
 			}
+			
 		} else {
 			generalPopup.PopUp("Wrong credentials!", 3);
 		}

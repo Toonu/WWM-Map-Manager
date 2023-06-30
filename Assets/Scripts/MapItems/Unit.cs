@@ -209,7 +209,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 
 	public virtual void OnEndDrag(PointerEventData eventData) {
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Moved to {transform.position}");
-		//transform.position = StartPosition; //Returns unit to its original position.
+		ApplicationController.Instance.server.SaveUnits();
 	}
 
 	/// <summary>

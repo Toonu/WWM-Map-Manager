@@ -82,6 +82,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 	/// <param name="eventData"></param>
 	public void OnEndDrag(PointerEventData eventData) {
 		if (ApplicationController.isDebug) Debug.Log($"[{name}] Moved to {transform.position}");
+		ApplicationController.Instance.server.SaveBases();
 	}
 
 	#endregion
