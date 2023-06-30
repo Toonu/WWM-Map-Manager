@@ -8,6 +8,9 @@ public class BaseConstructor : MonoBehaviour {
 	private TMP_InputField baseName;
 	public static bool Editing = false;
 
+	/// <summary>
+	/// Method sets up Component references on startup and populates the UI with base options.
+	/// </summary>
 	public void Awake() {
 		type = transform.Find("BaseType").GetComponent<TMP_Dropdown>();
 		baseName = transform.Find("BaseName").GetComponent<TMP_InputField>();
@@ -70,7 +73,7 @@ public class BaseConstructor : MonoBehaviour {
 	public void UpdateBase() {
 		Editing = false;
 		if (ApplicationController.isDebug) Debug.Log("Base editor opened.");
-		constructedBase = UnitManager.Instance.SpawnBase("NewBase", Vector3.zero, BaseType.Base, false);
+		constructedBase = UnitManager.Instance.SpawnBase("NewBase", Vector3.zero, BaseType.Base, false, false);
 	}
 
 	public void Cancel() {

@@ -7,9 +7,11 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 	[HideInInspector]
 	public Vector3 StartPosition { get; set; }
 	[HideInInspector]
+	public int ID { get; set; }
+	[HideInInspector]
 	public bool SideB { get; set; }
 	[HideInInspector]
-	public bool IsGhost { get; set; }
+	public bool isGhost { get; set; }
 	[HideInInspector]
 	public BaseType BaseType {
 		get { return baseType; }
@@ -21,6 +23,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 			if (ApplicationController.isDebug) Debug.Log($"[{name}] Base type changed | {BaseType}");
 		}
 	}
+
 	private BaseType baseType;
 	private MeshRenderer icon;
 	private TextMeshProUGUI nameUI;
@@ -33,7 +36,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 		StartPosition = transform.position;
 		BaseType = newType;
 		SideB = newSideB;
-		IsGhost = false;
+		isGhost = false;
 
 		BaseType = newType;
 		ChangeIdentification(newName);
@@ -95,6 +98,7 @@ public class BaseEditor : Editor {
 		EditorGUILayout.LabelField("ID", b.name);
 		EditorGUILayout.LabelField("SideB", b.SideB.ToString());
 		EditorGUILayout.LabelField("Type", b.BaseType.ToString());
+		EditorGUILayout.LabelField("Ghost", b.isGhost.ToString());
 	}
 }
 #endif

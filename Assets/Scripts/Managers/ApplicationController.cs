@@ -20,17 +20,22 @@ public class ApplicationController : MonoBehaviour {
 	internal static CultureInfo culture = new("en-GB");
 	internal static ApplicationController Instance { get { return _instance; } }
 	private static ApplicationController _instance;
+	#endregion
 
-	//Used by the UI calls. Exist the application and also play editor mode.
+	/// <summary>
+	/// Used by the UI calls. Exits the application and also exits in the editor mode.
+	/// </summary>
 	public static void ExitApplication() {
 		if (isDebug) Debug.Log("Exiting application.");
 		Application.Quit();
-#if UNITY_EDITOR
+		#if UNITY_EDITOR
 		EditorApplication.ExitPlaymode();
-#endif
+		#endif
 	}
-	#endregion
 
+	/// <summary>
+	/// Method sets up Components on startup and loads settings.
+	/// </summary>
 	private void Awake() {
 		_instance = GetComponent<ApplicationController>();
 		generalPopup = transform.Find("UI/GeneralPopup").GetComponent<UIPopup>();
@@ -39,13 +44,17 @@ public class ApplicationController : MonoBehaviour {
 		Debug.unityLogger.filterLogType = LogType.Log;
 		LoadSettings();
 	}
+	/// <summary>
+	/// Starts server syncing.
+	/// </summary>
 	private async void Start() {
-		//Loads basic UI elements and starts server syncing.
 		await server.LoadSheetAsync();
 		transform.Find("UI/Loading").gameObject.SetActive(false);
 	}
+	/// <summary>
+	/// Checks for context menus so they can be deleted when any is open.
+	/// </summary>
 	private void Update() {
-		//Checks for context menus so they can be deleted when any is open.
 		if (isDeletingMenus && Input.GetKeyUp(KeyCode.Mouse0)) {
 			foreach (GameObject child in GameObject.FindGameObjectsWithTag("ContextMenus")) {
 				if (child.name == "ContextMenu(Clone)") {
@@ -55,7 +64,6 @@ public class ApplicationController : MonoBehaviour {
 			isDeletingMenus = false;
 		}
 	}
-
 
 	#region Settings
 	public Slider cameraSpeedSlider;
@@ -109,6 +117,10 @@ public class ApplicationController : MonoBehaviour {
 		PlayerPrefs.Save();
 	}
 
+	/// <summary>
+	/// Method sets the fullscreen mode and saves the setting.
+	/// </summary>
+	/// <param name="fullscreen"></param>
 	public void SetFullscreen(bool fullscreen) {
 		if (fullscreen) {
 			Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.FullScreenWindow);
@@ -119,7 +131,10 @@ public class ApplicationController : MonoBehaviour {
 		PlayerPrefs.Save();
 	}
 
-
+	/// <summary>
+	/// Method sets debug mode and saves the setting.
+	/// </summary>
+	/// <param name="debug"></param>
 	public void SetDebug(bool debug) {
 		isDebug = debug;
 		Debug.Log("Debug set to " + debug + ".");
@@ -140,7 +155,10 @@ public class ApplicationController : MonoBehaviour {
 
 	#endregion
 
-	//Used by buttons in the UI calls. Cannot be put to the Pw setter since that would hash already hashed passwords.
+	/// <summary>
+	/// Used by buttons in the UI calls. Cannot be put to the Pw setter since that would hash already hashed passwords.
+	/// </summary>
+	/// <param name="password"></param>
 	public void HashAndSetPassword(string password) => Password = PasswordManager.HashPassword(password);
 
 	/// <summary>

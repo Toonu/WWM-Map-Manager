@@ -10,11 +10,14 @@ using UnityEngine;
 using static Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource;
 
 public class SheetReader : MonoBehaviour {
-	static private string spreadsheetId;
-	static private string serviceAccountID;
-	static private string private_key;
-	static private SheetsService service;
+	static private string spreadsheetId;		//Sheet ID
+	static private string serviceAccountID;		//Account ID
+	static private string private_key;			//PK
+	static private SheetsService service;		//Service
 
+	/// <summary>
+	/// Initializes the service and the credentials.
+	/// </summary>
 	void Awake() {
 		Initiate();
 		ServiceAccountCredential.Initializer initializer = new(serviceAccountID);
@@ -29,6 +32,9 @@ public class SheetReader : MonoBehaviour {
 		);
 	}
 
+	/// <summary>
+	/// Reads the sheetData.json file and decrypts the data.
+	/// </summary>
 	public void Initiate() {
 		try {
 			string path = Application.dataPath + "/sheetData.json";
@@ -43,6 +49,11 @@ public class SheetReader : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Method gets data from the sheet.
+	/// </summary>
+	/// <param name="sheetNameAndRange">string AX:BZ coordinates</param>
+	/// <returns></returns>
 	public async Task<IList<IList<object>>> GetSheetRangeAsync(string sheetNameAndRange) {
 		GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, sheetNameAndRange);
 
@@ -52,6 +63,11 @@ public class SheetReader : MonoBehaviour {
 		return response.Values;
 	}
 
+	/// <summary>
+	/// Method sets data to the sheet.
+	/// </summary>
+	/// <param name="dataArray">Data to save to the sheet in 2D List<List<Object>> structure.</param>
+	/// <param name="range">string AX:BZ coordinates</param>
 	public void SetSheetRange(IList<IList<object>> dataArray, string range) {
 		service.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range).ExecuteAsync().ContinueWith(task => {
 			// Build the update request with the new data

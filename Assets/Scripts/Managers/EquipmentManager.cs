@@ -12,6 +12,9 @@ public class EquipmentManager : MonoBehaviour {
 	}
 	private static EquipmentManager _instance;
 
+	/// <summary>
+	/// Method sets up equipment lists and coponents on startup.
+	/// </summary>
 	private void Awake() {
 		_instance = GetComponent<EquipmentManager>();
 
@@ -23,6 +26,12 @@ public class EquipmentManager : MonoBehaviour {
 		equipmentFriendly.Add(2, new List<Equipment>());
 	}
 
+	/// <summary>
+	/// Method creates a new equipment object from template and returns it.
+	/// </summary>
+	/// <param name="template">Equipment template</param>
+	/// <param name="amount">int amount of created equipment</param>
+	/// <returns></returns>
 	internal static Equipment CreateEquipment(Equipment template, int amount) {
 		GameObject newEquipmentObject = Instantiate(_instance.equipmentTemplate, _instance.transform);
 		Equipment newEquipment = newEquipmentObject.AddComponent<Equipment>();
@@ -30,10 +39,16 @@ public class EquipmentManager : MonoBehaviour {
 		return newEquipment;
 	}
 
+	/// <summary>
+	/// Method creates equipment templates from sheet data list.
+	/// </summary>
+	/// <param name="equipmentData">2D List<List<Object>> of equipment data</param>
 	internal static void CreateTemplates(IList<IList<object>> equipmentData) {
 		GameObject templates = ApplicationController.Instance.transform.Find("Templates").gameObject;
 
+		//Loop through each row of data and create a new equipment template from it.
 		foreach (IList<object> col in equipmentData) {
+			//Ignore weird or empty rows.
 			if (col.Any(e => e.ToString() == "")) {
 				continue;
 			}

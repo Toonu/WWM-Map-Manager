@@ -17,6 +17,10 @@ public class UnitConstructor : MonoBehaviour {
 	private List<Equipment> equipmentTemplates = new();
 
 	public GroundUnit GetGroundUnit() => groundUnit;
+	/// <summary>
+	/// When new unit is assigned, clear old unit and update UI.
+	/// </summary>
+	/// <param name="newUnit">New unit to assign.</param>
 	internal void SetGroundUnit(GroundUnit newUnit) {
 		if (constructedUnit != null) {
 			UnitManager.Instance.Despawn(constructedUnit.gameObject);
@@ -29,6 +33,10 @@ public class UnitConstructor : MonoBehaviour {
 	}
 
 	public AerialUnit GetAerialUnit() => aerialUnit;
+	/// <summary>
+	/// When new unit is assigned, clear old unit and update UI.
+	/// </summary>
+	/// <param name="newUnit">New unit to assign.</param>
 	internal void SetAerialUnit(AerialUnit newUnit) {
 		if (constructedUnit != null) {
 			UnitManager.Instance.Despawn(constructedUnit.gameObject);
@@ -41,6 +49,10 @@ public class UnitConstructor : MonoBehaviour {
 	}
 
 	public NavalUnit GetNavalUnit() => navalUnit;
+	/// <summary>
+	/// When new unit is assigned, clear old unit and update UI.
+	/// </summary>
+	/// <param name="newUnit">New unit to assign.</param>
 	internal void SetNavalUnit(NavalUnit newUnit) {
 		if (constructedUnit != null) {
 			UnitManager.Instance.Despawn(constructedUnit.gameObject);
@@ -80,6 +92,9 @@ public class UnitConstructor : MonoBehaviour {
 	#endregion
 
 	#region UI Updates
+	/// <summary>
+	/// Method sets up Component references.
+	/// </summary>
 	public void Awake() {
 		domainUI = transform.GetChild(1).Find("UnitDomain").GetComponent<TMP_Dropdown>();
 		specializationUI = transform.GetChild(1).Find("UnitSpecialization").GetComponent<TMP_Dropdown>();
@@ -100,6 +115,9 @@ public class UnitConstructor : MonoBehaviour {
 		equipmentRangeLabelUI = transform.GetChild(3).Find("EqRange").GetComponent<UITextFloatAppender>();
 		equipmentPanelsUI = transform.GetChild(4).gameObject;
 	}
+	/// <summary>
+	/// Method sets up Full UI based on domain and other attributes.
+	/// </summary>
 	private void LoadUIOptions() {
 		string[] enumNames;
 		List<TMP_Dropdown.OptionData> options = new();
@@ -169,6 +187,9 @@ public class UnitConstructor : MonoBehaviour {
 			imageUI.transform.GetChild(2).gameObject.SetActive(false);
 		}
 	}
+	/// <summary>
+	/// Method updates UI cost attribute labels.
+	/// </summary>
 	private void UpdateStatLabels() {
 		equipmentCostLabelUI.UpdateText(constructedEquipment.cost * constructedEquipment.Amount);
 		equipmentSightLabelUI.UpdateText(constructedEquipment.sightRange);
@@ -186,6 +207,9 @@ public class UnitConstructor : MonoBehaviour {
 			rangeLabelUI.UpdateText(constructedEquipment.movementRange);
 		}
 	}
+	/// <summary>
+	/// Method updates UI options based on unit attributes after new unit is assigned or its equipment modified.
+	/// </summary>
 	private void UpdateOptions() {
 		//Returns the most numerous armour-traction type.
 		if (groundUnit != null) {
@@ -213,6 +237,10 @@ public class UnitConstructor : MonoBehaviour {
 	#endregion
 
 	#region Modifying Unit Equipment
+	/// <summary>
+	/// Method sets requested equipment amount.
+	/// </summary>
+	/// <param name="amount">int in a string</param>
 	public void SetEquipmentAmount(string amount) {
 		if (string.IsNullOrEmpty(amount)) {
 			ApplicationController.generalPopup.PopUp("Amount must be greater than 0", 5);
@@ -221,23 +249,39 @@ public class UnitConstructor : MonoBehaviour {
 			SetEquipmentAmount(Convert.ToInt16(amount));
 		}
 	}
+	/// <summary>
+	/// Method sets requested equipment amount.
+	/// </summary>
+	/// <param name="newAmount">int amount</param>
 	public void SetEquipmentAmount(int newAmount) {
 		constructedEquipment.Amount = newAmount;
 		equipmentAmountUI.text = newAmount.ToString();
 		if (ApplicationController.isDebug) Debug.Log("Set equipment amount to " + newAmount);
 		UpdateStatLabels();
 	}
+	/// <summary>
+	/// Method sets requested equipment type.
+	/// </summary>
+	/// <param name="type"></param>
 	public void SetEquipmentType(int type) {
 		constructedEquipment = equipmentTemplates[type];
 		if (ApplicationController.isDebug) Debug.Log("Set equipment type to " + constructedEquipment.equipmentName);
 	}
 
+	/// <summary>
+	/// Method removes equipment from unit and refunds it.
+	/// </summary>
+	/// <param name="equipment"></param>
+	/// <param name="refund"></param>
 	public void RemoveEquipment(Equipment equipment, bool refund = false) {
 		if (refund) SheetSync.UpdatePoints(equipment.cost * equipment.Amount);
 		if (ApplicationController.isDebug) Debug.Log("Removing equipment " + equipment);
 		constructedUnit.RemoveEquipment(equipment);
 		UpdateOptions();
 	}
+	/// <summary>
+	/// Method adds equipment to unit if it is not already present and pays for it.
+	/// </summary>
 	public void AddEquipment() {
 		foreach (Equipment equipment in constructedUnit.equipmentList) {
 			if (equipment.equipmentName == constructedEquipment.equipmentName) {
@@ -253,6 +297,10 @@ public class UnitConstructor : MonoBehaviour {
 		AddEquipmentUI(newEquipment);
 		UpdateOptions();
 	}
+	/// <summary>
+	/// Method creates new equipment UI element.
+	/// </summary>
+	/// <param name="equipment"></param>
 	private void AddEquipmentUI(Equipment equipment) {
 		GameObject equipmentLabel = Instantiate(equipmentPanel, equipmentPanelsUI.transform);
 		equipmentLabel.transform.GetChild(0).GetComponent<Button>().GetComponentInChildren<TextMeshProUGUI>().text = $"[{equipment.Amount,-3}] {equipment.equipmentName}";
@@ -321,17 +369,26 @@ public class UnitConstructor : MonoBehaviour {
 	#endregion
 
 	#region Menu loading and closing
+	/// <summary>
+	/// Method closes menu, modifying or spawning the unit as a result.
+	/// </summary>
 	public void Close() {
 		if (constructedUnit.equipmentList.Count == 0) ApplicationController.generalPopup.PopUp("You need at least one vehicle/equipment!");
 		else Clean();
 	}
 
+	/// <summary>
+	/// Method closes menu, destroying the unit.
+	/// </summary>
 	public void DespawnUnit() {
 		if (!Editing && constructedUnit != null) UnitManager.Instance.Despawn(constructedUnit.gameObject);
 		if (ApplicationController.isDebug) Debug.Log("Unit editor canceling.");
 		Clean();
 	}
 
+	/// <summary>
+	/// Method cleans all unit data and closes the menu.
+	/// </summary>
 	private void Clean() {
 		aerialUnit = null;
 		navalUnit = null;
@@ -342,10 +399,17 @@ public class UnitConstructor : MonoBehaviour {
 		if (ApplicationController.isDebug) Debug.Log("Unit editor closed.");
 	}
 
+	/// <summary>
+	/// Method clears all equipment UI elements Objects.
+	/// </summary>
 	private void ClearEquipment() {
 		for (int i = 0; i < equipmentPanelsUI.transform.childCount; i++) Destroy(equipmentPanelsUI.transform.GetChild(i).gameObject);
 	}
 
+	/// <summary>
+	/// Method updateds the whole Menu UI domain and reloads the UI elements.
+	/// </summary>
+	/// <param name="domain"></param>
 	public void UpdateDomain(int domain) {
 		unitDomain = domain;
 		domainUI.SetValueWithoutNotify(domain);
@@ -353,6 +417,10 @@ public class UnitConstructor : MonoBehaviour {
 		if (ApplicationController.isDebug) Debug.Log("Unit editor domain changed to " + domain);
 	}
 
+	/// <summary>
+	/// Method updates unit to edit.
+	/// </summary>
+	/// <param name="unit"></param>
 	public void UpdateUnit(Unit unit) {
 		Editing = true;
 		if (unit.GetType() == typeof(GroundUnit)) SetGroundUnit((GroundUnit)unit);
@@ -362,6 +430,10 @@ public class UnitConstructor : MonoBehaviour {
 		if (ApplicationController.isDebug) Debug.Log("Unit editor opened.");
 	}
 
+	/// <summary>
+	/// Method creates unit to edit.
+	/// </summary>
+	/// <param name="unit"></param>
 	public void UpdateUnit(int domain) {
 		Editing = false;
 		string newIdentifier = UnitManager.GenerateName(domain);

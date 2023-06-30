@@ -30,7 +30,7 @@ public static class PasswordManager {
 	private const int DerivationIterations = 1000;
 
 	public static string Encrypt(string plainText, string passPhrase) {
-		// Salt and IV is randomly generated each time, but is preprended to encrypted cipher text
+		// Salt and IV is randomly generated each time, but is preprended to encrypted cipher textLabelUI
 		// so that the same Salt and IV values can be used when decrypting.  
 		var saltStringBytes = Generate256BitsOfRandomEntropy();
 		var ivStringBytes = Generate256BitsOfRandomEntropy();
@@ -63,7 +63,7 @@ public static class PasswordManager {
 		var saltStringBytes = cipherTextBytesWithSaltAndIv.Take(Keysize / 8).ToArray();
 		// Get the IV bytes by extracting the next 32 bytes from the supplied cipherText bytes.
 		var ivStringBytes = cipherTextBytesWithSaltAndIv.Skip(Keysize / 8).Take(Keysize / 8).ToArray();
-		// Get the actual cipher text bytes by removing the first 64 bytes from the cipherText string.
+		// Get the actual cipher textLabelUI bytes by removing the first 64 bytes from the cipherText string.
 		var cipherTextBytes = cipherTextBytesWithSaltAndIv.Skip((Keysize / 8) * 2).Take(cipherTextBytesWithSaltAndIv.Length - ((Keysize / 8) * 2)).ToArray();
 
 		using var password = new Rfc2898DeriveBytes(passPhrase, saltStringBytes, DerivationIterations);

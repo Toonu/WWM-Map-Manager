@@ -77,6 +77,11 @@ public static class EnumUtil {
 		return Enum.GetValues(typeof(T)).Cast<T>();
 	}
 
+	/// <summary>
+	/// Method transforms unit tier int to string symbol.
+	/// </summary>
+	/// <param name="tier"></param>
+	/// <returns></returns>
 	internal static string GetUnitTier(int tier) {
 		return tier switch {
 			0 => "Ø",
@@ -88,7 +93,7 @@ public static class EnumUtil {
 	}
 
 	/// <summary>
-	/// Transfer int to roman numeral.
+	/// Method transfers unit ID int to roman numeral.
 	/// </summary>
 	/// <param name="unitIdentification">Unit int nameUI</param>
 	/// <returns>Roman numeral string</returns>
@@ -104,6 +109,11 @@ public static class EnumUtil {
 			   ones[unitIdentification % 10];
 	}
 
+	/// <summary>
+	/// Method transforms unit number ID string to roman numeral string.
+	/// </summary>
+	/// <param name="s"></param>
+	/// <returns></returns>
 	public static int GetCorpsInt(string s) {
 		Dictionary<char, int> romanDict = new() {
 		{'I', 1},
@@ -125,7 +135,7 @@ public static class EnumUtil {
 	}
 
 	/// <summary>
-	/// Transfer string to roman numeral if its int.
+	/// Method transfers unit ID string to roman numeral if its int.
 	/// </summary>
 	/// <param name="unitIdentification">Unit nameUI string.</param>
 	/// <returns>Roman numeral string</returns>
@@ -137,7 +147,7 @@ public static class EnumUtil {
 	}
 
 	/// <summary>
-	/// Converts a number to a string representation with the appropriate English ordinal suffix (e.g. 1st, 2nd, 3rd, 4th).
+	/// Method converts a number to a string representation with the appropriate English ordinal suffix (e.g. 1st, 2nd, 3rd, 4th).
 	/// </summary>
 	/// <param name="number">The number to convert.</param>
 	/// <returns>A string representing the ordinal version of the input number.</returns>
@@ -151,7 +161,12 @@ public static class EnumUtil {
 		};
 	}
 
-
+	/// <summary>
+	/// Method transforms amount of vehicles and unit domain to unit tier int.
+	/// </summary>
+	/// <param name="domain"></param>
+	/// <param name="vehicles"></param>
+	/// <returns></returns>
 	public static int GetUnitTier(int domain, int vehicles) {
 		return domain switch {
 			1 => vehicles switch {
@@ -187,10 +202,20 @@ public static class EnumUtil {
 		};
 	}
 
+	/// <summary>
+	/// Method transforms int to bool. 1 for true, anything else for false.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
 	public static bool ConvertIntToBool(int value) {
 		return value == 1;
 	}
 
+	/// <summary>
+	/// Method transforms bool to int. True for 1, false for 0.
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
 	public static int ConvertBoolToInt(bool value) {
 		return value ? 1 : 0;
 	}

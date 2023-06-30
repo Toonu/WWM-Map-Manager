@@ -2,29 +2,26 @@
 using UnityEngine;
 
 public class UITextFloatAppender : MonoBehaviour {
-	[Tooltip("UI element containing the changeable text")]
-	private TextMeshProUGUI text;
-	[Tooltip("Original text of the element")]
-	private string originalText = "";
-	[Tooltip("Current float value")]
-	public float Value = 0;
+	private TextMeshProUGUI textLabelUI;	//UI element containing the changeable textLabelUI.
+	private string originalText = "";		//Original textLabelUI of the element.
+	public float Value = 0;					//Current float value.
 	/// <summary>
-	/// Loads the text component on awake.
+	/// Method loads the textLabelUI component on awake.
 	/// </summary>
 	public void Initiate() {
-		text = gameObject.GetComponent<TextMeshProUGUI>();
-		originalText = text.text;
+		textLabelUI = gameObject.GetComponent<TextMeshProUGUI>();
+		originalText = textLabelUI.text;
 	}
 
 	/// <summary>
-	/// Updates the text ending with a new number.
+	/// Method updates the textLabelUI ending with a new number.
 	/// </summary>
 	/// <param name="replacementNumber">float value</param>
 	public void UpdateText(float replacementNumber) {
-		if (text == null) {
+		if (textLabelUI == null) {
 			Initiate();
 		}
 		Value = replacementNumber;
-		text.text = originalText + Value;
+		textLabelUI.text = originalText + Value;
 	}
 }

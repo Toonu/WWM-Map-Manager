@@ -8,15 +8,16 @@ using UnityEngine.EventSystems;
 public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler, IMovable, IEquatable<Unit> {
 	#region Attribute Get/Setters
 
-	internal int ID;
-	public bool SideB { get; set; }
-	public bool IsGhost { get; set; }
+	public int ID { get; set; }												//Unit identifier.
+	public bool SideB { get; set; }                                         //Unit affiliation.
+	public bool isGhost { get; set; }										//Unit spotting.
 
 	/// <summary>
 	/// Setter for the unit name which changes the name label and Object name.
 	/// </summary>
 	/// <param name="identification">New identifier</param>
 	internal virtual void SetName(string identification) {
+		//Change name to roman numberals if corps+.
 		if (GetUnitTier() > UnitTier.Division) {
 			nameTextUI.text = EnumUtil.GetCorps(identification);
 		} else {
@@ -26,7 +27,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Name changed to {identification}");
 	}
 
-	private UnitTier unitTier;
+	private UnitTier unitTier;												//Unit tier.
 	public UnitTier GetUnitTier() { return unitTier; }
 	public string GetUnitTierText() { return tierTextUI.text; }
 	/// <summary>
@@ -48,7 +49,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
 	}
 
-	private Unit unitParent;
+	private Unit unitParent;												//Higher unit
 	public Unit UnitParent {
 		get => unitParent;
 		set {
@@ -58,14 +59,14 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		}
 	}
 
-	internal List<Equipment> equipmentList;
+	internal List<Equipment> equipmentList;									//Equipment
 
 	/// <summary>
-	/// Changes unit affiliation textures based on user isSideB and unit isSideB.
+	/// Method changes unit affiliation textures based on user isSideB and unit isSideB.
 	/// </summary>
 	internal abstract void ChangeAffiliation();
 	/// <summary>
-	/// Changes unit affiliation directly.
+	/// Method changes unit affiliation directly.
 	/// </summary>
 	/// <param name="sideB"></param>
 	internal virtual void ChangeAffiliation(bool sideB) {
@@ -73,7 +74,10 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		ChangeAffiliation();
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Affiliation changed to side B: {sideB}");
 	}
-
+	/// <summary>
+	/// Method changes the unit specialization.
+	/// </summary>
+	/// <param name="specialization"></param>
 	internal abstract void ChangeSpecialization(int specialization);
 
 	#endregion
@@ -102,9 +106,11 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 
 		//For affecting units by their ID
 		ID = newID;
+		//Set unit affiliation side and also its textures.
 		ChangeAffiliation(newSideB);
 		ChangeSpecialization(newSpecialization);
-		IsGhost = false;
+		//For spotted units.
+		isGhost = false;
 
 		movementRange = 0.3f;
 		transform.position = new Vector3(newPosition.x, newPosition.y, -0.15f);
@@ -124,7 +130,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	}
 
 	/// <summary>
-	/// Adds Equipment from the List to the Unit equipment and edits the equipment string label.
+	/// Method adds Equipment from the List to the Unit equipment and edits the equipment string label.
 	/// </summary>
 	/// <param name="newEquipment">List of Equipment to add.</param>
 	internal void AddEquipment(List<Equipment> newEquipment) {
@@ -132,6 +138,10 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		equipmentList = newEquipment.ToList();
 		RecalculateAttributes();
 	}
+	/// <summary>
+	/// Method adds the equipment to the list.
+	/// </summary>
+	/// <param name="newEquipment"></param>
 	internal void AddEquipment(Equipment newEquipment) {
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Adding {newEquipment.Amount} of equipment {newEquipment.name}.");
 		equipmentList.Add(newEquipment);
@@ -139,7 +149,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		RecalculateAttributes();
 	}
 	/// <summary>
-	/// Removes the equipment from the list.
+	/// Method removes the equipment from the list and destroys its Object.
 	/// </summary>
 	/// <param name="template"></param>
 	internal void RemoveEquipment(Equipment template) {
@@ -149,6 +159,10 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		Destroy(equipment.gameObject);
 		RecalculateAttributes();
 	}
+	
+	/// <summary>
+	/// Method updates UI labels of the unit.
+	/// </summary>
 	internal virtual void RecalculateAttributes() {
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Recalculating unit attributes.");
 		//Equipment UI label.
@@ -163,8 +177,6 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		sightRangeCircle.transform.localScale = new Vector3(212 * sightRange, 212 * sightRange, 0);
 		WeaponRangeCircle.transform.localScale = new Vector3(212 * weaponRange, 212 * weaponRange, 0);
 		ResizeMovementCircle();
-
-		//Unit icon in separate Objects.
 	}
 
 	internal float sightRange = 0.25f;
@@ -182,6 +194,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 			if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Soft reset at [{transform.position}]");
 		}
 	}
+
 	private Vector3 startPosition;
 	public virtual void OnDrag(PointerEventData eventData) {
 		if (!ApplicationController.isAdmin && ApplicationController.isSideB != SideB) {

@@ -9,7 +9,9 @@ public class UnitManager : MonoBehaviour {
 	}
 	private static UnitManager _instance;
 
-	// Use this for initialization
+	/// <summary>
+	/// Method gathers the components on startup
+	/// </summary>
 	void Start() {
 		_instance = GetComponent<UnitManager>();
 
@@ -89,14 +91,30 @@ public class UnitManager : MonoBehaviour {
 
 	#region Spawning
 
-	internal Base SpawnBase(string identification, Vector3 position, BaseType baseType, bool sideB) {
+	/// <summary>
+	/// Method spawns a base and returns it.
+	/// </summary>
+	/// <param name="identification"></param>
+	/// <param name="position"></param>
+	/// <param name="baseType"></param>
+	/// <param name="sideB"></param>
+	/// <returns></returns>
+	internal Base SpawnBase(string identification, Vector3 position, BaseType baseType, bool sideB, bool isGhost) {
 		GameObject newBase = Instantiate(baseTemplate, transform.GetChild(0));
 		Base b = newBase.AddComponent<Base>();
 		b.Initiate(identification, position, baseType, sideB);
+		b.isGhost = isGhost;
 		bases.Add(b);
 		return b;
 	}
 
+	/// <summary>
+	/// Method spawns a higher echelon unit and returns it.
+	/// </summary>
+	/// <param name="position"></param>
+	/// <param name="lowerUnits"></param>
+	/// <param name="identification"></param>
+	/// <returns></returns>
 	internal HigherUnit SpawnHigherEchelonUnit(Vector3 position, List<Unit> lowerUnits, int identification = 0) {
 		GameObject newUnit = Instantiate(groundTemplate, transform.GetChild(1));
 		HigherUnit unit = newUnit.AddComponent<HigherUnit>();
@@ -107,6 +125,10 @@ public class UnitManager : MonoBehaviour {
 		return unit;
 	}
 
+	/// <summary>
+	/// Method spawns a unit and returns it.
+	/// </summary>
+	/// <returns>Unit spawned unit</returns>
 	internal Unit SpawnUnit(Vector3 position, UnitTier tier, string identification,
 		List<Equipment> unitEquipment, bool sideB, int specialization, GroundProtectionType protectionType,
 		GroundTransportType transportType, int domain) {
@@ -130,13 +152,17 @@ public class UnitManager : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Method despawns an Object.
+	/// </summary>
+	/// <param name="gameObject">Unit or Base Object</param>
 	internal void Despawn(GameObject gameObject) {
 		if (gameObject != null) {
 			if (gameObject.GetComponent<Base>() == null) {
 				int index = gameObject.GetComponent<Unit>().ID;
-				if (gameObject.GetComponent<HigherUnit>() != null) {
+				if (gameObject.GetComponent<GroundUnit>() != null) {
 					groundUnits.RemoveAt(index);
-					gameObject.GetComponent<HigherUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
+					gameObject.GetComponent<GroundUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 					groundUnits.Insert(index, null);
 				}
 				else if (gameObject.GetComponent<AerialUnit>() != null) {
@@ -157,6 +183,10 @@ public class UnitManager : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Method gets the last index of a list.
+	/// </summary>
+	/// <returns></returns>
 	public int GetLast() {
 		int maxLength = Math.Max(groundUnits.Count, Math.Max(aerialUnits.Count, navalUnits.Count));
 		for (int i = 0; i < maxLength; i++) {
@@ -167,6 +197,17 @@ public class UnitManager : MonoBehaviour {
 		return maxLength;
 	}
 
+	/// <summary>
+	/// Method appends a unit to a list based on its domain.
+	/// </summary>
+	/// <typeparam name="J"></typeparam>
+	/// <typeparam name="K"></typeparam>
+	/// <typeparam name="L"></typeparam>
+	/// <param name="obj"></param>
+	/// <param name="index"></param>
+	/// <param name="list"></param>
+	/// <param name="otherList"></param>
+	/// <param name="theOtherList"></param>
 	private void AppendList<J, K, L>(J obj, int index, List<J> list, List<K> otherList, List<L> theOtherList) {
 		int count = Math.Max(groundUnits.Count, Math.Max(aerialUnits.Count, navalUnits.Count));
 
@@ -194,6 +235,11 @@ public class UnitManager : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Method generates a random number for a unit ID.
+	/// </summary>
+	/// <param name="domain"></param>
+	/// <returns></returns>
 	public static string GenerateName(int domain) {
 		System.Random random = new();
 		bool notFound = true;
@@ -227,7 +273,7 @@ public class UnitManager : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Merges units of all three types into a single Unit type list.
+	/// Method merges units of all three types into a single Unit-type list.
 	/// </summary>
 	/// <returns>List<Unit> containing all three unit types.</Unit></returns>
 	public static List<Unit> MergeUnitLists() {
@@ -238,16 +284,27 @@ public class UnitManager : MonoBehaviour {
 		return units;
 	}
 
+	/// <summary>
+	/// Method updates all units weapon range visibility in the game.
+	/// </summary>
+	/// <param name="show"></param>
 	public void ShowMissileRanges(bool show) {
 		groundUnits.ForEach(unit => { if (unit != null && unit.specialization == GroundSpecialization.SAM) { unit.WeaponRangeCircle.SetActive(show); } });
 	}
 
+	/// <summary>
+	/// Method updated all units affiliation on switching the user side.
+	/// </summary>
 	public void SwitchSide() {
 		MergeUnitLists().ForEach(unit => unit.ChangeAffiliation());
 		bases.ForEach(b => { if (b != null) { b.ChangeAffiliation(); } });
 		higherEchelons.ForEach(e => { if (e != null) { e.ChangeAffiliation(); } });
 	}
 
+	/// <summary>
+	/// Method groups units into groups of units that are close to each other.
+	/// </summary>
+	/// <returns>Units grouped by distance</returns>
 	public static Dictionary<Unit, List<Unit>> GroupUnits() {
 		//Merge unit lists into one
 		List<Unit> units = MergeUnitLists();
@@ -312,7 +369,9 @@ public class UnitManager : MonoBehaviour {
 		return objectGroups;
 	}
 
-
+	/// <summary>
+	/// Method ungroups units and returns them to their original positions.
+	/// </summary>
 	internal void UnGroupUnits() {
 		MergeUnitLists().ForEach(unit => unit.gameObject.SetActive(true));
 		higherEchelons.Clear();
@@ -345,11 +404,11 @@ public class UnitManager : MonoBehaviour {
 
 
 	/// <summary>
-	/// Removes units flagged as ghost, eg. spotted units.
+	/// Method removes units flagged as ghost, eg. spotted units.
 	/// </summary>
 	public void DeleteGhostUnits() {
-		MergeUnitLists().RemoveAll(unit => unit.IsGhost);
-		bases.RemoveAll(b => b.IsGhost == true);
+		MergeUnitLists().RemoveAll(unit => unit.isGhost);
+		bases.RemoveAll(b => b.isGhost == true);
 	}
 
 	#endregion
@@ -357,8 +416,8 @@ public class UnitManager : MonoBehaviour {
 	#region Initialization of sheet data
 	internal void SpawnBases(IList<IList<object>> bases) {
 		for (int i = 0; i < bases.Count; i++) {
-			if (bases[i].Count == 5) {
-				Instance.SpawnBase(bases[i][0].ToString(), new Vector3(Convert.ToSingle(bases[i][1], ApplicationController.culture), Convert.ToSingle(bases[i][2], ApplicationController.culture), -0.1f), (BaseType)Enum.Parse(typeof(BaseType), bases[i][3].ToString()), EnumUtil.ConvertIntToBool(Convert.ToInt16(bases[i][4])));
+			if (bases[i].Count > 5) {
+				Instance.SpawnBase(bases[i][0].ToString(), new Vector3(Convert.ToSingle(bases[i][1], ApplicationController.culture), Convert.ToSingle(bases[i][2], ApplicationController.culture), -0.1f), (BaseType)Enum.Parse(typeof(BaseType), bases[i][3].ToString()), EnumUtil.ConvertIntToBool(Convert.ToInt16(bases[i][4])), EnumUtil.ConvertIntToBool(Convert.ToInt16(bases[i][5])));
 				SheetSync.basesLength++;
 			}
 		}
@@ -382,6 +441,7 @@ public class UnitManager : MonoBehaviour {
 
 				newUnit.StartPosition = startingFrom;
 				newUnit.parentTextUI.text = EnumUtil.GetCorps(Convert.ToInt16(units[i][12]));
+				newUnit.isGhost = EnumUtil.ConvertIntToBool(Convert.ToInt16(units[i][13]));
 				
 				string[] lines = units[i][11].ToString().Split('\n'); //Equipment
 

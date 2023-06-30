@@ -11,18 +11,18 @@ public class HigherUnit : Unit {
 
 	public void Initiate(int ID, Vector3 position, List<Unit> lowerUnits) {
 		this.lowerUnits = lowerUnits;
+		//Unnecessary UI elements
 		transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
 		transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
 		name = EnumUtil.GetCorpsInt(lowerUnits.GroupBy(unit => unit.parentTextUI.text).OrderByDescending(group => group.Count()).Select(group => group.Key).First()).ToString();
 
 		//name = EnumUtil.GetCorps(lowerUnits.GroupBy(unit => unit.parentTextUI.text).Max(group => group.Count()));
 		base.Initiate(ID, position, UnitTier.Corps, name, new List<Equipment>(), lowerUnits[0].SideB, 9);
-		parentTextUI.text = "I";
-		lowerUnits.ForEach(unit => { unit.UnitParent = this; });
+		parentTextUI.text = "I"; //1st Army parent to all of them.
+		lowerUnits.ForEach(unit => { unit.UnitParent = this; }); //Assign itself as parent to all lower units
 		transform.localScale *= 5;
 
-		//Add equipment to the higher unit from the lower units
-		
+		//Add equipment to the higher unit from the lower units for labeling purposes.
 		lowerUnits.ForEach(unit => {
 			unit.equipmentList.ForEach(e => {
 				if (equipment.ContainsKey(e.equipmentName)) {

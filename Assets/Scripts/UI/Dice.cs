@@ -4,11 +4,11 @@ using UnityEngine;
 
 internal class Dice : MonoBehaviour {
 	private readonly System.Random random = new();
-	public int dices = 1; //Amount of dices
-	public int sides = 6; //Amount of sides in dice
-	public int reduce = 0; //Amount to reduce from a roll result
-	private UITextFloatAppender result; //UI Label element containing the result text.
-	private TextMeshProUGUI resultLong; //UI Label element containing the result formula text.
+	public int dices = 1;					//Amount of dices
+	public int sides = 6;					//Amount of sides in dice
+	public int reduce = 0;					//Amount to reduce from a roll result
+	private UITextFloatAppender result;		//UI Label element containing the result textLabelUI.
+	private TextMeshProUGUI resultLong;		//UI Label element containing the result formula textLabelUI.
 
 	/// <summary>
 	/// Method assigns Components on startup.
@@ -30,6 +30,7 @@ internal class Dice : MonoBehaviour {
 	public void Roll() {
 		int result = 0;
 		resultLong.text = "Result: ";
+		//Roll each dice and add up the result.
 		for (int i = 0; i < dices; i++) {
 			int j = random.Next(1, sides + 1);
 			result += j;

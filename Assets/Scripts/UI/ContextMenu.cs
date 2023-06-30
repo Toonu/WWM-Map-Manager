@@ -6,13 +6,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Class for mouse click Context menus.
+/// Class containing ContextMenu button data.
 /// </summary>
 [Serializable]
 public class ContextMenuItem {
-	public string text;             // text to display on button
-	public Button button;           // sample button prefab
-	public Action<Image> action;    // delegate to method that needs to be executed when button is clicked
+	public string text;             // TextLabelUI to display on button
+	public Button button;           // Sample button prefab
+	public Action<Image> action;    // Delegate to method that needs to be executed when button is clicked
 
 	public ContextMenuItem(string text, Button button, Action<Image> action) {
 		this.text = text;
@@ -21,11 +21,13 @@ public class ContextMenuItem {
 	}
 }
 
+/// <summary>
+/// Class for mouse click Context menus.
+/// </summary>
 public class ContextMenu : MonoBehaviour {
-	public Image contentPanel;              // content panel prefab
-	public Canvas canvas;                   // link to icon canvas, where will be Context Menu
-
-	private static ContextMenu instance;    // some kind of singleton here
+	public Image contentPanel;              // Content panel prefab
+	public Canvas canvas;                   // Link to icon canvas, where will be Context Menu
+	private static ContextMenu instance;
 
 	public static ContextMenu Instance {
 		get {
@@ -51,6 +53,7 @@ public class ContextMenu : MonoBehaviour {
 		panel.transform.SetParent(canvas.transform);
 		panel.transform.SetAsLastSibling();
 
+		//Looping through the list of items and creating buttons for each of them.
 		foreach (var item in items) {
 			ContextMenuItem tempReference = item;
 			Button button = Instantiate(item.button);
@@ -64,6 +67,11 @@ public class ContextMenu : MonoBehaviour {
 		StartCoroutine(DelayTilEndOfFrame(panel));
 	}
 
+	/// <summary>
+	/// Method checks position against the program resolution and adjusts it if needed.
+	/// </summary>
+	/// <param name="panel">Adjusted Image Panel for knowing its size</param>
+	/// <returns></returns>
 	IEnumerator DelayTilEndOfFrame(Image panel) {
 		yield return new WaitForEndOfFrame();
 		panel.rectTransform.localScale = Vector3.one;

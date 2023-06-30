@@ -6,11 +6,11 @@ using UnityEngine.UI;
 
 
 public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMoveHandler {
-	public Button sampleButton;
-	private List<ContextMenuItem> contextMenuItems;
-	private Vector3 position;
-	private bool sideB;
-	private PointerEventData click;
+	public Button sampleButton;						//Button prefab
+	private List<ContextMenuItem> contextMenuItems;	//List of context menu items
+	private Vector3 position;						//Vector3 position of the click
+	private bool sideB;								//User allegiance
+	private PointerEventData click;					//Click event data
 
 	Action<Image> edit;
 	Action<Image> delete;
@@ -19,6 +19,9 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	Action<Image> softReset;
 	Action<Image> spawnBase;
 
+	/// <summary>
+	/// Method sets up actions
+	/// </summary>
 	void Awake() {
 		contextMenuItems = new List<ContextMenuItem>();
 		edit = new Action<Image>(EditAction);
@@ -37,7 +40,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		if (eventData.button == PointerEventData.InputButton.Right) {
 			click = eventData;
 			contextMenuItems.Clear();
-			//Checks if click is above Unit, Base or the Map and shows contextual menu depending on those and User permission level.
+			//Checks if click is above Unit, Base or the Map, unit allegianance, user allegiance and user permissions and shows contextual menu depending on those.
 			if (eventData.pointerClick.GetComponent<Unit>() != null && (eventData.pointerClick.GetComponent<Unit>().SideB == ApplicationController.isSideB || ApplicationController.isAdmin)) {
 				sideB = eventData.pointerClick.GetComponent<Unit>().SideB;
 				position = eventData.pointerCurrentRaycast.screenPosition;

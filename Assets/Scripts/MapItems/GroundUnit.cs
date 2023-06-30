@@ -11,7 +11,7 @@ public class GroundUnit : Unit {
 	internal GroundTransportType transportType = GroundTransportType.None;
 
 	public void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newName, List<Equipment> newEquipment, bool newSideB, int newSpecialization, GroundProtectionType newProtection, GroundTransportType newTransport) {
-		//Texture handling
+		//Texture Component handling
 		protectionTexture = transform.GetChild(0).GetChild(0).GetComponent<MeshRenderer>();
 		transportTexture = transform.GetChild(0).GetChild(1).GetComponent<MeshRenderer>();
 		ChangeSpecialization(newProtection);
@@ -92,6 +92,7 @@ public class GroundUnitEditor : Editor {
 		EditorGUILayout.LabelField("Specialization", unit.specialization.ToString());
 		EditorGUILayout.LabelField("Protection", unit.protectionType.ToString());
 		EditorGUILayout.LabelField("Transport", unit.transportType.ToString());
+		EditorGUILayout.LabelField("Ghost", unit.isGhost.ToString());
 		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")), EditorStyles.wordWrappedLabel);
 	}
 }

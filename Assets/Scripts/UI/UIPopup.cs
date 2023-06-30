@@ -5,8 +5,7 @@ using TMPro;
 using UnityEngine;
 
 public class UIPopup : MonoBehaviour {
-	[Tooltip("Popup UI text element.")]
-	private TextMeshProUGUI textLabelUI;
+	private TextMeshProUGUI textLabelUI; //Popup UI for the text label.
 
 	/// <summary>
 	/// Method sets up the Components on startup and switches the popup off.
@@ -17,9 +16,9 @@ public class UIPopup : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Method pops up the Popup for the specified duration with text.
+	/// Method pops up the Popup for the specified duration with textLabelUI.
 	/// </summary>
-	/// <param name="title">String text to show</param>
+	/// <param name="title">String textLabelUI to show</param>
 	/// <param name="duration">Float time duration in seconds</param>
 	public void PopUp(string title = "Saved!", float duration = 1.75f) {
 		textLabelUI.text = title;
@@ -28,9 +27,9 @@ public class UIPopup : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// Method pops up the Popup for the specified duration with specified text and waits for it to finish.
+	/// Method pops up the Popup for the specified duration with specified textLabelUI and waits for it to finish.
 	/// </summary>
-	/// <param name="title">String text to show</param>
+	/// <param name="title">String textLabelUI to show</param>
 	/// <param name="duration">Float time duration in seconds</param>
 	/// <returns></returns>
 	public async Task PopUpAsync(string title = "Saved!", float duration = 1.75f) {
