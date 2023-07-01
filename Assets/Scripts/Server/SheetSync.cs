@@ -286,8 +286,12 @@ public class SheetSync : MonoBehaviour {
 		}
 	}
 
-	public async void CheckController(TextMeshProUGUI buttonLabelUI = null) {
-		if (buttonLabelUI == null) { buttonLabelUI = controllerLabelTextUI; }
+	public async void CheckController() {
+		await CheckController(controllerLabelTextUI);
+	}
+
+	public async Task CheckController(TextMeshProUGUI buttonLabelUI) {
+		if (buttonLabelUI == null) buttonLabelUI = controllerLabelTextUI;
 		if (ApplicationController.isController) {
 			ApplicationController.isController = false;
 			if (ApplicationController.isDebug) {

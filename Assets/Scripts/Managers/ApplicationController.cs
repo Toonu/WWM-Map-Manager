@@ -17,7 +17,7 @@ public class ApplicationController : MonoBehaviour {
 	internal static bool isDeletingMenus = false;
 	internal static bool isSideB = false;
 	internal static bool isAdmin = false;
-	internal static bool isDebug = false;
+	internal static bool isDebug = true;
 	internal static string applicationVersion = "v0.0.9";
 	internal static CultureInfo culture = new("en-GB");
 	internal static ApplicationController Instance { get { return _instance; } }
@@ -50,6 +50,7 @@ public class ApplicationController : MonoBehaviour {
 		generalPopup = transform.Find("UI/GeneralPopup").GetComponent<UIPopup>();
 		mainCamera = Camera.main.GetComponent<CameraController>();
 		isAdmin = false;
+		isController = false;
 		Debug.unityLogger.filterLogType = LogType.Log;
 		LoadSettings();
 	}
@@ -173,7 +174,7 @@ public class ApplicationController : MonoBehaviour {
 	/// <summary>
 	/// Logs in the user based on input fields in the settings.
 	/// </summary>
-	public void Login() {
+	public async void Login() {
 		//Sidechange swaps the unit icons if the isSideB changes.
 		bool sideChange = false;
 		//Login logic based on three user approach
@@ -211,7 +212,7 @@ public class ApplicationController : MonoBehaviour {
 		//Do when user logs in
 		if (isLoggedIn) {
 			transform.Find("UI/Login").gameObject.SetActive(false);
-			server.CheckController();
+			await server.CheckController(null);
 			server.StartUpdateLoop();
 			if (isController) {
 				generalPopup.PopUp("Logged in! You are your teams controller!", 3);
