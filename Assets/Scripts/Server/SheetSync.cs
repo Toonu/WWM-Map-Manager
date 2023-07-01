@@ -269,19 +269,18 @@ public class SheetSync : MonoBehaviour {
 		while (true) {
 			//Non controller pulls, controller pushes updates.
 			if (!ApplicationController.isController) {
-				await LoadSheetConfigurationData();
+				await LoadSheetAsync();
 				if (ApplicationController.isDebug) {
 					Debug.Log("Pulling sheet data.");
 				}
-				await Task.Delay(30000);
+				await Task.Delay(10000);
 			} else {
-				//Saving just configuration because unit movements and handled in Unit OnDragEnd.
+				//Saving just configuration because unit movements and handled in Unit OnDragEnd and unit or base editing and soft resets in IClickController and Constructors.
 				SaveConfiguration();
 				if (ApplicationController.isDebug) {
 					Debug.Log("Pushing sheet data.");
 				}
 				await Task.Delay(14500);
-				//Save unit spawned or despawned?
 			}
 		}
 	}
@@ -291,29 +290,25 @@ public class SheetSync : MonoBehaviour {
 	}
 
 	public async Task CheckController(TextMeshProUGUI buttonLabelUI) {
-		if (buttonLabelUI == null) buttonLabelUI = controllerLabelTextUI;
+		controllerLabelTextUI = buttonLabelUI != null ? buttonLabelUI : controllerLabelTextUI;
+		bool isCurrentController = false;
 		if (ApplicationController.isController) {
 			ApplicationController.isController = false;
-			if (ApplicationController.isDebug) {
-				Debug.Log("Control yielded!");
-			}
+			if (ApplicationController.isDebug) Debug.Log("Control yielded!");
 			SaveConfiguration();
-			buttonLabelUI.text = "  Take control";
-			controllerSaveButtonUI.interactable = false;
-			controllerTurnButtonUI.interactable = false;
+		} else {
+			await LoadSheetConfigurationData();
+			isCurrentController = (ApplicationController.isSideB && !controllerB) || (!ApplicationController.isSideB && !controllerA);
+			ApplicationController.isController = isCurrentController;
+			if (ApplicationController.isDebug) Debug.Log(isCurrentController ? "Control taken!" : "Control not available!");
+			//Save onto server only if user becomes controller or yields a controller so everyone can apply for it again.
+			if (ApplicationController.isController) SaveConfiguration();
 		}
-		await LoadSheetConfigurationData();
-		//I am side B and Side B has no controller > I become controller.
-		if ((ApplicationController.isSideB && !controllerB) || (!ApplicationController.isSideB && !controllerA)) {
-			ApplicationController.isController = true;
-			if (ApplicationController.isDebug) {
-				Debug.Log("Control taken!");
-			}
-			SaveConfiguration();
-			buttonLabelUI.text = "  Yield control";
-			controllerSaveButtonUI.interactable = true;
-			controllerTurnButtonUI.interactable = true;
-		}
+		
+		//UI
+		controllerLabelTextUI.text = isCurrentController ? "  Yield control" : "  Take control";
+		controllerSaveButtonUI.interactable = isCurrentController;
+		controllerTurnButtonUI.interactable = isCurrentController;
 	}
 
 	#endregion

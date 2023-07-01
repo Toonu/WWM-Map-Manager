@@ -398,6 +398,10 @@ public class UnitConstructor : MonoBehaviour {
 		ClearEquipment();
 		gameObject.SetActive(false);
 		if (ApplicationController.isDebug) Debug.Log("Unit editor closed.");
+		//Saving any edits or spawns to the server.
+		if (ApplicationController.isController) {
+			ApplicationController.Instance.server.SaveUnits();
+		}
 	}
 
 	/// <summary>

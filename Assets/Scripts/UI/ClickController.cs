@@ -135,6 +135,10 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	void ResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		transform.position = GetComponent<IMovable>().StartPosition;
+		//Saves base reseting its position.
+		if (ApplicationController.isController && GetComponent<Base>() != null) {
+			ApplicationController.Instance.server.SaveBases();
+		}
 	}
 
 	/// <summary>
@@ -144,6 +148,10 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	void SoftResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		GetComponent<IMovable>().StartPosition = transform.position;
+		//Saves unit soft reseting its base position.
+		if (ApplicationController.isController) {
+			ApplicationController.Instance.server.SaveUnits();
+		}
 	}
 
 	/// <summary>
