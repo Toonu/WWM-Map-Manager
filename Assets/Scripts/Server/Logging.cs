@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 public class Logging : MonoBehaviour {
@@ -45,3 +46,19 @@ public class Logging : MonoBehaviour {
 		}
 	}
 }
+
+#if UNITY_EDITOR
+[InitializeOnLoad]
+public class PlayModeExitListener {
+	static PlayModeExitListener() {
+		EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+	}
+
+	private static void OnPlayModeStateChanged(PlayModeStateChange state) {
+		if (state == PlayModeStateChange.ExitingPlayMode) {
+			ApplicationController.isController = false;
+			ApplicationController.Instance.server.SaveConfiguration();
+		}
+	}
+}
+#endif

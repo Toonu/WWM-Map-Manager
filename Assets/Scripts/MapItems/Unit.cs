@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -209,7 +210,9 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 
 	public virtual void OnEndDrag(PointerEventData eventData) {
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Moved to {transform.position}");
-		ApplicationController.Instance.server.SaveUnits();
+		if (ApplicationController.isController) {
+			ApplicationController.Instance.server.SaveUnits();
+		}
 	}
 
 	/// <summary>

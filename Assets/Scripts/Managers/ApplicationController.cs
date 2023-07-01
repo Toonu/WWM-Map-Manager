@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -26,12 +27,15 @@ public class ApplicationController : MonoBehaviour {
 	/// <summary>
 	/// Used by the UI calls. Exits the application and also exits in the editor mode.
 	/// </summary>
-	public static void ExitApplication() {
-		if (isDebug) Debug.Log("Exiting application.");
+	public async static void ExitApplication() {
+		//Handle controller assignment if no controler is already active.
 		if (isController) {
 			isController = false;
+			//Giving time for the server to save the configuration.
 			Instance.server.SaveConfiguration();
+			await Task.Delay(1500);
 		}
+		Debug.Log("Exiting application.");
 		Application.Quit();
 		#if UNITY_EDITOR
 		EditorApplication.ExitPlaymode();

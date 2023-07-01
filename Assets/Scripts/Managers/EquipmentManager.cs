@@ -50,6 +50,8 @@ public class EquipmentManager : MonoBehaviour {
 		foreach (IList<object> col in equipmentData) {
 			//Ignore weird or empty rows.
 			if (col.Any(e => e.ToString() == "")) {
+				//Reports any issues with equipment templates creation.
+				if (col[6].ToString() == "" || Convert.ToInt16(col[6]) != 3) Debug.Log($"There was issue creating {col[0]} - F/{col[1]}|G/{col[2]}|H/{col[3]}|I/{col[4]}|J/{col[5]}|K/{col[6]}|L/{col[7]}|M/{col[8]}|N/{col[9]}!");
 				continue;
 			}
 			GameObject newEquipmentObject = Instantiate(Instance.equipmentTemplate, templates.transform);

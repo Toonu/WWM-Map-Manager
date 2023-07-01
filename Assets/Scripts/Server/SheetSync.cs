@@ -1,14 +1,17 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SheetSync : MonoBehaviour {
 	public UIPopup generalPopup;	//General Popup UI to show messages
-	private SheetReader ss;			//Sheet connection
+	private SheetReader ss;         //Sheet connection
+	public TextMeshProUGUI controllerLabelTextUI = null;
+	public Button controllerSaveButtonUI;
+	public Button controllerTurnButtonUI;
 
 	#region Static Internal Variables
 
@@ -21,11 +24,7 @@ public class SheetSync : MonoBehaviour {
 	internal static bool controllerB = false;	//Team B controller
 	internal static int basesLength = 0;		//Amount of bases in the sheet
 	internal static int unitsLength = 0;        //Amount of bases in the sheet
-	internal static int Turn {get { return turn; } set {
-			turn = value;
-			turnLabelUI.UpdateText(turn); //Updating turn label UI element.
-		} }
-	private static int turn = 0;				//Turn number
+	private static string turn = "A";			//Turn number
 	private static string turnPwd;				//Turn password for finishing turn
 	private static UITextFloatAppender pointsLabel;	//Team points UI element
 	private static UITextFloatAppender turnLabelUI; //Turn label UI element
@@ -41,26 +40,7 @@ public class SheetSync : MonoBehaviour {
 		turnLabelUI = transform.parent.Find("UI/BottomPanel/Turn").GetComponent<UITextFloatAppender>();
 	}
 
-	/// <summary>
-	/// Update the team points and turn every time period continuously.
-	/// </summary>
-	public async void StartUpdateLoop() {
-		
-		while (true) {
-			//Non controller pulls, controller pushes updates.
-			if (!ApplicationController.isController) {
-				await LoadSheetConfigurationData();
-
-				await Task.Delay(30000);
-				if (ApplicationController.isDebug) {
-					Debug.Log("Updating sheet data.");
-				}
-			} else {
-				SaveConfiguration();
-				//Save when unit drag stops, base drag stops or context menu is clicked?
-			}
-		}
-	}
+	#region SavingToServer
 
 	/// <summary>
 	/// Method for saving data to the sheet.
@@ -96,6 +76,7 @@ public class SheetSync : MonoBehaviour {
 			ss.SetSheetRange(teamPoints, $"Configuration!C6:C9");
 		}
 	}
+
 	/// <summary>
 	/// Method for saving bases to the sheet.
 	/// </summary>
@@ -172,6 +153,10 @@ public class SheetSync : MonoBehaviour {
 		ss.SetSheetRange(sheetUnits, $"Units!A2:N{unitsLength + 1}");
 	}
 
+	#endregion
+
+	#region Loading from server
+
 	/// <summary>
 	/// Method for asynchronous loading of the sheet.
 	/// </summary>
@@ -181,68 +166,6 @@ public class SheetSync : MonoBehaviour {
 		await LoadSheetAsync();
 		loading.SetActive(false);
 	}
-
-	/// <summary>
-	/// Method loads the main variables of the program from the sheet.
-	/// </summary>
-	/// <returns>true</returns>
-	/// <exception cref="ApplicationException">Thrown if there is problem with pulling the data from sheet.</exception>
-	/// <exception cref="InvalidProgramException">Thrown if user is using wrong game version.</exception>
-	private async Task<bool> LoadSheetConfigurationData() {
-		IList<IList<object>> sheetConfiguration = await ss.GetSheetRangeAsync("Configuration!C2:C") ?? throw new ApplicationException("Sever connection failed or configuration is corrupted!");
-
-		if (ApplicationController.applicationVersion != sheetConfiguration[0][0].ToString()) {
-			throw new InvalidProgramException("Wrong game version! Please update your application");
-		}
-
-		//Load configuration variables
-		passwordA = PasswordManager.HashPassword(sheetConfiguration[1][0].ToString());
-		passwordB = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
-		passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
-
-		
-		
-		pointsA = Convert.ToSingle(sheetConfiguration[4][0], ApplicationController.culture);
-		controllerA = EnumUtil.ConvertIntToBool(Convert.ToInt16(sheetConfiguration[5][0].ToString()));
-
-		turn = Convert.ToInt16(sheetConfiguration[6][0]);
-		turnPwd = sheetConfiguration[7][0].ToString();
-
-		pointsB = Convert.ToSingle(sheetConfiguration[8][0], ApplicationController.culture);
-		controllerB = EnumUtil.ConvertIntToBool(Convert.ToInt16(sheetConfiguration[9][0].ToString()));
-
-		//Update labels on the bottom panel of UI.
-		UpdateConfigurationLabels();
-
-		return true;
-	}
-
-	public void CheckController() {
-		if (ApplicationController.isSideB && !controllerB) {
-			ApplicationController.isController = true;
-			SaveConfiguration();
-		} else if (!ApplicationController.isSideB && !controllerA) {
-			ApplicationController.isController = true;
-			SaveConfiguration();
-		} else {
-			ApplicationController.isController = false;
-		}
-	}
-
-	public void ReleaseController() {
-		ApplicationController.isController = false;
-		SaveConfiguration();
-	}
-
-	/*
-	TODO User drawings using LineRenderer system or sprites for better symbols?
-	TODO Weather system using area box or circle around transform affecting range of moveables
-	TODO Terrain based spawning and movement - bases now spawning in the sea and units movable only on land or sea or both for air.
-
-	TODO Remove Load button options and popups. Instead do controller which will periodically upload changes and others who would pull it to them.
-	TODO Add button to release controller
-	TODO Have Save button only for controller 
-	*/
 
 	/// <summary>
 	/// Method loads units, bases and equipment from the sheet.
@@ -294,6 +217,107 @@ public class SheetSync : MonoBehaviour {
 	}
 
 	/// <summary>
+	/// Method loads the main variables of the program from the sheet.
+	/// </summary>
+	/// <returns>true</returns>
+	/// <exception cref="ApplicationException">Thrown if there is problem with pulling the data from sheet.</exception>
+	/// <exception cref="InvalidProgramException">Thrown if user is using wrong game version.</exception>
+	private async Task<bool> LoadSheetConfigurationData() {
+		IList<IList<object>> sheetConfiguration = await ss.GetSheetRangeAsync("Configuration!C2:C") ?? throw new ApplicationException("Sever connection failed or configuration is corrupted!");
+
+		if (ApplicationController.applicationVersion != sheetConfiguration[0][0].ToString()) {
+			throw new InvalidProgramException("Wrong game version! Please update your application");
+		}
+		if (sheetConfiguration.Any(e => e.Count == 0)) {
+			throw new InvalidProgramException("There was error loading the basic configuration data! Maybe you was yielding and taking control too quickly!");
+		}
+
+		//Load configuration variables
+		passwordA = PasswordManager.HashPassword(sheetConfiguration[1][0].ToString());
+		passwordB = PasswordManager.HashPassword(sheetConfiguration[2][0].ToString());
+		passwordAdmin = PasswordManager.HashPassword(sheetConfiguration[3][0].ToString());
+
+		pointsA = Convert.ToSingle(sheetConfiguration[4][0], ApplicationController.culture);
+		controllerA = EnumUtil.ConvertIntToBool(Convert.ToInt16(sheetConfiguration[5][0].ToString()));
+
+		turn = sheetConfiguration[6][0].ToString();
+		turnPwd = sheetConfiguration[7][0].ToString();
+
+		pointsB = Convert.ToSingle(sheetConfiguration[8][0], ApplicationController.culture);
+		controllerB = EnumUtil.ConvertIntToBool(Convert.ToInt16(sheetConfiguration[9][0].ToString()));
+
+		//Update labels on the bottom panel of UI.
+		UpdateConfigurationLabels();
+
+		return true;
+	}
+
+	#endregion
+
+	/*
+	TODO User drawings using LineRenderer system or sprites for better symbols?
+	TODO Weather system using area box or circle around transform affecting range of moveables
+	TODO Terrain based spawning and movement - bases now spawning in the sea and units movable only on land or sea or both for air.
+	*/
+
+	#region ControllerSync
+
+	/// <summary>
+	/// Update the team points and turn every time period continuously.
+	/// </summary>
+	public async void StartUpdateLoop() {
+		while (true) {
+			//Non controller pulls, controller pushes updates.
+			if (!ApplicationController.isController) {
+				await LoadSheetConfigurationData();
+				if (ApplicationController.isDebug) {
+					Debug.Log("Pulling sheet data.");
+				}
+				await Task.Delay(30000);
+			} else {
+				//Saving just configuration because unit movements and handled in Unit OnDragEnd.
+				SaveConfiguration();
+				if (ApplicationController.isDebug) {
+					Debug.Log("Pushing sheet data.");
+				}
+				await Task.Delay(14500);
+				//Save unit spawned or despawned?
+			}
+		}
+	}
+
+	public async void CheckController(TextMeshProUGUI buttonLabelUI = null) {
+		if (buttonLabelUI == null) { buttonLabelUI = controllerLabelTextUI; }
+		if (ApplicationController.isController) {
+			ApplicationController.isController = false;
+			if (ApplicationController.isDebug) {
+				Debug.Log("Control yielded!");
+			}
+			SaveConfiguration();
+			buttonLabelUI.text = "  Take control";
+			controllerSaveButtonUI.interactable = false;
+			controllerTurnButtonUI.interactable = false;
+		}
+		await LoadSheetConfigurationData();
+		//I am side B and Side B has no controller > I become controller.
+		if ((ApplicationController.isSideB && !controllerB) || (!ApplicationController.isSideB && !controllerA)) {
+			ApplicationController.isController = true;
+			if (ApplicationController.isDebug) {
+				Debug.Log("Control taken!");
+			}
+			SaveConfiguration();
+			buttonLabelUI.text = "  Yield control";
+			controllerSaveButtonUI.interactable = true;
+			controllerTurnButtonUI.interactable = true;
+		}
+	}
+
+	#endregion
+
+
+	#region Configuration attribute updating
+
+	/// <summary>
 	/// Method adds or removes points from a team side.
 	/// </summary>
 	/// <param name="addition">Float point addition or reduction if negative.</param>
@@ -323,7 +347,7 @@ public class SheetSync : MonoBehaviour {
 		if (turnPwd == pass) {
 			//Takes old password and hashes it to the new one which is then saved to the sheet.
 			turnPwd = PasswordManager.HashPassword(pass);
-			Turn++;
+			turn = (turn == "A") ? "B" : "A";
 			//Turn-ending mass-calculations.
 			UnitManager.Instance.ResetStartPositions();
 			UnitManager.Instance.CalculateSpotting();
@@ -333,4 +357,6 @@ public class SheetSync : MonoBehaviour {
 		}
 		UpdateConfigurationLabels();
 	}
+
+	#endregion
 }

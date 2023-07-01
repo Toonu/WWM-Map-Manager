@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -90,5 +91,8 @@ public class BaseConstructor : MonoBehaviour {
 			SheetSync.UpdatePoints(-100);
 		}
 		gameObject.SetActive(false);
+		if (ApplicationController.isController) {
+			ApplicationController.Instance.server.SaveBases();
+		}
 	}
 }

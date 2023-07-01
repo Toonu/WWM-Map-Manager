@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using static UnityEngine.UI.CanvasScaler;
 
@@ -176,9 +177,15 @@ public class UnitManager : MonoBehaviour {
 					gameObject.GetComponent<NavalUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 					navalUnits.Insert(index, null);
 				}
+				if (ApplicationController.isController) {
+					ApplicationController.Instance.server.SaveUnits();
+				}
 			}
 			else {
 				bases.Remove(gameObject.GetComponent<Base>());
+				if (ApplicationController.isController) {
+					ApplicationController.Instance.server.SaveBases();
+				}
 			}
 			Destroy(gameObject);
 		}

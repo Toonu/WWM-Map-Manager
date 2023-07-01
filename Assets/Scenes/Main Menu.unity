@@ -3334,7 +3334,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 256.99936, y: -88.16645}
+  m_AnchoredPosition: {x: 260, y: -87.5}
   m_SizeDelta: {x: 60, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &293270977
@@ -3872,7 +3872,7 @@ GameObject:
   - component: {fileID: 316165367}
   - component: {fileID: 316165366}
   m_Layer: 5
-  m_Name: PopupWarningLoad
+  m_Name: PopupWarningYield
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10882,8 +10882,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 256.99936, y: -83.16645}
-  m_SizeDelta: {x: 513.9987, y: 166.3329}
+  m_AnchoredPosition: {x: 260, y: -82.5}
+  m_SizeDelta: {x: 520, y: 165}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &756577650
 MonoBehaviour:
@@ -10905,7 +10905,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Really overwrite current changes?
+  m_text: Yield controller to other players?
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -11149,7 +11149,7 @@ GameObject:
   - component: {fileID: 774461657}
   - component: {fileID: 774461656}
   m_Layer: 5
-  m_Name: Load
+  m_Name: Yield
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13352,7 +13352,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '  Load'
+  m_text: '  Yield'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -16249,7 +16249,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 146.99936, y: -88.16645}
+  m_AnchoredPosition: {x: 150, y: -87.5}
   m_SizeDelta: {x: 160, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1085153129
@@ -16330,11 +16330,11 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 2127641903}
         m_TargetAssemblyTypeName: SheetSync, Assembly-CSharp
-        m_MethodName: LoadSheet
-        m_Mode: 1
+        m_MethodName: CheckController
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 916674973}
+          m_ObjectArgumentAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -16507,8 +16507,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 256.99936, y: -254.49936}
-  m_SizeDelta: {x: 513.9987, y: 176.3329}
+  m_AnchoredPosition: {x: 260, y: -252.5}
+  m_SizeDelta: {x: 520, y: 175}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1094625664
 MonoBehaviour:
@@ -23051,7 +23051,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 366.99936, y: -88.16645}
+  m_AnchoredPosition: {x: 370, y: -87.5}
   m_SizeDelta: {x: 160, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1502892547
@@ -24167,7 +24167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3ba7c5e34531fa4ca6db9dd2fa9783e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 0
+  Value: 1
 --- !u!222 &1604361658
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -27424,7 +27424,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5176471}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -30617,6 +30617,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   generalPopup: {fileID: 46597873}
+  controllerLabelTextUI: {fileID: 916674973}
+  controllerSaveButtonUI: {fileID: 1910421866}
+  controllerTurnButtonUI: {fileID: 2009727599}
 --- !u!4 &2127641904
 Transform:
   m_ObjectHideFlags: 0
