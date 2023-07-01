@@ -19,9 +19,9 @@ internal class Dice : MonoBehaviour {
 	}
 
 	//Setters for the dice Attributes.
-	public void UpdateDices(string dices) { this.dices = Convert.ToInt16(dices); }
-	public void UpdateSides(string sides) { this.sides = Convert.ToInt16(sides); }
-	public void UpdateReduce(string reduce) { this.reduce = Convert.ToInt16(reduce); }
+	public void UpdateDices(string dices) { int.TryParse(dices, out this.dices); }
+	public void UpdateSides(string sides) { int.TryParse(sides, out this.sides); }
+	public void UpdateReduce(string reduce) { int.TryParse(reduce, out this.reduce); }
 
 	/// <summary>
 	/// Method rolls the dice utilising its sides, dices and reduce attributes.

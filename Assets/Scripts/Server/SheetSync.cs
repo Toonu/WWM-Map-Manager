@@ -268,13 +268,13 @@ public class SheetSync : MonoBehaviour {
 	public async void StartUpdateLoop() {
 		while (true) {
 			//Non controller pulls, controller pushes updates.
-			if (!ApplicationController.isController) {
+			if (!ApplicationController.isController && Camera.main.orthographicSize > 1.5) {
 				await LoadSheetAsync();
 				if (ApplicationController.isDebug) {
 					Debug.Log("Pulling sheet data.");
 				}
 				await Task.Delay(10000);
-			} else {
+			} else if (ApplicationController.isController) {
 				//Saving just configuration because unit movements and handled in Unit OnDragEnd and unit or base editing and soft resets in IClickController and Constructors.
 				SaveConfiguration();
 				if (ApplicationController.isDebug) {

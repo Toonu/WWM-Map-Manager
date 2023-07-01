@@ -18,6 +18,7 @@ public class ApplicationController : MonoBehaviour {
 	internal static bool isSideB = false;
 	internal static bool isAdmin = false;
 	internal static bool isDebug = true;
+	private static bool isStarted = false;
 	internal static string applicationVersion = "v0.0.9";
 	internal static CultureInfo culture = new("en-GB");
 	internal static ApplicationController Instance { get { return _instance; } }
@@ -213,7 +214,10 @@ public class ApplicationController : MonoBehaviour {
 		if (isLoggedIn) {
 			transform.Find("UI/Login").gameObject.SetActive(false);
 			await server.CheckController(null);
-			server.StartUpdateLoop();
+			if (!isStarted) {
+				server.StartUpdateLoop();
+				isStarted = true;
+			}
 			if (isController) {
 				generalPopup.PopUp("Logged in! You are your teams controller!", 3);
 			} else {

@@ -66,6 +66,9 @@ public class HigherUnit : Unit {
 		return;
 	}
 	public override void OnPointerEnter(PointerEventData eventData) {
+		if (!ApplicationController.isAdmin && ApplicationController.isSideB != SideB) {
+			return;
+		}
 		equipmentTextUI.gameObject.SetActive(true);
 	}
 }
