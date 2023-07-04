@@ -259,7 +259,7 @@ public class SheetSync : MonoBehaviour {
 	TODO Weather system using area box or circle around transform affecting range of moveables
 	TODO Terrain based spawning and movement - bases now spawning in the sea and units movable only on land or sea or both for air.
 	*/
-
+	
 	#region ControllerSync
 
 	/// <summary>
