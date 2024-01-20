@@ -10,6 +10,7 @@ using UnityEngine;
 using static Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource;
 
 public class SheetReader : MonoBehaviour {
+
 	static private string spreadsheetId;		//Sheet ID
 	static private string serviceAccountID;		//Account ID
 	static private string private_key;			//PK
