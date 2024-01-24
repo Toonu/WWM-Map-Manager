@@ -35,7 +35,7 @@ public class EquipmentManager : MonoBehaviour {
 	internal static Equipment CreateEquipment(Equipment template, int amount) {
 		GameObject newEquipmentObject = Instantiate(_instance.equipmentTemplate, _instance.transform);
 		Equipment newEquipment = newEquipmentObject.AddComponent<Equipment>();
-		newEquipment.Initiate(template.equipmentName, amount, template.movementRange, template.sightRange, template.weaponRange, template.cost, template.sideB, template.domain, template.specialization, template.protection, template.transportation);
+		newEquipment.Initiate(template.equipmentName, amount, template.movementRange, template.sightRange, template.weaponRange, template.cost, template.sideB, template.domain, template.specialization, template.protection, template.transportation, template.costSupply);
 		return newEquipment;
 	}
 
@@ -51,14 +51,18 @@ public class EquipmentManager : MonoBehaviour {
 			//Ignore weird or empty rows.
 			if (col.Any(e => e.ToString() == "")) {
 				//Reports any issues with equipment templates creation.
-				if (col[6].ToString() == "" || Convert.ToInt16(col[6]) != 3) Debug.Log($"There was issue creating {col[0]} - F/{col[1]}|G/{col[2]}|H/{col[3]}|I/{col[4]}|J/{col[5]}|K/{col[6]}|L/{col[7]}|M/{col[8]}|N/{col[9]}!");
+				string report = "";
+				for (int i = 1; i < col.Count; i++) {
+					report += $"{(char)(69 + i)} {col[i]}; ";
+				}
+				Debug.Log($"There was issue creating {col[0]} - {report}!");
 				continue;
 			}
 			GameObject newEquipmentObject = Instantiate(Instance.equipmentTemplate, templates.transform);
 			Equipment newEquipment = newEquipmentObject.AddComponent<Equipment>();
 			newEquipment.Initiate(
 				col[0].ToString(),
-				10,
+				1,
 				Convert.ToSingle(col[1], ApplicationController.culture),
 				Convert.ToSingle(col[2], ApplicationController.culture),
 				Convert.ToSingle(col[3], ApplicationController.culture),
@@ -67,7 +71,8 @@ public class EquipmentManager : MonoBehaviour {
 				Convert.ToInt16(col[6]),
 				Convert.ToInt16(col[7]),
 				Convert.ToInt16(col[8]),
-				Convert.ToInt16(col[9]));
+				Convert.ToInt16(col[9]),
+				Convert.ToInt16(col[10]));
 			newEquipmentObject.name = $"Template: {newEquipment.equipmentName}";
 			if (newEquipment.sideB == 0) {
 				equipmentHostile[newEquipment.domain].Add(newEquipment);

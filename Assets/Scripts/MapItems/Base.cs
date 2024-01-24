@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Collections.Generic;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,7 +12,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 	[HideInInspector]
 	public bool SideB { get; set; }
 	[HideInInspector]
-	public bool isGhost { get; set; }
+	public bool IsGhost { get; set; }
 	[HideInInspector]
 	public BaseType BaseType {
 		get { return baseType; }
@@ -24,6 +25,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 		}
 	}
 
+	internal List<Unit> unitList = new();
 	private BaseType baseType;
 	private MeshRenderer icon;
 	private TextMeshProUGUI nameUI;
@@ -36,7 +38,7 @@ public class Base : MonoBehaviour, IDragHandler, IEndDragHandler, IMovable {
 		StartPosition = transform.position;
 		BaseType = newType;
 		SideB = newSideB;
-		isGhost = false;
+		IsGhost = false;
 
 		BaseType = newType;
 		ChangeIdentification(newName);
@@ -101,7 +103,7 @@ public class BaseEditor : Editor {
 		EditorGUILayout.LabelField("ID", b.name);
 		EditorGUILayout.LabelField("SideB", b.SideB.ToString());
 		EditorGUILayout.LabelField("Type", b.BaseType.ToString());
-		EditorGUILayout.LabelField("Ghost", b.isGhost.ToString());
+		EditorGUILayout.LabelField("Ghost", b.IsGhost.ToString());
 	}
 }
 #endif

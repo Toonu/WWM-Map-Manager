@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
-using static UnityEngine.UI.CanvasScaler;
 
 public class UnitManager : MonoBehaviour {
 	public static UnitManager Instance {
@@ -19,6 +17,7 @@ public class UnitManager : MonoBehaviour {
 
 		unitMenu = unitUIMenus.transform.Find("UnitMenu").gameObject;
 		baseMenu = unitUIMenus.transform.Find("BaseMenu").gameObject;
+		baseUnitMenu = unitUIMenus.transform.Find("BaseUnitMenu").gameObject;
 		unitMenu.GetComponent<UnitConstructor>().Awake();
 	}
 
@@ -81,6 +80,7 @@ public class UnitManager : MonoBehaviour {
 	public GameObject unitUIMenus;
 	internal GameObject unitMenu;
 	internal GameObject baseMenu;
+	internal GameObject baseUnitMenu;
 	#endregion
 
 	#region Units
@@ -105,7 +105,7 @@ public class UnitManager : MonoBehaviour {
 		GameObject newBase = Instantiate(baseTemplate, transform.GetChild(0));
 		Base b = newBase.AddComponent<Base>();
 		b.Initiate(identification, position, baseType, sideB);
-		b.isGhost = isGhost;
+		b.IsGhost = isGhost;
 		bases.Add(b);
 		return b;
 	}
@@ -158,21 +158,26 @@ public class UnitManager : MonoBehaviour {
 	/// Method despawns an Object.
 	/// </summary>
 	/// <param name="gameObject">Unit or Base Object</param>
-	internal void Despawn(GameObject gameObject) {
+	internal void Despawn(GameObject gameObject, bool refund) {
 		if (gameObject != null) {
 			if (gameObject.GetComponent<Base>() == null) {
 				int index = gameObject.GetComponent<Unit>().ID;
+				if (refund) {
+					foreach (Equipment equipment in gameObject.GetComponent<Unit>().equipmentList) {
+						_ = SheetSync.UpdatePoints(equipment.cost * equipment.Amount);
+					}
+				}
+
 				if (gameObject.GetComponent<GroundUnit>() != null) {
 					groundUnits.RemoveAt(index);
 					gameObject.GetComponent<GroundUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 					groundUnits.Insert(index, null);
-				}
-				else if (gameObject.GetComponent<AerialUnit>() != null) {
+				} else if (gameObject.GetComponent<AerialUnit>() != null) {
 					aerialUnits.RemoveAt(index);
 					gameObject.GetComponent<AerialUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 					aerialUnits.Insert(index, null);
-				}
-				else {
+				} else if (gameObject.GetComponent<HigherUnit>() != null) {
+				} else {
 					navalUnits.RemoveAt(index);
 					gameObject.GetComponent<NavalUnit>().equipmentList.ForEach(e => Destroy(e.gameObject));
 					navalUnits.Insert(index, null);
@@ -180,8 +185,7 @@ public class UnitManager : MonoBehaviour {
 				if (ApplicationController.isController) {
 					ApplicationController.Instance.server.SaveUnits();
 				}
-			}
-			else {
+			} else {
 				bases.Remove(gameObject.GetComponent<Base>());
 				if (ApplicationController.isController) {
 					ApplicationController.Instance.server.SaveBases();
@@ -250,17 +254,16 @@ public class UnitManager : MonoBehaviour {
 	/// <returns></returns>
 	public static string GenerateName(int domain) {
 		System.Random random = new();
-		bool notFound = true;
-		while (notFound) {
-			// Generate a random name
-			string newIdentifier = random.Next(1, 100).ToString();
-			// Check if the name is already taken
-			foreach (Unit u in domain == 0 ? Instance.groundUnits.Cast<Unit>() : domain == 1 ? Instance.aerialUnits.Cast<Unit>() : Instance.navalUnits.Cast<Unit>()) {
-				if (u != null && u.name != newIdentifier) {
-					return newIdentifier;
-				}
+
+		// Generate a random name
+		string newIdentifier = random.Next(1, 100).ToString();
+		// Check if the name is already taken
+		foreach (Unit u in domain == 0 ? Instance.groundUnits.Cast<Unit>() : domain == 1 ? Instance.aerialUnits.Cast<Unit>() : Instance.navalUnits.Cast<Unit>()) {
+			if (u != null && u.name != newIdentifier) {
+				return newIdentifier;
 			}
 		}
+
 		return random.Next(1, 100).ToString();
 	}
 
@@ -297,7 +300,7 @@ public class UnitManager : MonoBehaviour {
 	/// </summary>
 	/// <param name="show"></param>
 	public void ShowMissileRanges(bool show) {
-		groundUnits.ForEach(unit => { if (unit != null && unit.specialization == GroundSpecialization.SAM) { unit.WeaponRangeCircle.SetActive(show); } });
+		groundUnits.ForEach(unit => { if (unit != null && (unit.specialization == GroundSpecialization.SAM || unit.specialization == GroundSpecialization.AA)) { unit.WeaponRangeCircle.SetActive(show); } });
 	}
 
 	/// <summary>
@@ -420,8 +423,8 @@ public class UnitManager : MonoBehaviour {
 	/// Method removes units flagged as ghost, eg. spotted units.
 	/// </summary>
 	public void DeleteGhostUnits() {
-		MergeUnitLists().RemoveAll(unit => unit.isGhost);
-		bases.RemoveAll(b => b.isGhost == true);
+		MergeUnitLists().RemoveAll(unit => unit.IsGhost);
+		bases.RemoveAll(b => b.IsGhost == true);
 	}
 
 	#endregion
@@ -454,8 +457,8 @@ public class UnitManager : MonoBehaviour {
 
 				newUnit.StartPosition = startingFrom;
 				newUnit.parentTextUI.text = EnumUtil.GetCorps(Convert.ToInt16(units[i][12]));
-				newUnit.isGhost = EnumUtil.ConvertIntToBool(Convert.ToInt16(units[i][13]));
-				
+				newUnit.IsGhost = EnumUtil.ConvertIntToBool(Convert.ToInt16(units[i][13]));
+
 				string[] lines = units[i][11].ToString().Split('\n'); //Equipment
 
 				for (int j = 0; j < lines.Length; j++) {

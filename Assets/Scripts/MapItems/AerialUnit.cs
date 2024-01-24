@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class AerialUnit : Unit {
 	internal AerialSpecialization specialization = AerialSpecialization.F;
+	internal int altitude = 1000;
 
 	public override void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newName, List<Equipment> newEquipment, bool newSideB, int newSpecialization) {
 		//Disabling texture not required for aerial units
@@ -35,6 +36,8 @@ public class AerialUnit : Unit {
 
 	internal override void RecalculateAttributes() {
 		base.RecalculateAttributes();
+		equipmentTextUI.text += $"\nAltitude: {altitude}m";
+
 		//Returns the most numerous armour-traction type.
 		SetUnitTier(EnumUtil.GetUnitTier(1, equipmentList.Sum(vehicle => vehicle.Amount)));
 
@@ -43,7 +46,7 @@ public class AerialUnit : Unit {
 							.Select(group => new { Specialization = group.Key, Amount = group.Sum(equipment => equipment.Amount) })
 							.OrderByDescending(group => group.Amount)
 							.ToList().FirstOrDefault()?.Specialization);
-		
+
 	}
 }
 
@@ -61,7 +64,7 @@ public class AerialUnitEditor : Editor {
 		EditorGUILayout.LabelField("Sight", unit.sightRange.ToString());
 		EditorGUILayout.LabelField("Movement", unit.movementRange.ToString());
 		EditorGUILayout.LabelField("Specialization", unit.specialization.ToString());
-		EditorGUILayout.LabelField("Ghost", unit.isGhost.ToString());
+		EditorGUILayout.LabelField("Ghost", unit.IsGhost.ToString());
 		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")), EditorStyles.wordWrappedLabel);
 	}
 }

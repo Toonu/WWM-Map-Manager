@@ -39,10 +39,10 @@ public class Logging : MonoBehaviour {
 	}
 
 	void HandleException(string logString, string stackTrace, LogType type) {
-		if (type == LogType.Exception) {
+		if (type == LogType.Exception && ApplicationController.generalPopup != null) {
 			ApplicationController.generalPopup.PopUp(logString + "\n" + stackTrace, 10);
 			if (ApplicationController.isDebug) Debug.LogError(logString + "\n" + stackTrace);
-			ApplicationController.ExitApplication();
+			_ = ApplicationController.ExitApplication();
 		}
 	}
 }
@@ -55,9 +55,9 @@ public class PlayModeExitListener {
 	}
 
 	private static void OnPlayModeStateChanged(PlayModeStateChange state) {
-		if (state == PlayModeStateChange.ExitingPlayMode) {
+		if (state == PlayModeStateChange.ExitingPlayMode && ApplicationController.Instance != null) {
 			ApplicationController.isController = false;
-			ApplicationController.Instance.server.SaveConfiguration();
+			_ = ApplicationController.Instance.server.SaveConfiguration();
 		}
 	}
 }

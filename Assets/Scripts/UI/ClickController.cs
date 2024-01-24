@@ -6,18 +6,20 @@ using UnityEngine.UI;
 
 
 public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMoveHandler {
-	public Button sampleButton;						//Button prefab
-	private List<ContextMenuItem> contextMenuItems;	//List of context menu items
-	private Vector3 position;						//Vector3 position of the click
-	private bool sideB;								//User allegiance
-	private PointerEventData click;					//Click event data
+	public Button sampleButton;                     //Button prefab
+	private List<ContextMenuItem> contextMenuItems; //List of context menu items
+	private Vector3 position;                       //Vector3 position of the click
+	private bool sideB;                             //User allegiance
+	private PointerEventData click;                 //Click event data
 
-	Action<Image> edit;
-	Action<Image> delete;
-	Action<Image> spawn;
-	Action<Image> reset;
-	Action<Image> softReset;
-	Action<Image> spawnBase;
+	private Action<Image> edit;
+	private Action<Image> delete;
+	private Action<Image> spawn;
+	private Action<Image> reset;
+	private Action<Image> softReset;
+	private Action<Image> spawnBase;
+	private Action<Image> manageBase;
+	private Action<Image> storeUnit;
 
 	/// <summary>
 	/// Method sets up actions
@@ -30,6 +32,8 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		spawnBase = new Action<Image>(SpawnBaseAction);
 		reset = new Action<Image>(ResetAction);
 		softReset = new Action<Image>(SoftResetAction);
+		manageBase = new Action<Image>(ManageBaseAction);
+		storeUnit = new Action<Image>(StoreUnitAction);
 	}
 
 	/// <summary>
@@ -40,10 +44,13 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		if (eventData.button == PointerEventData.InputButton.Right) {
 			click = eventData;
 			contextMenuItems.Clear();
+
 			//Checks if click is above Unit, Base or the Map, unit allegianance, user allegiance and user permissions and shows contextual menu depending on those.
 			if (eventData.pointerClick.GetComponent<Unit>() != null && (eventData.pointerClick.GetComponent<Unit>().SideB == ApplicationController.isSideB || ApplicationController.isAdmin)) {
+				//Unit click or admin
 				sideB = eventData.pointerClick.GetComponent<Unit>().SideB;
 				position = eventData.pointerCurrentRaycast.screenPosition;
+				contextMenuItems.Add(new ContextMenuItem("Store", sampleButton, storeUnit));
 				if (ApplicationController.isAdmin) {
 					contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
 					contextMenuItems.Add(new ContextMenuItem("Despawn", sampleButton, delete));
@@ -51,15 +58,18 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 				}
 				contextMenuItems.Add(new ContextMenuItem("Reset", sampleButton, reset));
 			} else if (eventData.pointerClick.GetComponent<Base>() != null && (eventData.pointerClick.GetComponent<Base>().SideB == ApplicationController.isSideB || ApplicationController.isAdmin)) {
+				//Base click or admin
 				sideB = eventData.pointerClick.GetComponent<Base>().SideB;
 				position = eventData.pointerCurrentRaycast.screenPosition;
 				contextMenuItems.Add(new ContextMenuItem("Spawn", sampleButton, spawn));
+				contextMenuItems.Add(new ContextMenuItem("Manage", sampleButton, manageBase));
 				if (ApplicationController.isAdmin) {
 					contextMenuItems.Add(new ContextMenuItem("Edit", sampleButton, edit));
 					contextMenuItems.Add(new ContextMenuItem("Despawn", sampleButton, delete));
 					contextMenuItems.Add(new ContextMenuItem("Reset", sampleButton, reset));
 				}
 			} else {
+				//Admin
 				sideB = ApplicationController.isSideB;
 				if (ApplicationController.isAdmin) {
 					contextMenuItems.Add(new ContextMenuItem("Spawn", sampleButton, spawn));
@@ -73,11 +83,24 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		}
 	}
 
+	private Base ReturnBase(PointerEventData eventData) {
+		PointerEventData pointerEventData = new(EventSystem.current) {position = eventData.pressPosition};
+		List<RaycastResult> raycastResult = new();
+		EventSystem.current.RaycastAll(pointerEventData, raycastResult);
+		for (int i = 0; i < raycastResult.Count; i++) {
+			//Returns first base under the mouse pointer
+			if (raycastResult[i].gameObject.transform.parent.GetComponent<Base>() != null) {
+				return raycastResult[i].gameObject.transform.parent.GetComponent<Base>();
+			}
+		}
+		return null;
+	}
+
 	/// <summary>
 	/// Method opens Unit spawning menu.
 	/// </summary>
 	/// <param name="contextPanel"></param>
-	void SpawnAction(Image contextPanel) {
+	private void SpawnAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		UnitConstructor constructor = UnitManager.Instance.unitMenu.GetComponent<UnitConstructor>();
 		if (gameObject.GetComponent<Base>() != null) {
@@ -94,7 +117,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	/// Method opens Base spawning menu.
 	/// </summary>
 	/// <param name="contextPanel"></param>
-	void SpawnBaseAction(Image contextPanel) {
+	private void SpawnBaseAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		BaseConstructor constructor = UnitManager.Instance.baseMenu.GetComponent<BaseConstructor>();
 		constructor.UpdateBase();
@@ -107,7 +130,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	/// Method opens Unit or Base editing menu.
 	/// </summary>
 	/// <param name="contextPanel"></param>
-	void EditAction(Image contextPanel) {
+	private void EditAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		//Checks if Base or Unit.
 		if (GetComponent<Base>() == null) {
@@ -123,16 +146,16 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	/// Deletes Unit or Base.
 	/// </summary>
 	/// <param name="contextPanel"></param>
-	void DeleteAction(Image contextPanel) {
+	private void DeleteAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
-		UnitManager.Instance.Despawn(gameObject);
+		UnitManager.Instance.Despawn(gameObject, false);
 	}
 
 	/// <summary>
 	/// Method resets the Unit or Base to its Startposition.
 	/// </summary>
 	/// <param name="contextPanel"></param>
-	void ResetAction(Image contextPanel) {
+	private void ResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		transform.position = GetComponent<IMovable>().StartPosition;
 		//Saves base reseting its position.
@@ -145,12 +168,39 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	/// Method sets the Unit or Base Start position to its current position.
 	/// </summary>
 	/// <param name="contextPanel"></param>
-	void SoftResetAction(Image contextPanel) {
+	private void SoftResetAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		GetComponent<IMovable>().StartPosition = transform.position;
 		//Saves unit soft reseting its base position.
 		if (ApplicationController.isController) {
 			ApplicationController.Instance.server.SaveUnits();
+		}
+	}
+
+	/// <summary>
+	/// Method opens Base menu for stored units management.
+	/// </summary>
+	/// <param name="contextPanel"></param>
+	private void ManageBaseAction(Image contextPanel) {
+		Destroy(contextPanel.gameObject);
+		BaseUnitMenu baseUnitMenu = UnitManager.Instance.baseUnitMenu.GetComponent<BaseUnitMenu>();
+		if (gameObject.TryGetComponent<Base>(out var unitBase)) {
+			baseUnitMenu.ManagedBase = unitBase;
+			UnitManager.Instance.baseUnitMenu.SetActive(true);
+		}
+	}
+
+	/// <summary>
+	/// Method stores unit to nearest base.
+	/// </summary>
+	/// <param name="contextPanel"></param>
+	private void StoreUnitAction(Image contextPanel) {
+		Destroy(contextPanel.gameObject);
+		Unit unit = gameObject.GetComponent<Unit>();
+		Base unitBase = ReturnBase(click);
+		if (unitBase != null && unit != null) {
+			unitBase.unitList.Add(unit);
+			unit.SetVisibility(false);
 		}
 	}
 

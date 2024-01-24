@@ -2,14 +2,14 @@
 using UnityEngine;
 
 public class CameraController : MonoBehaviour {
-	public float speed = 20;		//Camera speed
-	internal Camera cam;			//Current camera
-	public GameObject map;			//Game map
-	public float maxZoom = 5;		//Maximal zoom level
-	public float minZoom = 20;		//Minimal zoom level
-	public float sensitivity = 1;	//Zoom and movement sensitivity
-	private Vector3 mapMin;			//Map bottom left corner
-	private Vector3 mapMax;			//Map top right corner
+	public float speed = 20;        //Camera speed
+	internal Camera cam;            //Current camera
+	public GameObject map;          //Game map
+	public float maxZoom = 5;       //Maximal zoom level
+	public float minZoom = 20;      //Minimal zoom level
+	public float sensitivity = 1;   //Zoom and movement sensitivity
+	private Vector3 mapMin;         //Map bottom left corner
+	private Vector3 mapMax;         //Map top right corner
 
 	/// <summary>
 	/// Method gets the camera component at startup.

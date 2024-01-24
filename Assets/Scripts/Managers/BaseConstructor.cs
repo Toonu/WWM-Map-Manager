@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -86,11 +85,11 @@ public class BaseConstructor : MonoBehaviour {
 	}
 
 	public void Close() {
-		if (ApplicationController.isDebug) Debug.Log("Base editor closed.");
 		if (!ApplicationController.isAdmin) {
-			SheetSync.UpdatePoints(-100);
+			if (SheetSync.UpdatePoints(-100)) return;
 		}
 		gameObject.SetActive(false);
+		if (ApplicationController.isDebug) Debug.Log("Base editor closed.");
 		if (ApplicationController.isController) {
 			ApplicationController.Instance.server.SaveBases();
 		}

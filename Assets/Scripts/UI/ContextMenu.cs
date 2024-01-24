@@ -22,11 +22,13 @@ public class ContextMenuItem {
 }
 
 /// <summary>
-/// Class for mouse click Context menus.
+/// Class for mouse click Context menus and main UI buttons.
 /// </summary>
 public class ContextMenu : MonoBehaviour {
-	public Image contentPanel;              // Content panel prefab
-	public Canvas canvas;                   // Link to icon canvas, where will be Context Menu
+	#region Attributes
+
+	public Image contextMenuTemplate;              // Content panel prefab
+	private Canvas canvas;                   // Link to icon canvas, where will be Context Menu
 	private static ContextMenu instance;
 
 	public static ContextMenu Instance {
@@ -43,13 +45,47 @@ public class ContextMenu : MonoBehaviour {
 		}
 	}
 
+	private Button buttonUITurn;
+	private Button buttonUISave;
+	private Button buttonUIYield;
+	private Button buttonUIExit;
+	private UILabelTextAppender pointsLabel; //Team points UI element
+	private UILabelTextAppender turnLabelUI; //Turn label UI element
+
+	#endregion
+
+	/// <summary>
+	/// Loading UI elements on awake.
+	/// </summary>
+	private void Awake() {
+		//Assign main buttons actions
+		SheetSync sheetSync = transform.parent.GetChild(0).gameObject.GetComponent<SheetSync>();
+		canvas = transform.GetComponent<Canvas>();
+
+		pointsLabel = transform.GetChild(0).GetChild(2).GetComponent<UILabelTextAppender>();
+		turnLabelUI = transform.GetChild(0).GetChild(3).GetComponent<UILabelTextAppender>();
+
+		buttonUITurn = transform.GetChild(1).GetComponent<Button>();
+		buttonUITurn.onClick.RemoveAllListeners();
+		buttonUITurn.onClick.AddListener(() => { ApplicationController.generalPopup.PopUpSticky(() => { sheetSync.FinishTurn(); }, "Are you sure to finish your turn?", true); });
+		buttonUISave = transform.GetChild(3).GetComponent<Button>();
+		buttonUISave.onClick.RemoveAllListeners();
+		buttonUISave.onClick.AddListener(() => { ApplicationController.generalPopup.PopUpSticky(() => { sheetSync.SaveSheet(); }, "Really save to the server?"); });
+		buttonUIYield = transform.GetChild(4).GetComponent<Button>();
+		buttonUIYield.onClick.RemoveAllListeners();
+		buttonUIYield.onClick.AddListener(() => { ApplicationController.generalPopup.PopUpSticky(() => { _ = sheetSync.CheckController(); }, "Yield/take controller to/from other players?"); });
+		buttonUIExit = transform.GetChild(6).GetComponent<Button>();
+		buttonUIExit.onClick.RemoveAllListeners();
+		buttonUIExit.onClick.AddListener(() => { ApplicationController.generalPopup.PopUpSticky(() => { _ = ApplicationController.ExitApplication(); }, "Any unsaved changes would be discarded, exit?"); });
+	}
+
 	/// <summary>
 	/// Method creates the context menu at specified position with a list of Buttonns or UI elements in it.
 	/// </summary>
 	/// <param name="items">List<ContextMenuItemL> of UI elements</param>
 	/// <param name="position">Vector3 position of the context menu</param>
 	public void CreateContextMenu(List<ContextMenuItem> items, Vector3 position) {
-		Image panel = Instantiate(contentPanel, position, Quaternion.identity);
+		Image panel = Instantiate(contextMenuTemplate, position, Quaternion.identity);
 		panel.transform.SetParent(canvas.transform);
 		panel.transform.SetAsLastSibling();
 
@@ -72,12 +108,23 @@ public class ContextMenu : MonoBehaviour {
 	/// </summary>
 	/// <param name="panel">Adjusted Image Panel for knowing its size</param>
 	/// <returns></returns>
-	IEnumerator DelayTilEndOfFrame(Image panel) {
+	private IEnumerator DelayTilEndOfFrame(Image panel) {
 		yield return new WaitForEndOfFrame();
 		panel.rectTransform.localScale = Vector3.one;
 		panel.rectTransform.anchoredPosition = new Vector3(
 			Mathf.Clamp(panel.rectTransform.anchoredPosition.x, panel.rectTransform.rect.xMax, panel.gameObject.transform.parent.GetComponent<RectTransform>().rect.width - panel.rectTransform.rect.xMax),
 			Mathf.Clamp(panel.rectTransform.anchoredPosition.y, panel.rectTransform.rect.yMax, panel.gameObject.transform.parent.GetComponent<RectTransform>().rect.height - panel.rectTransform.rect.yMax), 0
 		);
+	}
+
+	/// <summary>
+	/// Updates main buttons depending on the permissions level.
+	/// </summary>
+	public void UpdateControllerButtons() {
+		buttonUISave.interactable = ApplicationController.isController;
+		buttonUITurn.interactable = ApplicationController.isController;
+		buttonUIYield.GetComponentInChildren<TMP_Text>().text = ApplicationController.isController ? "  Yield control" : "  Take control";
+		pointsLabel.UpdateText(ApplicationController.isSideB ? SheetSync.pointsB : SheetSync.pointsA);
+		turnLabelUI.UpdateText(SheetSync.turn);
 	}
 }

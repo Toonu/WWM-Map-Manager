@@ -11,10 +11,10 @@ using static Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource;
 
 public class SheetReader : MonoBehaviour {
 
-	static private string spreadsheetId;		//Sheet ID
-	static private string serviceAccountID;		//Account ID
-	static private string private_key;			//PK
-	static private SheetsService service;		//Service
+	static private string spreadsheetId;        //Sheet ID
+	static private string serviceAccountID;     //Account ID
+	static private string private_key;          //PK
+	static private SheetsService service;       //Service
 
 	/// <summary>
 	/// Initializes the service and the credentials.
@@ -69,8 +69,8 @@ public class SheetReader : MonoBehaviour {
 	/// </summary>
 	/// <param name="dataArray">Data to save to the sheet in 2D List<List<Object>> structure.</param>
 	/// <param name="range">string AX:BZ coordinates</param>
-	public void SetSheetRange(IList<IList<object>> dataArray, string range) {
-		service.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range).ExecuteAsync().ContinueWith(task => {
+	public async Task SetSheetRange(IList<IList<object>> dataArray, string range) {
+		await service.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range).ExecuteAsync().ContinueWith(task => {
 			// Build the update request with the new data
 			ValueRange convertedData = new() {
 				Values = dataArray,
@@ -81,7 +81,7 @@ public class SheetReader : MonoBehaviour {
 
 			request.ValueInputOption = UpdateRequest.ValueInputOptionEnum.USERENTERED;
 			request.Execute();
-			if (ApplicationController.isDebug) Debug.Log("Saved");
+			if (ApplicationController.isDebug) Debug.Log("Data saved to the sheet!");
 		});
 	}
 }

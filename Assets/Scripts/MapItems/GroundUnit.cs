@@ -92,7 +92,7 @@ public class GroundUnitEditor : Editor {
 		EditorGUILayout.LabelField("Specialization", unit.specialization.ToString());
 		EditorGUILayout.LabelField("Protection", unit.protectionType.ToString());
 		EditorGUILayout.LabelField("Transport", unit.transportType.ToString());
-		EditorGUILayout.LabelField("Ghost", unit.isGhost.ToString());
+		EditorGUILayout.LabelField("Ghost", unit.IsGhost.ToString());
 		EditorGUILayout.LabelField("Equipment", string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")), EditorStyles.wordWrappedLabel);
 	}
 }

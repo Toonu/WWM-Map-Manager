@@ -3,9 +3,9 @@
 [RequireComponent(typeof(LineRenderer))]
 public class Circle : MonoBehaviour {
 	[Range(0.1f, 100f)]
-	public float radius = 1.0f;		//Circle radius
+	public float radius = 1.0f;     //Circle radius
 	[Range(3, 256)]
-	public int numSegments = 128;	//Circle segments
+	public int numSegments = 128;   //Circle segments
 
 	/// <summary>
 	/// Method keeps redrawing the circle based on its radius and segment attributes.

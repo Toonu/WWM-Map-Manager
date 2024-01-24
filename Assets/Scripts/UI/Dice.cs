@@ -1,21 +1,20 @@
-﻿using System;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 internal class Dice : MonoBehaviour {
 	private readonly System.Random random = new();
-	public int dices = 1;					//Amount of dices
-	public int sides = 6;					//Amount of sides in dice
-	public int reduce = 0;					//Amount to reduce from a roll result
-	private UITextFloatAppender result;		//UI Label element containing the result textLabelUI.
-	private TextMeshProUGUI resultLong;		//UI Label element containing the result formula textLabelUI.
+	public int dices = 1;                   //Amount of dices
+	public int sides = 6;                   //Amount of sides in dice
+	public int reduce = 0;                  //Amount to reduce from a roll result
+	private UILabelTextAppender result;     //UI Label element containing the result textLabelUI.
+	private TextMeshProUGUI resultLong;     //UI Label element containing the result formula textLabelUI.
 
 	/// <summary>
 	/// Method assigns Components on startup.
 	/// </summary>
 	private void Awake() {
-		result = transform.Find("Result").GetComponent<UITextFloatAppender>();
-		resultLong = transform.Find("ResultLong").GetComponent<TextMeshProUGUI>();
+		result = transform.GetChild(2).GetComponent<UILabelTextAppender>();
+		resultLong = transform.GetChild(4).GetComponent<TextMeshProUGUI>();
 	}
 
 	//Setters for the dice Attributes.

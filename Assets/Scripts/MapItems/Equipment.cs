@@ -14,8 +14,9 @@ public class Equipment : MonoBehaviour {
 	internal int specialization;
 	internal int protection;
 	internal int transportation;
+	internal int costSupply;
 
-	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, float cost, int sideB, int domain, int specialization, int protection, int transportation) {
+	public void Initiate(string equipmentName, int amount, float movementRange, float sightRange, float weaponRange, float cost, int sideB, int domain, int specialization, int protection, int transportation, int costSupply) {
 		this.equipmentName = equipmentName;
 		Amount = amount;
 		this.movementRange = movementRange;
@@ -27,7 +28,8 @@ public class Equipment : MonoBehaviour {
 		this.specialization = specialization;
 		this.protection = protection;
 		this.transportation = transportation;
-		if(ApplicationController.isDebug) Debug.Log(this + " initiated.");
+		this.costSupply = costSupply;
+		if (ApplicationController.isDebug) Debug.Log(this + " initiated.");
 	}
 
 	public override string ToString() {

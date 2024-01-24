@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -36,15 +34,15 @@ public class HigherUnit : Unit {
 
 		equipmentTextUI.text = string.Join("\n", equipment.Select(equipment => $"{equipment.Key}:{equipment.Value}"));
 	}
-	
+
 	internal override void ChangeAffiliation() {
 		bool isEnemy = ApplicationController.isSideB != SideB;
 		if (isEnemy) {
 			iconImage.transform.localScale = Vector3.one;
 			iconImage.material.mainTexture = UnitManager.Instance.groundSpecializationEnemy[9].texture;
-		} else { 
-			iconImage.transform.localScale = new Vector3(1.5f, 1, 1); 
-			iconImage.material.mainTexture = UnitManager.Instance.groundSpecialization[9].texture; 
+		} else {
+			iconImage.transform.localScale = new Vector3(1.5f, 1, 1);
+			iconImage.material.mainTexture = UnitManager.Instance.groundSpecialization[9].texture;
 		}
 	}
 

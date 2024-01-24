@@ -2,32 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SheetSync : MonoBehaviour {
-	public UIPopup generalPopup;	//General Popup UI to show messages
 	private SheetReader ss;         //Sheet connection
-	public TextMeshProUGUI controllerLabelTextUI = null;
-	public Button controllerSaveButtonUI;
-	public Button controllerTurnButtonUI;
 
 	#region Static Internal Variables
 
-	internal static string passwordA;			//Team A password
-	internal static string passwordB;			//Team B password
-	internal static string passwordAdmin;		//Admin password
-	internal static float pointsA = 0;			//Team A points
-	internal static float pointsB = 0;			//Team B points
-	internal static bool controllerA = false;	//Team A controller
-	internal static bool controllerB = false;	//Team B controller
-	internal static int basesLength = 0;		//Amount of bases in the sheet
+	internal static string passwordA;           //Team A password
+	internal static string passwordB;           //Team B password
+	internal static string passwordAdmin;       //Admin password
+	internal static float pointsA = 0;          //Team A points
+	internal static float pointsB = 0;          //Team B points
+	internal static bool controllerA = false;   //Team A controller
+	internal static bool controllerB = false;   //Team B controller
+	internal static int basesLength = 0;        //Amount of bases in the sheet
 	internal static int unitsLength = 0;        //Amount of bases in the sheet
-	private static string turn = "A";			//Turn number
-	private static string turnPwd;				//Turn password for finishing turn
-	private static UITextFloatAppender pointsLabel;	//Team points UI element
-	private static UITextFloatAppender turnLabelUI; //Turn label UI element
+	internal static int maximalSupply = 0;      //Maximal supply of units
+	internal static string turn = "A";          //Turn number
+	private static string turnPwd;              //Turn password for finishing turn
+	private static ContextMenu contextMenu;
 
 	#endregion
 
@@ -36,11 +30,10 @@ public class SheetSync : MonoBehaviour {
 	/// </summary>
 	private void Awake() {
 		ss = GetComponent<SheetReader>();
-		pointsLabel = transform.parent.Find("UI/BottomPanel/Points").GetComponent<UITextFloatAppender>();
-		turnLabelUI = transform.parent.Find("UI/BottomPanel/Turn").GetComponent<UITextFloatAppender>();
+		contextMenu = transform.parent.GetChild(transform.parent.childCount - 1).gameObject.GetComponent<ContextMenu>();
 	}
 
-	#region SavingToServer
+	#region Saving To Server
 
 	/// <summary>
 	/// Method for saving data to the sheet.
@@ -48,14 +41,14 @@ public class SheetSync : MonoBehaviour {
 	public void SaveSheet() {
 		SaveBases();
 		SaveUnits();
-		SaveConfiguration();
-		generalPopup.PopUp("Saved!");
+		_ = SaveConfiguration();
+		ApplicationController.generalPopup.PopUp("Server data saved!");
 	}
 
 	/// <summary>
 	/// Method for saving the configuration to the sheet.
 	/// </summary>
-	public void SaveConfiguration() {
+	public async Task SaveConfiguration() {
 		//Take all configuration data from the application and save it to the sheet.
 		IList<IList<object>> teamPoints;
 		if (ApplicationController.isSideB) {
@@ -65,7 +58,7 @@ public class SheetSync : MonoBehaviour {
 			new List<object> { pointsB },
 			new List<object> { EnumUtil.ConvertBoolToInt(ApplicationController.isController) }
 			};
-			ss.SetSheetRange(teamPoints, $"Configuration!C8:C11");
+			await ss.SetSheetRange(teamPoints, $"Configuration!C8:C11");
 		} else {
 			teamPoints = new List<IList<object>> {
 			new List<object> { pointsA },
@@ -73,7 +66,7 @@ public class SheetSync : MonoBehaviour {
 			new List<object> { turn },
 			new List<object> { turnPwd }
 			};
-			ss.SetSheetRange(teamPoints, $"Configuration!C6:C9");
+			await ss.SetSheetRange(teamPoints, $"Configuration!C6:C9");
 		}
 	}
 
@@ -87,9 +80,9 @@ public class SheetSync : MonoBehaviour {
 			basesLength = UnitManager.Instance.bases.Count;
 		}
 		foreach (Base b in UnitManager.Instance.bases) {
-			sheetBases.Add(new List<object> { b.name, b.transform.position.x, b.transform.position.y, b.BaseType.ToString(), EnumUtil.ConvertBoolToInt(b.SideB), EnumUtil.ConvertBoolToInt(b.isGhost) });
+			sheetBases.Add(new List<object> { b.name, b.transform.position.x, b.transform.position.y, b.BaseType.ToString(), EnumUtil.ConvertBoolToInt(b.SideB), EnumUtil.ConvertBoolToInt(b.IsGhost) });
 		}
-		ss.SetSheetRange(sheetBases, $"Bases!A2:F{basesLength + 1}");
+		_ = ss.SetSheetRange(sheetBases, $"Bases!B2:G{basesLength + 1}");
 	}
 	/// <summary>
 	/// Method for saving units to the sheet.
@@ -113,7 +106,7 @@ public class SheetSync : MonoBehaviour {
 				unit.StartPosition.x, unit.StartPosition.y,
 				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")),
 				EnumUtil.GetCorpsInt(unit.parentTextUI.text),
-				EnumUtil.ConvertBoolToInt(unit.isGhost)});
+				EnumUtil.ConvertBoolToInt(unit.IsGhost)});
 			}
 		}
 		foreach (AerialUnit unit in UnitManager.Instance.aerialUnits) {
@@ -129,7 +122,7 @@ public class SheetSync : MonoBehaviour {
 				unit.StartPosition.x, unit.StartPosition.y,
 				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")),
 				EnumUtil.GetCorpsInt(unit.parentTextUI.text),
-				EnumUtil.ConvertBoolToInt(unit.isGhost)
+				EnumUtil.ConvertBoolToInt(unit.IsGhost)
 				});
 			}
 		}
@@ -146,11 +139,11 @@ public class SheetSync : MonoBehaviour {
 				unit.StartPosition.x, unit.StartPosition.y,
 				unit.equipmentList.Count == 0 ? "" : string.Join("\n", unit.equipmentList.Select(equipment => $"{equipment.equipmentName}:{equipment.Amount}")),
 				EnumUtil.GetCorpsInt(unit.parentTextUI.text),
-				EnumUtil.ConvertBoolToInt(unit.isGhost)});
+				EnumUtil.ConvertBoolToInt(unit.IsGhost)});
 			}
 		}
 
-		ss.SetSheetRange(sheetUnits, $"Units!A2:N{unitsLength + 1}");
+		_ = ss.SetSheetRange(sheetUnits, $"Units!B2:O{unitsLength + 1}");
 	}
 
 	#endregion
@@ -175,9 +168,12 @@ public class SheetSync : MonoBehaviour {
 	public async Task<bool> LoadSheetAsync() {
 		//Get all data from the sheet.
 		await LoadSheetConfigurationData();
-		IList<IList<object>> units = await ss.GetSheetRangeAsync("Units!A2:N") ?? throw new ApplicationException("Sever connection failed or units are corrupted!");
-		IList<IList<object>> bases = await ss.GetSheetRangeAsync("Bases!A2:F") ?? throw new ApplicationException("Sever connection failed or bases are corrupted!");
-		IList<IList<object>> equipmentData = await ss.GetSheetRangeAsync("Configuration!E2:N") ?? throw new ApplicationException("Sever connection failed or equipment is corrupted!");
+
+		//Only equipment and configuration data is needed for the application to run. Map can work with no units, bases or drawings.
+		IList<IList<object>> equipmentData = await ss.GetSheetRangeAsync("Configuration!E2:Q") ?? throw new ApplicationException("Sever connection failed or equipment is corrupted!");
+		IList<IList<object>> units = await ss.GetSheetRangeAsync("Units!B2:O");
+		IList<IList<object>> bases = await ss.GetSheetRangeAsync("Bases!B2:G");
+		IList<IList<object>> drawings = await ss.GetSheetRangeAsync("Drawings!B2:F");
 
 		//Reset all lists and dictionaries.
 		UnitManager.Instance.groundUnits.Clear();
@@ -246,8 +242,10 @@ public class SheetSync : MonoBehaviour {
 		pointsB = Convert.ToSingle(sheetConfiguration[8][0], ApplicationController.culture);
 		controllerB = EnumUtil.ConvertIntToBool(Convert.ToInt16(sheetConfiguration[9][0].ToString()));
 
+		maximalSupply = Convert.ToInt32(sheetConfiguration[10][0], ApplicationController.culture);
+
 		//Update labels on the bottom panel of UI.
-		UpdateConfigurationLabels();
+		contextMenu.UpdateControllerButtons();
 
 		return true;
 	}
@@ -258,8 +256,9 @@ public class SheetSync : MonoBehaviour {
 	TODO User drawings using LineRenderer system or sprites for better symbols?
 	TODO Weather system using area box or circle around transform affecting range of moveables
 	TODO Terrain based spawning and movement - bases now spawning in the sea and units movable only on land or sea or both for air.
+	TODO Context menu for airbases for spawning stored air units. Move altitude of mission there.
 	*/
-	
+
 	#region ControllerSync
 
 	/// <summary>
@@ -268,7 +267,7 @@ public class SheetSync : MonoBehaviour {
 	public async void StartUpdateLoop() {
 		while (true) {
 			//Non controller pulls, controller pushes updates.
-			if (!ApplicationController.isController && Camera.main.orthographicSize > 1.5) {
+			if (!ApplicationController.isController) {
 				await LoadSheetAsync();
 				if (ApplicationController.isDebug) {
 					Debug.Log("Pulling sheet data.");
@@ -276,7 +275,7 @@ public class SheetSync : MonoBehaviour {
 				await Task.Delay(10000);
 			} else if (ApplicationController.isController) {
 				//Saving just configuration because unit movements and handled in Unit OnDragEnd and unit or base editing and soft resets in IClickController and Constructors.
-				SaveConfiguration();
+				_ = SaveConfiguration();
 				if (ApplicationController.isDebug) {
 					Debug.Log("Pushing sheet data.");
 				}
@@ -285,30 +284,20 @@ public class SheetSync : MonoBehaviour {
 		}
 	}
 
-	public async void CheckController() {
-		await CheckController(controllerLabelTextUI);
-	}
-
-	public async Task CheckController(TextMeshProUGUI buttonLabelUI) {
-		controllerLabelTextUI = buttonLabelUI != null ? buttonLabelUI : controllerLabelTextUI;
-		bool isCurrentController = false;
+	public async Task CheckController() {
 		if (ApplicationController.isController) {
 			ApplicationController.isController = false;
 			if (ApplicationController.isDebug) Debug.Log("Control yielded!");
-			SaveConfiguration();
+			_ = SaveConfiguration();
 		} else {
 			await LoadSheetConfigurationData();
-			isCurrentController = (ApplicationController.isSideB && !controllerB) || (!ApplicationController.isSideB && !controllerA);
+			bool isCurrentController = (ApplicationController.isSideB && !controllerB) || (!ApplicationController.isSideB && !controllerA);
 			ApplicationController.isController = isCurrentController;
 			if (ApplicationController.isDebug) Debug.Log(isCurrentController ? "Control taken!" : "Control not available!");
 			//Save onto server only if user becomes controller or yields a controller so everyone can apply for it again.
-			if (ApplicationController.isController) SaveConfiguration();
 		}
-		
-		//UI
-		controllerLabelTextUI.text = isCurrentController ? "  Yield control" : "  Take control";
-		controllerSaveButtonUI.interactable = isCurrentController;
-		controllerTurnButtonUI.interactable = isCurrentController;
+
+		contextMenu.UpdateControllerButtons();
 	}
 
 	#endregion
@@ -320,29 +309,23 @@ public class SheetSync : MonoBehaviour {
 	/// Method adds or removes points from a team side.
 	/// </summary>
 	/// <param name="addition">Float point addition or reduction if negative.</param>
-	public static void UpdatePoints(float addition) {
+	/// <exception cref="ApplicationException">Exception thrown when in negative amount of points.</exception>
+	public static bool UpdatePoints(float addition) {
 		pointsA += ApplicationController.isSideB ? 0 : addition;
 		pointsB += ApplicationController.isSideB ? addition : 0;
-		UpdateConfigurationLabels();
-	}
-
-	/// <summary>
-	/// Method updates the UI bottom panel labels.
-	/// </summary>
-	private static void UpdateConfigurationLabels() {
-		if (ApplicationController.isSideB) {
-			pointsLabel.UpdateText(pointsB);
-		} else {
-			pointsLabel.UpdateText(pointsA);
+		if (pointsA < 0 || pointsB < 0) {
+			ApplicationController.generalPopup.PopUp("Not enough points!", 5);
+			return false;
 		}
-		turnLabelUI.UpdateText(turn);
+		contextMenu.UpdateControllerButtons();
+		return true;
 	}
 
 	/// <summary>
 	/// Method starts the turn with proper password input.
 	/// </summary>
 	public void FinishTurn() {
-		string pass = ApplicationController.Instance.transform.Find("UI/PopupWarningTurn/Password").GetComponent<TMP_InputField>().text;
+		string pass = ApplicationController.generalPopup.inputField.text;
 		if (turnPwd == pass) {
 			//Takes old password and hashes it to the new one which is then saved to the sheet.
 			turnPwd = PasswordManager.HashPassword(pass);
@@ -352,9 +335,9 @@ public class SheetSync : MonoBehaviour {
 			UnitManager.Instance.CalculateSpotting();
 			SaveSheet();
 		} else {
-			ApplicationController.generalPopup.PopUp("Wrong password! Ask the GM for the current one!");
+			ApplicationController.generalPopup.PopUp("Wrong password! Ask the GM for the current one!", 2, true);
 		}
-		UpdateConfigurationLabels();
+		contextMenu.UpdateControllerButtons();
 	}
 
 	#endregion

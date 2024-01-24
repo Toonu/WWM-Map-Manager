@@ -2,13 +2,14 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using TMPro;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ApplicationController : MonoBehaviour {
-	public static UIPopup generalPopup;
-	public SheetSync server;
+	internal static UIPopup generalPopup;
+	internal SheetSync server;
 	public string Username { private get; set; }
 	public string Password { private get; set; }
 	public static bool isController = false;
@@ -28,19 +29,20 @@ public class ApplicationController : MonoBehaviour {
 	/// <summary>
 	/// Used by the UI calls. Exits the application and also exits in the editor mode.
 	/// </summary>
-	public async static void ExitApplication() {
+	public async static Task<bool> ExitApplication() {
 		//Handle controller assignment if no controler is already active.
-		if (isController) {
+		if (isController && isLoggedIn && SheetSync.passwordA != null) {
 			isController = false;
 			//Giving time for the server to save the configuration.
-			Instance.server.SaveConfiguration();
-			await Task.Delay(1500);
+			await Instance.server.SaveConfiguration();
 		}
 		Debug.Log("Exiting application.");
 		Application.Quit();
-		#if UNITY_EDITOR
+#if UNITY_EDITOR
 		EditorApplication.ExitPlaymode();
-		#endif
+#endif
+
+	return true;
 	}
 
 	/// <summary>
@@ -48,12 +50,15 @@ public class ApplicationController : MonoBehaviour {
 	/// </summary>
 	private void Awake() {
 		_instance = GetComponent<ApplicationController>();
-		generalPopup = transform.Find("UI/GeneralPopup").GetComponent<UIPopup>();
+		generalPopup = transform.Find("UI/PopupWarningGeneral").GetComponent<UIPopup>();
+		server = transform.GetChild(0).gameObject.GetComponent<SheetSync>();
 		mainCamera = Camera.main.GetComponent<CameraController>();
 		isAdmin = false;
 		isController = false;
 		Debug.unityLogger.filterLogType = LogType.Log;
 		LoadSettings();
+		Application.wantsToQuit += () => ExitApplication().Result;
+		EditorApplication.quitting += () => _ = ExitApplication();
 	}
 	/// <summary>
 	/// Starts server syncing.
@@ -66,7 +71,7 @@ public class ApplicationController : MonoBehaviour {
 	/// Checks for context menus so they can be deleted when any is open.
 	/// </summary>
 	private void Update() {
-		if (isDeletingMenus && Input.GetKeyUp(KeyCode.Mouse0)) {
+		if (isDeletingMenus && (Input.GetKeyUp(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse2))) {
 			foreach (GameObject child in GameObject.FindGameObjectsWithTag("ContextMenus")) {
 				if (child.name == "ContextMenu(Clone)") {
 					Destroy(child);
@@ -78,7 +83,7 @@ public class ApplicationController : MonoBehaviour {
 
 	#region Settings
 	public Slider cameraSpeedSlider;
-	public UITextFloatAppender cameraSpeedSliderText;
+	public UILabelTextAppender cameraSpeedSliderText;
 	private CameraController mainCamera;
 
 	/// <summary>
@@ -103,19 +108,15 @@ public class ApplicationController : MonoBehaviour {
 			transform.Find("UI/BottomPanel/Sticky").GetComponent<Toggle>().isOn = true;
 		}
 
-		if (PlayerPrefs.HasKey("Fullscreen")) {
-			bool fullscreen = EnumUtil.ConvertIntToBool(PlayerPrefs.GetInt("Fullscreen"));
-			if (fullscreen) {
-				Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.FullScreenWindow);
-			} else {
-				Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, FullScreenMode.MaximizedWindow);
-			}
-			transform.Find("UI/Settings/Fullscreen").GetComponent<Toggle>().SetIsOnWithoutNotify(fullscreen);
-		}
-
 		if (PlayerPrefs.HasKey("Debug")) {
 			isDebug = EnumUtil.ConvertIntToBool(PlayerPrefs.GetInt("Debug"));
 			transform.Find("UI/Settings/Debug").GetComponent<Toggle>().SetIsOnWithoutNotify(isDebug);
+		}
+
+		if (PlayerPrefs.HasKey("Fullscreen")) {
+			bool fullscreen = EnumUtil.ConvertIntToBool(PlayerPrefs.GetInt("Fullscreen"));
+			SetFullscreen(fullscreen);
+			transform.Find("UI/Settings/Fullscreen").GetComponent<Toggle>().SetIsOnWithoutNotify(fullscreen);
 		}
 	}
 
@@ -213,11 +214,11 @@ public class ApplicationController : MonoBehaviour {
 		//Do when user logs in
 		if (isLoggedIn) {
 			transform.Find("UI/Login").gameObject.SetActive(false);
-			await server.CheckController(null);
 			if (!isStarted) {
 				server.StartUpdateLoop();
 				isStarted = true;
 			}
+			await server.CheckController();
 			if (isController) {
 				generalPopup.PopUp("Logged in! You are your teams controller!", 3);
 			} else {
@@ -226,7 +227,7 @@ public class ApplicationController : MonoBehaviour {
 			if (sideChange) {
 				UnitManager.Instance.SwitchSide();
 			}
-			
+
 		} else {
 			generalPopup.PopUp("Wrong credentials!", 3);
 		}

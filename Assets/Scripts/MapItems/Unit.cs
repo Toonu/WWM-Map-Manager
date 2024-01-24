@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,9 +8,9 @@ using UnityEngine.EventSystems;
 public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler, IMovable, IEquatable<Unit> {
 	#region Attribute Get/Setters
 
-	public int ID { get; set; }												//Unit identifier.
+	public int ID { get; set; }                                             //Unit identifier.
 	public bool SideB { get; set; }                                         //Unit affiliation.
-	public bool isGhost { get; set; }										//Unit spotting.
+	public bool IsGhost { get; set; }                                       //Unit spotting.
 
 	/// <summary>
 	/// Setter for the unit name which changes the name label and Object name.
@@ -28,7 +27,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Name changed to {identification}");
 	}
 
-	private UnitTier unitTier;												//Unit tier.
+	private UnitTier unitTier;                                              //Unit tier.
 	public UnitTier GetUnitTier() { return unitTier; }
 	public string GetUnitTierText() { return tierTextUI.text; }
 	/// <summary>
@@ -50,7 +49,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Tier changed to {unitTier}");
 	}
 
-	private Unit unitParent;												//Higher unit
+	private Unit unitParent;                                                //Higher unit
 	public Unit UnitParent {
 		get => unitParent;
 		set {
@@ -60,7 +59,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		}
 	}
 
-	internal List<Equipment> equipmentList;									//Equipment
+	internal List<Equipment> equipmentList;                                 //Equipment
 
 	/// <summary>
 	/// Method changes unit affiliation textures based on user isSideB and unit isSideB.
@@ -93,6 +92,11 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	private TextMeshProUGUI tierTextUI;
 	internal TextMeshProUGUI parentTextUI;
 	protected TextMeshProUGUI equipmentTextUI;
+
+	public void SetVisibility(bool visible) {
+		iconImage.gameObject.transform.parent.parent.gameObject.SetActive(visible);
+	}
+
 	#endregion
 
 	public virtual void Initiate(int newID, Vector3 newPosition, UnitTier newTier, string newIdentifier, List<Equipment> newEquipment, bool newSideB, int newSpecialization) {
@@ -111,7 +115,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		ChangeAffiliation(newSideB);
 		ChangeSpecialization(newSpecialization);
 		//For spotted units.
-		isGhost = false;
+		IsGhost = false;
 
 		movementRange = 0.3f;
 		transform.position = new Vector3(newPosition.x, newPosition.y, -0.15f);
@@ -130,6 +134,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Initiated");
 	}
 
+	#region Equipment
 	/// <summary>
 	/// Method adds Equipment from the List to the Unit equipment and edits the equipment string label.
 	/// </summary>
@@ -146,7 +151,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	internal void AddEquipment(Equipment newEquipment) {
 		if (ApplicationController.isDebug) Debug.Log($"[{ID}][{name}] Adding {newEquipment.Amount} of equipment {newEquipment.name}.");
 		equipmentList.Add(newEquipment);
-		
+
 		RecalculateAttributes();
 	}
 	/// <summary>
@@ -160,7 +165,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		Destroy(equipment.gameObject);
 		RecalculateAttributes();
 	}
-	
+
 	/// <summary>
 	/// Method updates UI labels of the unit.
 	/// </summary>
@@ -179,6 +184,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 		WeaponRangeCircle.transform.localScale = new Vector3(212 * weaponRange, 212 * weaponRange, 0);
 		ResizeMovementCircle();
 	}
+	#endregion
 
 	internal float sightRange = 0.25f;
 	internal float weaponRange = 0.2f;
@@ -197,6 +203,7 @@ public abstract class Unit : MonoBehaviour, IDragHandler, IEndDragHandler, IPoin
 	}
 
 	private Vector3 startPosition;
+
 	public virtual void OnDrag(PointerEventData eventData) {
 		if (!ApplicationController.isAdmin && ApplicationController.isSideB != SideB) {
 			return;
