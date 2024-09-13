@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -49,6 +50,8 @@ public class ContextMenu : MonoBehaviour {
 	private Button buttonUISave;
 	private Button buttonUIYield;
 	private Button buttonUIExit;
+	private Toggle toggleDrawArrow;
+	private Toggle toggleDraw;
 	private UILabelTextAppender pointsLabel; //Team points UI element
 	private UILabelTextAppender turnLabelUI; //Turn label UI element
 
@@ -62,19 +65,41 @@ public class ContextMenu : MonoBehaviour {
 		SheetSync sheetSync = transform.parent.GetChild(0).gameObject.GetComponent<SheetSync>();
 		canvas = transform.GetComponent<Canvas>();
 
-		pointsLabel = transform.GetChild(0).GetChild(2).GetComponent<UILabelTextAppender>();
-		turnLabelUI = transform.GetChild(0).GetChild(3).GetComponent<UILabelTextAppender>();
+		pointsLabel = transform.GetChild(1).GetChild(2).GetComponent<UILabelTextAppender>();
+		turnLabelUI = transform.GetChild(1).GetChild(3).GetComponent<UILabelTextAppender>();
 
-		buttonUITurn = transform.GetChild(1).GetComponent<Button>();
+		ClickMapController cc = transform.parent.GetChild(1).GetChild(0).gameObject.GetComponent<ClickMapController>();
+		
+
+		toggleDrawArrow = transform.GetChild(0).GetChild(1).GetComponent<Toggle>();
+		toggleDrawArrow.onValueChanged.RemoveAllListeners();
+		toggleDrawArrow.onValueChanged.AddListener(delegate {
+			Color colour;
+			if (toggleDrawArrow.isOn) ColorUtility.TryParseHtmlString("#7783E3", out colour);
+			else ColorUtility.TryParseHtmlString("#FFFFFF", out colour);
+			toggleDrawArrow.image.color = colour;
+		});
+		toggleDraw = transform.GetChild(0).GetChild(2).GetComponent<Toggle>();
+		toggleDraw.onValueChanged.RemoveAllListeners();
+		toggleDraw.onValueChanged.AddListener(delegate {
+			Color colour;
+			if (toggleDraw.isOn) ColorUtility.TryParseHtmlString("#7783E3", out colour);
+			else ColorUtility.TryParseHtmlString("#FFFFFF", out colour);
+			toggleDraw.image.color = colour;
+		});
+
+		cc.AssignDrawingButtons(toggleDrawArrow, toggleDraw);
+
+		buttonUITurn = transform.GetChild(2).GetComponent<Button>();
 		buttonUITurn.onClick.RemoveAllListeners();
 		buttonUITurn.onClick.AddListener(() => { ApplicationController.generalPopup.PopUpSticky(() => { sheetSync.FinishTurn(); }, "Are you sure to finish your turn?", true); });
-		buttonUISave = transform.GetChild(3).GetComponent<Button>();
+		buttonUISave = transform.GetChild(4).GetComponent<Button>();
 		buttonUISave.onClick.RemoveAllListeners();
 		buttonUISave.onClick.AddListener(() => { ApplicationController.generalPopup.PopUpSticky(() => { sheetSync.SaveSheet(); }, "Really save to the server?"); });
-		buttonUIYield = transform.GetChild(4).GetComponent<Button>();
+		buttonUIYield = transform.GetChild(5).GetComponent<Button>();
 		buttonUIYield.onClick.RemoveAllListeners();
 		buttonUIYield.onClick.AddListener(() => { ApplicationController.generalPopup.PopUpSticky(() => { _ = sheetSync.CheckController(); }, "Yield/take controller to/from other players?"); });
-		buttonUIExit = transform.GetChild(6).GetComponent<Button>();
+		buttonUIExit = transform.GetChild(7).GetComponent<Button>();
 		buttonUIExit.onClick.RemoveAllListeners();
 		buttonUIExit.onClick.AddListener(() => { ApplicationController.generalPopup.PopUpSticky(() => { _ = ApplicationController.ExitApplication(); }, "Any unsaved changes would be discarded, exit?"); });
 	}

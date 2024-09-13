@@ -30,6 +30,7 @@ public class CameraController : MonoBehaviour {
 		map.GetComponent<SpriteRenderer>().sprite = newSprite;
 		mapMin = map.GetComponent<SpriteRenderer>().bounds.min;
 		mapMax = map.GetComponent<SpriteRenderer>().bounds.max;
+		map.transform.GetChild(0).GetComponent<BoxCollider2D>().size = new Vector2(mapMax.x - mapMin.x, mapMax.y - mapMin.y);
 	}
 
 	/// <summary>

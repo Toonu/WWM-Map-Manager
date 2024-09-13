@@ -1,16 +1,25 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 
-public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMoveHandler {
+public class ClickMapController : MonoBehaviour, IPointerClickHandler, IPointerMoveHandler {
 	public Button sampleButton;                     //Button prefab
 	private List<ContextMenuItem> contextMenuItems; //List of context menu items
 	private Vector3 position;                       //Vector3 position of the click
 	private bool sideB;                             //User allegiance
 	private PointerEventData click;                 //Click event data
+	internal GameObject mapObject;
+	internal Toggle toggleDrawArrowUI;              //Is user creating a drawing
+	internal Toggle toggleDrawUI;           //Is user creating a drawing
+	internal IDrawing drawing;                     //Current drawing
+
+	private static ClickMapController instance;
+	public static ClickMapController Instance {
+		get { return instance; }
+	}
 
 	private Action<Image> edit;
 	private Action<Image> delete;
@@ -25,6 +34,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	/// Method sets up actions
 	/// </summary>
 	void Awake() {
+		instance = this;
 		contextMenuItems = new List<ContextMenuItem>();
 		edit = new Action<Image>(EditAction);
 		delete = new Action<Image>(DeleteAction);
@@ -34,6 +44,12 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		softReset = new Action<Image>(SoftResetAction);
 		manageBase = new Action<Image>(ManageBaseAction);
 		storeUnit = new Action<Image>(StoreUnitAction);
+		mapObject = transform.parent.gameObject;
+	}
+
+	internal void AssignDrawingButtons(Toggle arrow, Toggle drawing) {
+		toggleDrawUI = drawing;
+		toggleDrawArrowUI = arrow;
 	}
 
 	/// <summary>
@@ -42,6 +58,8 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	/// <param name="eventData">Click PointeEventData</param>
 	public void OnPointerClick(PointerEventData eventData) {
 		if (eventData.button == PointerEventData.InputButton.Right) {
+			if (drawing != null) { drawing.IsExtending = false; toggleDrawUI.isOn = false; drawing = null; }
+
 			click = eventData;
 			contextMenuItems.Clear();
 
@@ -70,7 +88,6 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 				}
 			} else if (eventData.pointerClick.GetComponent<IDrawing>() != null) {
 				contextMenuItems.Add(new ContextMenuItem("Delete", sampleButton, delete));
-				position = eventData.pointerCurrentRaycast.screenPosition;
 			} else {
 				//Admin
 				sideB = ApplicationController.isSideB;
@@ -83,11 +100,28 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 			//Deletes the context menu after clicking any option or sets the isDeletingMenus flag in program so its closed when clicked anywhere else.
 			ContextMenu.Instance.CreateContextMenu(contextMenuItems, position);
 			ApplicationController.isDeletingMenus = true;
-		} else if (eventData.button == PointerEventData.InputButton.Left) {}
+		} else if (eventData.button == PointerEventData.InputButton.Left) {
+			if (drawing == null) {
+				//Creates new drawing
+				if (toggleDrawArrowUI.isOn) drawing = DrawingManager.Instance.SpawnArrow(eventData.pointerCurrentRaycast.worldPosition + new Vector3(0, 0, -0.1f), false);
+				else if (toggleDrawUI.isOn) drawing = DrawingManager.Instance.Spawn(eventData.pointerCurrentRaycast.worldPosition + new Vector3(0, 0, -0.1f), false);
+			} else if (toggleDrawArrowUI.isOn) {
+				//Ends drawing
+				drawing.IsFinished = true;
+				toggleDrawArrowUI.isOn = false;
+				toggleDrawUI.isOn = false;
+				drawing = null;
+			} else if (toggleDrawUI.isOn) {
+				//Starts extending line on finishing the first segment.
+				drawing.IsFinished = true;
+				drawing.IsExtending = true;
+				drawing.I = 0;
+			}
+		}
 	}
 
 	private Base ReturnBase(PointerEventData eventData) {
-		PointerEventData pointerEventData = new(EventSystem.current) {position = eventData.pressPosition};
+		PointerEventData pointerEventData = new(EventSystem.current) { position = eventData.pressPosition };
 		List<RaycastResult> raycastResult = new();
 		EventSystem.current.RaycastAll(pointerEventData, raycastResult);
 		for (int i = 0; i < raycastResult.Count; i++) {
@@ -152,7 +186,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 	private void DeleteAction(Image contextPanel) {
 		Destroy(contextPanel.gameObject);
 		if (GetComponent<IDrawing>() == null) UnitManager.Instance.Despawn(gameObject, false);
-		else DrawingManager.Instance.DeleteDrawing(gameObject);
+		else Destroy(gameObject);
 	}
 
 	/// <summary>
@@ -207,7 +241,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 			unit.SetVisibility(false);
 		}
 	}
-	
+
 	/// <summary>
 	/// Method returns Color under the cursor.
 	/// </summary>
@@ -227,7 +261,7 @@ public class ClickController : MonoBehaviour, IPointerClickHandler, IPointerMove
 		//string hex = ColorUtility.ToHtmlStringRGB(color);
 		//Debug.Log(hex);
 	}
-	
+
 	/// <summary>
 	/// Method updates Color under the cursor every time a cursor moves.
 	/// </summary>

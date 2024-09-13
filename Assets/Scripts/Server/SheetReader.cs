@@ -41,7 +41,10 @@ public class SheetReader : MonoBehaviour {
 			string path = Application.dataPath + "/sheetData.json";
 			string jsonString = File.ReadAllText(path);
 			SheetData data = JsonUtility.FromJson<SheetData>(jsonString);
-
+			// To all potential readers of this. This repository was private and henceforth hiding the private key was of no concern.
+			// Same applies to other repositories which were made public to showcase some code to the potential opportunities and job occupations.
+			// The build of this repository was always published in a different repo just with the neccessary data for both platforms (Windows and macOS)
+			// Thank you.
 			spreadsheetId = data.spreadsheet_id;
 			serviceAccountID = PasswordManager.Decrypt(data.client_email, "eafduhgrfsa86gr4g87aer4");
 			private_key = PasswordManager.Decrypt(data.private_key, "874rg9a8rg4r4hgae4aeht8");

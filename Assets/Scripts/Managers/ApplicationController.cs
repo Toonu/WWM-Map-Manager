@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using TMPro;
-using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -44,7 +43,13 @@ public class ApplicationController : MonoBehaviour {
 
 	return true;
 	}
-
+#if UNITY_EDITOR
+	private void OnPlayModeStateChanged(PlayModeStateChange state) {
+		if (state == PlayModeStateChange.ExitingPlayMode) {
+			_ = ExitApplication();
+		}
+	}
+#endif
 	/// <summary>
 	/// Method sets up Components on startup and loads settings.
 	/// </summary>
@@ -58,7 +63,9 @@ public class ApplicationController : MonoBehaviour {
 		Debug.unityLogger.filterLogType = LogType.Log;
 		LoadSettings();
 		Application.wantsToQuit += () => ExitApplication().Result;
-		EditorApplication.quitting += () => _ = ExitApplication();
+#if UNITY_EDITOR
+		EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+#endif
 	}
 	/// <summary>
 	/// Starts server syncing.

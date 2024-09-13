@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Logging : MonoBehaviour {
 	public string logFileName = "output.log";
-	private readonly System.Collections.Generic.List<string> logMessages = new();
 	private StreamWriter logFileWriter;
 
 	void Start() {
@@ -15,35 +14,9 @@ public class Logging : MonoBehaviour {
 		logFileWriter = File.CreateText(Path.Combine(Application.dataPath, logFileName));
 	}
 
-	void HandleLog(string logString, string stackTrace, LogType type) {
-		// Add the log message to the list
-		logMessages.Add(logString);
-
-		// Write the log message to the log file
-		logFileWriter.WriteLine("[{0}] {1}: {2}", type, System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), logString);
-
-		// Flush the log messages to the file
-		FlushLogMessages();
-	}
-
-	void FlushLogMessages() {
+	private void HandleLog(string logString, string stackTrace, LogType type) {
+		logFileWriter.WriteLine($"[{type}] {System.DateTime.Now:yyyy-MM-dd HH:mm:ss}: {logString}");
 		logFileWriter.Flush();
-	}
-
-	void OnEnable() {
-		Application.logMessageReceived += HandleException;
-	}
-
-	void OnDisable() {
-		Application.logMessageReceived -= HandleException;
-	}
-
-	void HandleException(string logString, string stackTrace, LogType type) {
-		if (type == LogType.Exception && ApplicationController.generalPopup != null) {
-			ApplicationController.generalPopup.PopUp(logString + "\n" + stackTrace, 10);
-			if (ApplicationController.isDebug) Debug.LogError(logString + "\n" + stackTrace);
-			_ = ApplicationController.ExitApplication();
-		}
 	}
 }
 
@@ -54,10 +27,10 @@ public class PlayModeExitListener {
 		EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 	}
 
-	private static void OnPlayModeStateChanged(PlayModeStateChange state) {
+	private async static void OnPlayModeStateChanged(PlayModeStateChange state) {
 		if (state == PlayModeStateChange.ExitingPlayMode && ApplicationController.Instance != null) {
 			ApplicationController.isController = false;
-			_ = ApplicationController.Instance.server.SaveConfiguration();
+			await ApplicationController.Instance.server.SaveConfiguration();
 		}
 	}
 }

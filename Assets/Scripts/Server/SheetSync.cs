@@ -18,6 +18,7 @@ public class SheetSync : MonoBehaviour {
 	internal static bool controllerB = false;   //Team B controller
 	internal static int basesLength = 0;        //Amount of bases in the sheet
 	internal static int unitsLength = 0;        //Amount of bases in the sheet
+	internal static int drawingsLength = 0;     //Amount of drawings in the sheet
 	internal static int maximalSupply = 0;      //Maximal supply of units
 	internal static string turn = "A";          //Turn number
 	private static string turnPwd;              //Turn password for finishing turn
@@ -41,6 +42,7 @@ public class SheetSync : MonoBehaviour {
 	public void SaveSheet() {
 		SaveBases();
 		SaveUnits();
+		SaveDrawings();
 		_ = SaveConfiguration();
 		ApplicationController.generalPopup.PopUp("Server data saved!");
 	}
@@ -50,6 +52,7 @@ public class SheetSync : MonoBehaviour {
 	/// </summary>
 	public async Task SaveConfiguration() {
 		//Take all configuration data from the application and save it to the sheet.
+		if (passwordAdmin == null) return; //Prevents sending corrupted data to the sheet.
 		IList<IList<object>> teamPoints;
 		if (ApplicationController.isSideB) {
 			teamPoints = new List<IList<object>> {
@@ -146,6 +149,11 @@ public class SheetSync : MonoBehaviour {
 		_ = ss.SetSheetRange(sheetUnits, $"Units!B2:O{unitsLength + 1}");
 	}
 
+	public void SaveDrawings() {
+		IList<IList<object>> sheetDrawings = DrawingManager.Instance.ParseDrawings();
+		_ = ss.SetSheetRange(sheetDrawings, $"Drawings!B2:E{drawingsLength + 1}");
+	}
+
 	#endregion
 
 	#region Loading from server
@@ -186,6 +194,8 @@ public class SheetSync : MonoBehaviour {
 		EquipmentManager.equipmentHostile[0].Clear();
 		EquipmentManager.equipmentHostile[1].Clear();
 		EquipmentManager.equipmentHostile[2].Clear();
+		DrawingManager.Instance.drawings.Clear();
+		DrawingManager.Instance.objects.Clear();
 
 		//Destroy all units, bases, equipment and template.
 		for (int i = 2; i < UnitManager.Instance.transform.childCount; i++) {
@@ -202,11 +212,15 @@ public class SheetSync : MonoBehaviour {
 		for (int i = 0; i < templates.childCount; i++) {
 			Destroy(templates.GetChild(i).gameObject);
 		}
+		for (int i = 1; i < ClickMapController.Instance.mapObject.transform.childCount; i++) {
+			Destroy(ClickMapController.Instance.mapObject.transform.GetChild(i).gameObject);
+		}
 
 		//Spawning units from the sheet data.
 		EquipmentManager.CreateTemplates(equipmentData);
 		UnitManager.Instance.SpawnBases(bases);
 		UnitManager.Instance.SpawnUnits(units);
+		DrawingManager.Instance.CreateDrawings(drawings);
 
 		Debug.Log("Server data loaded!");
 		return true;
@@ -251,13 +265,6 @@ public class SheetSync : MonoBehaviour {
 	}
 
 	#endregion
-
-	/*
-	TODO User drawings using LineRenderer system or sprites for better symbols?
-	TODO Weather system using area box or circle around transform affecting range of moveables
-	TODO Terrain based spawning and movement - bases now spawning in the sea and units movable only on land or sea or both for air.
-	TODO Context menu for airbases for spawning stored air units. Move altitude of mission there.
-	*/
 
 	#region ControllerSync
 
